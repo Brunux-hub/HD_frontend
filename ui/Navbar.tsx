@@ -5,15 +5,19 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { MdSunny } from "react-icons/md";
 import { RiMoonClearFill } from "react-icons/ri";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Navbar = () => {
   const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false);
   const [themeToggle, setThemeToggle] = useState(false);
 
+  useEffect(()=>{
+    document.documentElement.classList.toggle("dark");
+  },[themeToggle])
+
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 bg-slate-900">
+      <nav className="fixed top-0 w-full z-50 bg-purple-100 dark:bg-slate-900">
         {/* Container Navbar */}
         <div className="max-w-7xl px-4 sm:px-6 lg:px-8 ">
           {/* Container Bloque navbar */}
@@ -33,25 +37,25 @@ const Navbar = () => {
 
             {/* NavLink */}
             <div className="hidden md:flex gap-6 lg:gap-8 items-center">
-              <Link href="/" className="text-gray-400 hover:text-white">
+              <Link href="/" className="dark:text-gray-400 dark:hover:text-white">
                 Inicio
               </Link>
-              <Link href="#" className="text-gray-400 hover:text-white">
+              <Link href="#" className="dark:text-gray-400 dark:hover:text-white">
                 Servicios
               </Link>
-              <Link href="#" className="text-gray-400 hover:text-white">
+              <Link href="#" className="dark:text-gray-400 dark:hover:text-white">
                 Nosotros
               </Link>
               <button
                 onClick={()=>setThemeToggle((prev) => !prev)}>
                   {themeToggle ? 
-                    <MdSunny className="text-amber-200" size={32} /> :
+                    <MdSunny className="text-amber-300" size={32} /> :
                     <RiMoonClearFill  className="text-shadow-blue-900" size={32} />
                   }
               </button>
             </div>
             <button
-              className="md:hidden text-gray-400 hover:text-white cursor-pointer "
+              className="md:hidden hover:text-orange-600 dark:text-gray-400 dark:hover:text-white cursor-pointer "
               onClick={() => setMobileMenuIsOpen((prev) => !prev)}
             >
               {mobileMenuIsOpen ? <X /> : <Menu />}
@@ -61,25 +65,25 @@ const Navbar = () => {
 
         {/* Si la condición de la izquierda es verdadera, entonces muestra lo que está a la derecha */}
         {mobileMenuIsOpen && (
-          <div className="md:hidden bg-slate-900 backdrop-blur-lg border-t border-slate-800">
+          <div className="md:hidden dark:bg-slate-900 backdrop-blur-lg border-t border-slate-800">
             <div className="px-4 py-4 sm:py-6 space-y-3 sm:space-y-4">
               <Link
                 href="/"
-                className="block text-gray-400 hover:text-white"
+                className="block dark:text-gray-400 dark:hover:text-white"
                 onClick={() => setMobileMenuIsOpen(false)}
               >
                 Inicio
               </Link>
               <Link
                 href="#"
-                className="block text-gray-400 hover:text-white"
+                className="block dark:text-gray-400 dark:hover:text-white"
                 onClick={() => setMobileMenuIsOpen(false)}
               >
                 Servicios
               </Link>
               <Link
                 href="#"
-                className="block text-gray-400 hover:text-white"
+                className="block dark:text-gray-400 dark:hover:text-white"
                 onClick={() => setMobileMenuIsOpen(false)}
               >
                 Nosotros
