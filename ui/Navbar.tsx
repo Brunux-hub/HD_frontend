@@ -17,9 +17,9 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 bg-purple-100 dark:bg-slate-900">
+      <nav className="w-full bg-purple-100 dark:bg-slate-900 border-blue-600">
         {/* Container Navbar */}
-        <div className="max-w-7xl px-4 sm:px-6 lg:px-8 ">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border border-amber-600">
           {/* Container Bloque navbar */}
           <div className="flex justify-between h-14 sm:h-16 md:h-20">
             <div className="flex space-x-2 items-center">
@@ -40,12 +40,19 @@ const Navbar = () => {
               <Link href="/" className="dark:text-gray-400 dark:hover:text-white">
                 Inicio
               </Link>
-              <Link href="#" className="dark:text-gray-400 dark:hover:text-white">
-                Servicios
-              </Link>
-              <Link href="#" className="dark:text-gray-400 dark:hover:text-white">
+              <Link href="#nosotros" className="dark:text-gray-400 dark:hover:text-white">
                 Nosotros
               </Link>
+              <Link href="#servicios" className="dark:text-gray-400 dark:hover:text-white">
+                Servicios
+              </Link>
+              <Link href="#equipo" className="dark:text-gray-400 dark:hover:text-white">
+                Equipo
+              </Link>
+              <Link href="#contacto" className="dark:text-gray-400 dark:hover:text-white">
+                Contacto
+              </Link>
+              
               <button
                 onClick={()=>setThemeToggle((prev) => !prev)}>
                   {themeToggle ? 
@@ -75,19 +82,34 @@ const Navbar = () => {
                 Inicio
               </Link>
               <Link
-                href="#"
+                href="#nosotros"
+                className="block dark:text-gray-400 dark:hover:text-white"
+                onClick={() => setMobileMenuIsOpen(false)}
+              >
+                Nosotros
+              </Link>
+              <Link
+                href="#servicios"
                 className="block dark:text-gray-400 dark:hover:text-white"
                 onClick={() => setMobileMenuIsOpen(false)}
               >
                 Servicios
               </Link>
               <Link
-                href="#"
+                href="#equipo"
                 className="block dark:text-gray-400 dark:hover:text-white"
                 onClick={() => setMobileMenuIsOpen(false)}
               >
-                Nosotros
+                Equipo
               </Link>
+              <Link
+                href="#contacto"
+                className="block dark:text-gray-400 dark:hover:text-white"
+                onClick={() => setMobileMenuIsOpen(false)}
+              >
+                Contacto
+              </Link>
+              
             </div>
           </div>
         )}
