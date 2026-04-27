@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Hero from "./_components/Hero";
 import Services from "./_components/Services";
 import Team from "./_components/Team";
@@ -8,7 +7,7 @@ import Contact from "./_components/Contact";
 export default function Home() {
   return ( 
     // Contenido Pagina Inicio
-    <div className="flex flex-col gap-8 items-center justify-center bg-zinc-500 font-sans dark:bg-black">
+    <div className="flex w-full flex-col gap-8 bg-zinc-500 font-sans dark:bg-black">
       <Hero />
       <About />
       <Services />
