@@ -17,9 +17,9 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="w-full bg-purple-100 dark:bg-slate-900">
+      <nav className="w-full bg-[#A8F0F2] dark:bg-slate-900">
         {/* Container Navbar */}
-        <div className="mx-auto w-full max-w-7xl border border-amber-600 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Container Bloque navbar */}
           <div className="flex justify-between h-14 sm:h-16 md:h-20">
             <div className="flex space-x-2 items-center">

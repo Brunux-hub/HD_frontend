@@ -7,7 +7,7 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-purple-100 py-3 dark:bg-slate-900">
+    <footer className="bg-[#A8F0F2] py-3 dark:bg-slate-900">
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="text-center lg:text-left">
           <Image

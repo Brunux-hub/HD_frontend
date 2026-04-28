@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import heroImg from "@/assets/hero_img.jpg";
+import ThypographyH1 from "@/components/ThypographyH1";
 
 export default function Hero() {
   return (
@@ -23,7 +24,7 @@ export default function Hero() {
             <div className="col-span-1 lg:col-span-12"></div>
             <div className="hidden lg:block lg:col-start-5 col-end-9 bg-yellow-400/40">
               <div className="flex justify-center items-center font-hero-title text-5xl">
-                <div className="text-center">Bienvenido a Healthy Peats</div>
+                <ThypographyH1 someText="Bienvenido a Healthy Peats"/>
               </div>
             </div>
 

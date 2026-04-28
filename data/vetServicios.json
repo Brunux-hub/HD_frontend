@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "titulo": "Consulta General",
+    "descripcion": "Evaluación médica completa para prevenir enfermedades y mantener el bienestar integral de tu mascota.",
+    "iconName": "Stethoscope",
+    "imagenUrl": "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=800&auto=format&fit=crop",
+    "categoria": "Medicina"
+  },
+  {
+    "id": 2,
+    "titulo": "Cirugía Veterinaria",
+    "descripcion": "Procedimientos quirúrgicos con tecnología avanzada y monitoreo constante para garantizar la seguridad del paciente.",
+    "iconName": "Activity",
+    "imagenUrl": "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?q=80&w=800&auto=format&fit=crop",
+    "categoria": "Cirugía"
+  },
+  {
+    "id": 3,
+    "titulo": "Vacunación y Desparasitación",
+    "descripcion": "Planes vacunales personalizados y control de parásitos internos y externos para una protección total.",
+    "iconName": "Syringe",
+    "imagenUrl": "https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?q=80&w=800&auto=format&fit=crop",
+    "categoria": "Prevención"
+  },
+  {
+    "id": 4,
+    "titulo": "Laboratorio Clínico",
+    "descripcion": "Análisis de sangre, orina y estudios diagnósticos rápidos para un tratamiento preciso y efectivo.",
+    "iconName": "Microscope",
+    "imagenUrl": "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?q=80&w=800&auto=format&fit=crop",
+    "categoria": "Diagnóstico"
+  },
+  {
+    "id": 5,
+    "titulo": "Odontología Felina y Canina",
+    "descripcion": "Limpieza profunda y cuidado dental especializado para prevenir infecciones y asegurar una buena alimentación.",
+    "iconName": "Sparkles",
+    "imagenUrl": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?q=80&w=800&auto=format&fit=crop",
+    "categoria": "Higiene"
+  },
+  {
+    "id": 6,
+    "titulo": "Urgencias 24/7",
+    "descripcion": "Atención médica inmediata para situaciones críticas con personal capacitado en emergencias veterinarias.",
+    "iconName": "Ambulance",
+    "imagenUrl": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?q=80&w=800&auto=format&fit=crop",
+    "categoria": "Emergencia"
+  }
+]
