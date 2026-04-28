@@ -7,7 +7,7 @@ import Contact from "./_components/Contact";
 export default function Home() {
   return ( 
     // Contenido Pagina Inicio
-    <div className="flex w-full flex-col gap-8 bg-zinc-500 font-sans dark:bg-black">
+    <div className="flex w-full flex-col font-sans  dark:bg-black">
       <Hero />
       <About />
       <Services />
