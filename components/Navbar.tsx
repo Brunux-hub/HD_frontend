@@ -6,7 +6,6 @@ import { Menu, X } from "lucide-react";
 import { MdSunny } from "react-icons/md";
 import { RiMoonClearFill } from "react-icons/ri";
 import { useState, useEffect } from "react";
-import LayoutContainer from "./LayoutContainer";
 
 const Navbar = () => {
   const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false);
@@ -20,7 +19,7 @@ const Navbar = () => {
     <>
       <nav className="w-full bg-purple-100 dark:bg-slate-900">
         {/* Container Navbar */}
-        <LayoutContainer className="border border-amber-600">
+        <div className="mx-auto w-full max-w-7xl border border-amber-600 px-4 sm:px-6 lg:px-8">
           {/* Container Bloque navbar */}
           <div className="flex justify-between h-14 sm:h-16 md:h-20">
             <div className="flex space-x-2 items-center">
@@ -69,7 +68,7 @@ const Navbar = () => {
               {mobileMenuIsOpen ? <X /> : <Menu />}
             </button>
           </div>
-        </LayoutContainer>
+        </div>
 
         {/* Si la condición de la izquierda es verdadera, entonces muestra lo que está a la derecha */}
         {mobileMenuIsOpen && (
