@@ -22,14 +22,14 @@ export default function Hero() {
             <div className=" lg:col-span-12"></div>
             <div className="col-span-1 lg:col-span-12"></div>
             <div className="col-span-1 lg:col-span-12"></div>
-            <div className="hidden lg:block lg:col-start-5 col-end-9 bg-yellow-400/40">
+            <div className="hidden lg:block lg:col-start-5 col-end-9">
               <div className="flex justify-center items-center font-hero-title text-5xl">
-                <ThypographyH1 someText="Bienvenido a Healthy Peats"/>
+                <ThypographyH1 someText="Bienvenido a Healthy Peats" className="text-zinc-300"/>
               </div>
             </div>
 
-            <div className="hidden lg:block col-start-5 col-end-9 bg-yellow-400/40">
-              <div className="text-center">
+            <div className="hidden lg:block col-start-5 col-end-9">
+              <div className="text-center text-zinc-300">
                 Brindamos atención veterinaria de primer nivel con un equipo
                 dedicado exclusivamente a cuidar cada detalle de la salud de tu
                 compañero.
@@ -41,14 +41,14 @@ export default function Hero() {
                 <div className="flex justify-evenly">
                   <div className="flex items-center gap-5">
                     <div className="h-5 w-5 bg-sky-500 rounded-full"></div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col text-zinc-300">
                       <span>Utilizamos Productos</span>
                       <span>Eco-Friendly</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-5">
                     <div className="h-5 w-5 bg-sky-500 rounded-full"></div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col text-zinc-300">
                       <span>100% comprometidos</span>
                       <span>con tu mascota</span>
                     </div>
