@@ -1,3 +1,5 @@
+import AppSidebar from "./dashboard/_components/AppSidebar";
+import Navbar from "./dashboard/_components/Navbar";
 
 export default function DashboardLayout({
   children,
@@ -6,8 +8,13 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="min-h-screen flex">
-      <aside>Sidebar</aside>
-      <main className="flex-1">{children}</main>
+      <AppSidebar/>
+      <main className="w-full">
+        <Navbar/>
+        <div className="px-4">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }
