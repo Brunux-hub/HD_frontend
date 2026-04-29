@@ -5,7 +5,7 @@ import ThypographyH1 from "@/components/ThypographyH1";
 
 export default function Hero() {
   return (
-    <section className="w-full overflow-hidden">
+    <section className="w-full overflow-hidden bg-zinc-50 dark:bg-black">
       <div className=" relative max-w-7xl mx-auto">
         <div className="absolute inset-0">
           <Image

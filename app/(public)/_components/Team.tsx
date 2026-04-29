@@ -13,7 +13,7 @@ import veterinarios from "@/data/vetEquipo.json";
 export default function Team() {
   return (
     <section id="equipo" className="w-full bg-zinc-50 dark:bg-black py-4 ">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border-4 border-amber-700">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center mb-12 text-center">
           <TypographyH2
             someText="Equipo de Veterinarios"

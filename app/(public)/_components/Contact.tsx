@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 export default function Contact() {
   return (
     <section id="contacto" className="w-full bg-zinc-50 dark:bg-black py-4">
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 border-4 border-teal-600">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex-col flex items-center justify-center">
           <TypographyH2
             someText="Envianos un Mensaje"

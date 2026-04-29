@@ -19,7 +19,7 @@ import servicios from "@/data/vetServicios.json";
 export default function Services() {
   return (
     <section id="servicios" className="w-full bg-zinc-50 dark:bg-black py-4 ">
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 border-4 border-sky-600">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="min-h-110 mt-6">
           <ThypographyH2
             someText="¿Qué Servicios Ofrecemos?"
