@@ -5,15 +5,21 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { MdSunny } from "react-icons/md";
 import { RiMoonClearFill } from "react-icons/ri";
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { useTheme } from "next-themes";
+
+const emptySubscribe = () => () => {};
 
 const Navbar = () => {
   const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false);
-  const [themeToggle, setThemeToggle] = useState(false);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const { resolvedTheme, setTheme } = useTheme();
 
-  useEffect(()=>{
-    document.documentElement.classList.toggle("dark");
-  },[themeToggle])
+  const isDark = mounted && resolvedTheme === "dark";
+
+  const handleThemeToggle = () => {
+    setTheme(isDark ? "light" : "dark");
+  };
 
   return (
     <>
@@ -54,8 +60,11 @@ const Navbar = () => {
               </Link>
               
               <button
-                onClick={()=>setThemeToggle((prev) => !prev)}>
-                  {themeToggle ? 
+                type="button"
+                aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+                onClick={handleThemeToggle}
+              >
+                  {isDark ? 
                     <MdSunny className="text-amber-300" size={32} /> :
                     <RiMoonClearFill  className="text-shadow-blue-900" size={32} />
                   }
