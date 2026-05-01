@@ -34,10 +34,12 @@ La aplicación busca ofrecer una solución centralizada que permita:
 - 💻 Interfaz amigable y responsiva
 
 ## Despligue
+[VERCEL](https://hd-frontend-ten.vercel.app/)
 
 ## Jira
 🔗 **Tablero Jira:**  
 [TABLERO JIRA](https://utp-team-herramientas-desarrollo.atlassian.net/jira/software/projects/SCRUM/boards/1?jql=assignee+%3D+empty&atlOrigin=eyJpIjoiNDE0MjA2YjY1NTg0NGNkZDk5YjY5MjYyNTM1MWM2YTciLCJwIjoiaiJ9)
+
 ## Clonar Repositorio
 
 ```git
