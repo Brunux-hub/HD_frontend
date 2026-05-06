@@ -1,5 +1,6 @@
 import { ReceiptText } from "lucide-react";
 import SectionHeader from "../_components/SectionHeader";
+import ServiceTable from "./_components/ServiceTable";
 
 const ServicesPage = () => {
   return (
@@ -10,10 +11,10 @@ const ServicesPage = () => {
         title="Listado de Servicios"
         description="Vista donde podrás revisar y gestionar los servicios"
         addButtonText="Crear Servicio"
-        editButtonText="Editar Servicio"
       />
 
       {/* TABLA DE SERVICIOS */}
+      <ServiceTable/>
     </div>
   );
 };
