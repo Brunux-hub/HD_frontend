@@ -1,3 +1,14 @@
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
@@ -7,8 +18,9 @@ import {
   Calendar,
   PawPrint,
   CirclePlus,
-  SquarePen,
 } from "lucide-react";
+
+import ServiceForm from "../servicios/_components/ServiceForm";
 
 type SectionHeaderProps = {
   icon?: LucideIcon;
@@ -16,7 +28,6 @@ type SectionHeaderProps = {
   title?: string;
   description?: string;
   addButtonText?: string;
-  editButtonText?: string;
 };
 
 const SectionHeader = ({
@@ -25,7 +36,6 @@ const SectionHeader = ({
   title,
   description,
   addButtonText,
-  editButtonText,
 }: SectionHeaderProps) => {
   return (
     <Card className="flex-row justify-between items-center gap-6 p-6 rounded-b-4xl">
@@ -43,22 +53,24 @@ const SectionHeader = ({
       </div>
 
       <div className="flex flex-col gap-2">
-        {addButtonText && (
-          <Button>
-            <CirclePlus />
-            {addButtonText}
-          </Button>
-        )}
-
-        {editButtonText && (
-          <Button>
-            <SquarePen />
-            {editButtonText}
-          </Button>
-        )}
+        <Dialog>
+          <DialogTrigger asChild>
+            {addButtonText && (
+              <Button>
+                <CirclePlus />
+                {addButtonText}
+              </Button>
+            )}
+          </DialogTrigger>
+          <DialogContent>
+            <DialogTitle></DialogTitle>
+            {/*Formulario */}
+            <ServiceForm />
+          </DialogContent>
+        </Dialog>
       </div>
     </Card>
   );
 };
 
-export default SectionHeader
+export default SectionHeader;

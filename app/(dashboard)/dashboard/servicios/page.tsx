@@ -4,7 +4,7 @@ import ServiceTable from "./_components/ServiceTable";
 
 const ServicesPage = () => {
   return (
-    <div className="max-w-[1180px] px-4 mx-auto border border-amber-500">
+    <div className="max-w-295 px-4 mx-auto border border-amber-500">
       <SectionHeader
         icon={ReceiptText}
         iconLabel="Servicios"

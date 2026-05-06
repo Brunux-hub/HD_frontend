@@ -126,7 +126,7 @@ const ServiceTable = () => {
                 <DialogContent>
                   <DialogTitle></DialogTitle>
                   {/*Formulario */}
-                  <ServiceForm />
+                  Eliminar Registro XD
                 </DialogContent>
               </Dialog>
             </TableCell>

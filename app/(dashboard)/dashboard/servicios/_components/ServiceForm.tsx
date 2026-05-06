@@ -88,9 +88,9 @@ const ServiceForm = () => {
             </Field>
             {/* BOTON SUBMIT */}
             <Field orientation="horizontal">
-              <Button type="submit">Submit</Button>
+              <Button type="submit">Guardar</Button>
               <Button variant="outline" type="button">
-                Cancel
+                Cancelar
               </Button>
             </Field>
           </FieldGroup>
