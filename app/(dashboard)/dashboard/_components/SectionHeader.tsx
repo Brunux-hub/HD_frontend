@@ -20,7 +20,7 @@ import {
   CirclePlus,
 } from "lucide-react";
 
-import ServiceForm from "../servicios/_components/ServiceForm";
+import ServiceForm from "../servicios/_components/ServiceFormDialog";
 
 type SectionHeaderProps = {
   icon?: LucideIcon;

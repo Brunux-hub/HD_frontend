@@ -17,18 +17,13 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
-// Componentes Propios
-import TableButton from "./TableButton";
 
-import ServiceForm from "./ServiceForm";
+import ServiceForm from "./ServiceFormDialog";
 
 // Contratos de Dominio
 import { Servicio } from "@/types/servicio";
