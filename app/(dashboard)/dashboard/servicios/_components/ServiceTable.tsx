@@ -23,7 +23,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import ServiceForm from "./ServiceFormDialog";
+import ServiceFormDialog from "./ServiceFormDialog";
 
 // Contratos de Dominio
 import { Servicio } from "@/types/servicio";
@@ -98,20 +98,9 @@ const ServiceTable = () => {
             <TableCell>{servicio.precio}</TableCell>
             <TableCell>{servicio.estado ? "Activo" : "Inactivo"}</TableCell>
             <TableCell className="flex justify-between">
-              {/* boton editar*/}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="alert">
-                    <SquarePen />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogTitle></DialogTitle>
-                  {/*Formulario */}
-                  <ServiceForm />
-                </DialogContent>
-              </Dialog>
-              {/* boton eliminar */}
+              {/* Dialog editar*/}
+              <ServiceFormDialog icon={SquarePen} mode="edit" buttonColor="alert"/>
+              {/* Dialog eliminar */}
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="destructive">
