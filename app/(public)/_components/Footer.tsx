@@ -38,11 +38,11 @@ const Footer = () => {
 
         <div className="text-center lg:text-left">
           <Image
+            className="mx-auto block rounded-full"
             src="/logovet2.jpg"
-            alt="marca"
+            alt="logo"
             width={100}
             height={100}
-            className="mx-auto block rounded-full"
             loading="lazy"
           />
         </div>

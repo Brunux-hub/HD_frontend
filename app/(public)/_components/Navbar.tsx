@@ -12,7 +12,11 @@ const emptySubscribe = () => () => {};
 
 const Navbar = () => {
   const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false);
-  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const { resolvedTheme, setTheme } = useTheme();
 
   const isDark = mounted && resolvedTheme === "dark";
@@ -31,11 +35,11 @@ const Navbar = () => {
             <div className="flex space-x-2 items-center">
               <div>
                 <Image
-                  className="dark:invert"
-                  src="/next.svg"
+                  className="mx-auto block rounded-full"
+                  src="/logovet2.jpg"
                   alt="logo"
-                  width={100}
-                  height={20}
+                  width={70}
+                  height={70}
                   priority
                 />
               </div>
@@ -43,31 +47,49 @@ const Navbar = () => {
 
             {/* NavLink */}
             <div className="hidden md:flex gap-6 lg:gap-8 items-center">
-              <Link href="/" className="dark:text-gray-400 dark:hover:text-white">
+              <Link
+                href="/"
+                className="dark:text-gray-400 dark:hover:text-white"
+              >
                 Inicio
               </Link>
-              <Link href="#nosotros" className="dark:text-gray-400 dark:hover:text-white">
+              <Link
+                href="#nosotros"
+                className="dark:text-gray-400 dark:hover:text-white"
+              >
                 Nosotros
               </Link>
-              <Link href="#servicios" className="dark:text-gray-400 dark:hover:text-white">
+              <Link
+                href="#servicios"
+                className="dark:text-gray-400 dark:hover:text-white"
+              >
                 Servicios
               </Link>
-              <Link href="#equipo" className="dark:text-gray-400 dark:hover:text-white">
+              <Link
+                href="#equipo"
+                className="dark:text-gray-400 dark:hover:text-white"
+              >
                 Equipo
               </Link>
-              <Link href="#contacto" className="dark:text-gray-400 dark:hover:text-white">
+              <Link
+                href="#contacto"
+                className="dark:text-gray-400 dark:hover:text-white"
+              >
                 Contacto
               </Link>
-              
+
               <button
                 type="button"
-                aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+                aria-label={
+                  isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"
+                }
                 onClick={handleThemeToggle}
               >
-                  {isDark ? 
-                    <MdSunny className="text-amber-300" size={32} /> :
-                    <RiMoonClearFill  className="text-shadow-blue-900" size={32} />
-                  }
+                {isDark ? (
+                  <RiMoonClearFill className="text-shadow-blue-900" size={32} />
+                ) : (
+                  <MdSunny className="text-amber-300" size={32} />
+                )}
               </button>
             </div>
             <button
@@ -118,7 +140,6 @@ const Navbar = () => {
               >
                 Contacto
               </Link>
-              
             </div>
           </div>
         )}

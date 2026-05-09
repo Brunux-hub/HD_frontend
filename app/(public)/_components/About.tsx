@@ -25,9 +25,11 @@ export default function About() {
               </CardDescription>
             </CardContent>
             <img
+              className="mx-auto block rounded-full mt-4"
               src="/logovet2.jpg"
               alt="logo"
-              className="h-48 w-48 mx-auto block rounded-full pt-4"
+              width={150}
+              height={150}
             />
           </div>
 

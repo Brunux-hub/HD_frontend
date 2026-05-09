@@ -2,9 +2,10 @@
 
 import {
   Home,
-  BookUser,
+  CircleUserRound,
   ReceiptText,
   Calendar,
+  BookUser,
   PawPrint,
   Settings,
   User2,
@@ -53,26 +54,31 @@ const items = [
   },
   {
     title: "Usuarios",
-    url: "#",
-    icon: BookUser,
+    url: "/dashboard/usuarios",
+    icon: CircleUserRound,
   },
   {
     title: "Servicios",
-    url: "#",
+    url: "/dashboard/servicios",
     icon: ReceiptText,
   },
   {
     title: "Citas",
-    url: "#",
+    url: "/dashboard/citas",
     icon: Calendar,
   },
   {
     title: "Clientes",
-    url: "#",
+    url: "/dashboard/clientes",
+    icon: BookUser,
+  },
+  {
+    title: "Pacientes",
+    url: "/dashboard/pacientes",
     icon: PawPrint,
   },
   {
-    title: "Settings",
+    title: "Configuración",
     url: "#",
     icon: Settings,
   },
@@ -87,7 +93,7 @@ const AppSidebar = () => {
             <SidebarMenuButton asChild>
               <Link href="/dashboard">
                 <Image src="/logovet2.jpg" alt="logo" width={20} height={20} />
-                <span>John Doe</span>
+                <span>Healthy Pets</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -96,7 +102,7 @@ const AppSidebar = () => {
       <SidebarSeparator />
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>Menu de Acciones</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
@@ -115,32 +121,6 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Projects</SidebarGroupLabel>
-          <SidebarGroupAction>
-            <Plus /> <span className="sr-only">Add Project</span>
-          </SidebarGroupAction>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/#">
-                    <Projector />
-                    See All Projects
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/#">
-                    <Plus />
-                    Add Project
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
         {/* COLLAPSABLE */}
         <Collapsible defaultOpen className="group/collapsible">
           <SidebarGroup>
@@ -155,17 +135,17 @@ const AppSidebar = () => {
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link href="/#">
+                      <Link href="#">
                         <Projector />
-                        See All Projects
+                        See All Options
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link href="/#">
+                      <Link href="#">
                         <Plus />
-                        Add Project
+                        Option 1
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -174,40 +154,6 @@ const AppSidebar = () => {
             </CollapsibleContent>
           </SidebarGroup>
         </Collapsible>
-        {/* NESTED */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Nested Items</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/#">
-                    <Projector />
-                    See All Projects
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href="/#">
-                        <Plus />
-                        Add Project
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href="/#">
-                        <Plus />
-                        Add Category
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
