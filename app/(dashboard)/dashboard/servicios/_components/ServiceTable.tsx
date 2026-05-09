@@ -28,52 +28,13 @@ import ServiceFormDialog from "./ServiceFormDialog";
 // Contratos de Dominio
 import { Servicio } from "@/types/servicio";
 
-// RAW Data (servicios)
-const servicios: Servicio[] = [
-  {
-    id: 1,
-    nombre: "Consulta Veterinaria General",
-    categoria: "consulta",
-    descripcion: "Revisión integral de salud y diagnóstico inicial.",
-    precio: 45.0,
-    estado: true,
-  },
-  {
-    id: 2,
-    nombre: "Corte y Baño Premium",
-    categoria: "grooming",
-    descripcion:
-      "Servicio completo de estética, incluye corte de uñas y limpieza de oídos.",
-    precio: 35.5,
-    estado: true,
-  },
-  {
-    id: 3,
-    nombre: "Esterilización",
-    categoria: "cirugia",
-    descripcion: "Procedimiento quirúrgico con monitoreo anestésico completo.",
-    precio: 120.0,
-    estado: true,
-  },
-  {
-    id: 4,
-    nombre: "Vacunación Anual",
-    categoria: "consulta",
-    descripcion: "Refuerzo de vacunas polivalente y rabia.",
-    precio: 25.0,
-    estado: true,
-  },
-  {
-    id: 5,
-    nombre: "Limpieza Dental Ultrasónica",
-    categoria: "cirugia",
-    descripcion: "Eliminación de sarro bajo sedación profunda.",
-    precio: 85.0,
-    estado: false,
-  },
-];
+type Props = {
+  servicios: Servicio[];
+  onEdit: (id: number, servicio: Omit<Servicio, "id">) => void;
+  onDelete: (id: number) => void;
+};
 
-const ServiceTable = () => {
+const ServiceTable = ({ servicios, onEdit, onDelete }: Props) => {
   return (
     <Table>
       <TableCaption>Lista de Servicios Veterinarios</TableCaption>
@@ -85,7 +46,7 @@ const ServiceTable = () => {
           <TableHead>Descripción</TableHead>
           <TableHead>Precio</TableHead>
           <TableHead>Estado</TableHead>
-          <TableHead></TableHead>
+          <TableHead className="w-25"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -99,29 +60,35 @@ const ServiceTable = () => {
             <TableCell>{servicio.estado ? "Activo" : "Inactivo"}</TableCell>
             <TableCell className="flex justify-between">
               {/* Dialog editar*/}
-              <ServiceFormDialog icon={SquarePen} mode="edit" buttonColor="alert"/>
-              {/* Dialog eliminar */}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="destructive">
-                    <Trash />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogTitle></DialogTitle>
-                  {/*Formulario */}
-                  Eliminar Registro XD
-                </DialogContent>
-              </Dialog>
+              <ServiceFormDialog
+                icon={SquarePen}
+                mode="edit"
+                buttonColor="alert"
+                data={servicio}
+                onSubmit={(data) => onEdit(servicio.id, data)}
+              />
+              {/* Botón eliminar */}
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  const confirmar = window.confirm(
+                    `¿Seguro que deseas eliminar el servicio "${servicio.nombre}"?`,
+                  );
+
+                  if (!confirmar) return;
+
+                  onDelete(servicio.id);
+                }}
+              >
+                <Trash />
+              </Button>
             </TableCell>
           </TableRow>
         ))}
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={7} className="text-center">
-            N° Servicios
-          </TableCell>
+          <TableCell colSpan={7} className="text-center h-5"></TableCell>
         </TableRow>
       </TableFooter>
     </Table>

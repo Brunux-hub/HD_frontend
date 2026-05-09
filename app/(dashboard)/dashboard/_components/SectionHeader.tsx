@@ -18,7 +18,7 @@ type SectionHeaderProps = {
   iconLabel?: string;
   title?: string;
   description?: string;
-  addButtonText?: string;
+  action?: React.ReactNode;
 };
 
 const SectionHeader = ({
@@ -26,7 +26,7 @@ const SectionHeader = ({
   iconLabel,
   title,
   description,
-  addButtonText,
+  action
 }: SectionHeaderProps) => {
   return (
     <Card className="flex-row justify-between items-center gap-6 p-6 rounded-b-4xl">
@@ -45,7 +45,7 @@ const SectionHeader = ({
 
       <div className="flex flex-col gap-2">
         {/*Formulario */}
-        <ServiceFormDialog mode="create" icon={CirclePlus} buttonColor="success" />
+        {action}
       </div>
     </Card>
   );

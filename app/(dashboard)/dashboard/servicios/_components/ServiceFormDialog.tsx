@@ -1,6 +1,5 @@
-'use client'
+"use client";
 
-import { SquarePen, Trash } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
 import {
@@ -44,7 +43,7 @@ type Props = {
   data?: Servicio;
   icon?: LucideIcon;
   buttonColor?: "default" | "success" | "alert";
-  onSubmit: (data: Servicio) => void;
+  onSubmit: (data: Omit<Servicio, "id">) => void;
 };
 
 const ServiceFormDialog = ({
@@ -54,18 +53,21 @@ const ServiceFormDialog = ({
   buttonColor,
   onSubmit,
 }: Props) => {
+  // Cerar Dialog
+  const [open, setOpen] = useState(false);
+  // State Campos Formulario
+  const [categoria, setCategoria] = useState(data?.categoria ?? "");
+  const [estado, setEstado] = useState(data?.estado ? "true" : "false");
 
-  // UseState
-  const [categoria, setCategoria] = useState("");
-  
   // Manejar Submit
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Instancia de Interfaz(FormData) para captura de datos
     const formData = new FormData(e.currentTarget);
 
-    const data: Servicio = {
-      id: Date.now(),
+    // Captura de datos
+    const dataServicio: Omit<Servicio, "id"> = {
       nombre: formData.get("servicio") as string,
       categoria: formData.get("categoria") as Servicio["categoria"],
       descripcion: formData.get("descripcion") as string,
@@ -73,16 +75,21 @@ const ServiceFormDialog = ({
       estado: formData.get("estado") === "true",
     };
 
-    onSubmit(data);
+    // Enviar Datos
+    onSubmit(dataServicio);
+
+    // Cambiar a false para Cerar Dialog
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={buttonColor}>{Icon && <Icon />}</Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle></DialogTitle>
+        <DialogTitle className="sr-only" />
+        <DialogDescription className="sr-only" />
         {/*Formulario */}
         <form onSubmit={handleSubmit}>
           <FieldGroup>
@@ -98,6 +105,7 @@ const ServiceFormDialog = ({
                   <Input
                     id="input-servicio"
                     name="servicio"
+                    defaultValue={data?.nombre ?? ""}
                     placeholder="Escribe un servicio"
                     required
                   />
@@ -107,7 +115,7 @@ const ServiceFormDialog = ({
                   <FieldLabel htmlFor="select-categoria">
                     Elige una Categoria
                   </FieldLabel>
-                  <Select defaultValue="">
+                  <Select value={categoria} onValueChange={setCategoria}>
                     <input type="hidden" name="categoria" value={categoria} />
                     <SelectTrigger id="select-categoria">
                       <SelectValue placeholder="Elige un Categoría" />
@@ -124,11 +132,12 @@ const ServiceFormDialog = ({
                 {/* DESCRIPCIÓN */}
                 <Field>
                   <FieldLabel htmlFor="textarea-descripcion">
-                    Comments
+                    Descripción
                   </FieldLabel>
                   <Textarea
                     id="textarea-descripcion"
                     name="descripcion"
+                    defaultValue={data?.descripcion ?? ""}
                     placeholder="Agrea una descripción del Servicio"
                     className="resize-none"
                   />
@@ -139,6 +148,7 @@ const ServiceFormDialog = ({
                   <Input
                     id="input-precio"
                     name="precio"
+                    defaultValue={data?.precio ?? ""}
                     placeholder="0"
                     type="number"
                     min="0"
@@ -148,7 +158,8 @@ const ServiceFormDialog = ({
                 </Field>
                 {/* ESTADO */}
                 <Field>
-                  <Select defaultValue="">
+                  <Select value={estado} onValueChange={setEstado}>
+                    <input type="hidden" name="estado" value={estado} />
                     <SelectTrigger id="estado">
                       <SelectValue placeholder="Estado del Servicio" />
                     </SelectTrigger>
@@ -161,9 +172,13 @@ const ServiceFormDialog = ({
                   </Select>
                 </Field>
                 {/* BOTON SUBMIT */}
-                <Field orientation="horizontal">
+                <Field orientation="horizontal"  className="justify-center gap-4">
                   <Button type="submit">Guardar</Button>
-                  <Button variant="outline" type="button">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => setOpen(false)}
+                  >
                     Cancelar
                   </Button>
                 </Field>
