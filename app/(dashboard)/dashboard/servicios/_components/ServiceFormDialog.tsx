@@ -1,3 +1,5 @@
+'use client'
+
 import { SquarePen, Trash } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -35,54 +37,79 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 import { Servicio } from "@/types/servicio";
+import { useState } from "react";
 
-type ServiceFormDialogProps = {
+type Props = {
   mode?: string;
   data?: Servicio;
   icon?: LucideIcon;
-  buttonColor?: 'success' | 'alert' | 'default' ;
+  buttonColor?: "default" | "success" | "alert";
+  onSubmit: (data: Servicio) => void;
 };
 
 const ServiceFormDialog = ({
   mode,
   data,
   icon: Icon,
-  buttonColor
-}: ServiceFormDialogProps) => {
+  buttonColor,
+  onSubmit,
+}: Props) => {
+
+  // UseState
+  const [categoria, setCategoria] = useState("");
+  
+  // Manejar Submit
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+
+    const data: Servicio = {
+      id: Date.now(),
+      nombre: formData.get("servicio") as string,
+      categoria: formData.get("categoria") as Servicio["categoria"],
+      descripcion: formData.get("descripcion") as string,
+      precio: Number(formData.get("precio")),
+      estado: formData.get("estado") === "true",
+    };
+
+    onSubmit(data);
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={buttonColor}>
-          {Icon && <Icon />}
-        </Button>
+        <Button variant={buttonColor}>{Icon && <Icon />}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle></DialogTitle>
         {/*Formulario */}
-        <form>
+        <form onSubmit={handleSubmit}>
           <FieldGroup>
             <FieldSet>
               <FieldLegend className="text-center font-semibold text-xl">
-                {mode === "create" ? "Crear Servicio":""}
-                {mode === "edit" ? "Modificar Servicio":""}
+                {mode === "create" ? "Crear Servicio" : ""}
+                {mode === "edit" ? "Modificar Servicio" : ""}
               </FieldLegend>
               <FieldGroup>
                 {/* SERVICIO */}
                 <Field>
-                  <FieldLabel htmlFor="servicio">Servicio</FieldLabel>
+                  <FieldLabel htmlFor="input-servicio">Servicio</FieldLabel>
                   <Input
-                    id="servicio"
+                    id="input-servicio"
+                    name="servicio"
                     placeholder="Escribe un servicio"
                     required
                   />
                 </Field>
                 {/* CATEGORÍA */}
                 <Field>
-                  <FieldLabel htmlFor="categoria">
+                  <FieldLabel htmlFor="select-categoria">
                     Elige una Categoria
                   </FieldLabel>
                   <Select defaultValue="">
-                    <SelectTrigger id="categoria">
+                    <input type="hidden" name="categoria" value={categoria} />
+                    <SelectTrigger id="select-categoria">
                       <SelectValue placeholder="Elige un Categoría" />
                     </SelectTrigger>
                     <SelectContent>
@@ -96,18 +123,22 @@ const ServiceFormDialog = ({
                 </Field>
                 {/* DESCRIPCIÓN */}
                 <Field>
-                  <FieldLabel htmlFor="descripcion">Comments</FieldLabel>
+                  <FieldLabel htmlFor="textarea-descripcion">
+                    Comments
+                  </FieldLabel>
                   <Textarea
-                    id="descripcion"
+                    id="textarea-descripcion"
+                    name="descripcion"
                     placeholder="Agrea una descripción del Servicio"
                     className="resize-none"
                   />
                 </Field>
                 {/* PRECIO */}
                 <Field>
-                  <FieldLabel htmlFor="precio">Precio</FieldLabel>
+                  <FieldLabel htmlFor="input-precio">Precio</FieldLabel>
                   <Input
-                    id="precio"
+                    id="input-precio"
+                    name="precio"
                     placeholder="0"
                     type="number"
                     min="0"
