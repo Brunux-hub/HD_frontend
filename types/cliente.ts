@@ -5,10 +5,3 @@ export interface Cliente {
   email: string;
   direccion: string;
 }
-
-export interface ClienteFormData {
-  nombre: string;
-  telefono: string;
-  email: string;
-  direccion: string;
-}

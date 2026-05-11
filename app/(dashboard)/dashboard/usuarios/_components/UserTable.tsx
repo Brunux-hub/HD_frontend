@@ -15,61 +15,61 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import ServiceFormDialog from "./ServiceFormDialog";
+import UserFormDialog from "./UserFormDialog";
 
 // Contratos de Dominio
-import { Servicio } from "@/types/servicio";
+import { Usuario } from "@/types/usuario";
 
 type Props = {
-  servicios: Servicio[];
-  onEdit: (id: number, servicio: Omit<Servicio, "id">) => void;
+  usuarios: Usuario[];
+  onEdit: (id: number, usuario: Omit<Usuario, "id">) => void;
   onDelete: (id: number) => void;
 };
 
-const ServiceTable = ({ servicios, onEdit, onDelete }: Props) => {
+const UserTable = ({ usuarios, onEdit, onDelete }: Props) => {
   return (
     <Table>
-      <TableCaption>Lista de Servicios Veterinarios</TableCaption>
+      <TableCaption>Lista de Usuarios</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-10">ID</TableHead>
           <TableHead>Nombre</TableHead>
-          <TableHead>Categoria</TableHead>
-          <TableHead>Descripción</TableHead>
-          <TableHead>Precio</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Rol</TableHead>
+          <TableHead>Especialidad</TableHead>
           <TableHead>Estado</TableHead>
           <TableHead className="w-25"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {servicios.map((servicio) => (
-          <TableRow key={servicio.id}>
-            <TableCell className="font-medium">{servicio.id}</TableCell>
-            <TableCell>{servicio.nombre}</TableCell>
-            <TableCell>{servicio.categoria}</TableCell>
-            <TableCell>{servicio.descripcion}</TableCell>
-            <TableCell>{servicio.precio}</TableCell>
-            <TableCell>{servicio.estado ? "Activo" : "Inactivo"}</TableCell>
+        {usuarios.map((usuario) => (
+          <TableRow key={usuario.id}>
+            <TableCell className="font-medium">{usuario.id}</TableCell>
+            <TableCell>{usuario.nombre}</TableCell>
+            <TableCell>{usuario.email}</TableCell>
+            <TableCell>{usuario.rol}</TableCell>
+            <TableCell>{usuario.especialidad}</TableCell>
+            <TableCell>{usuario.estado ? "Activo" : "Inactivo"}</TableCell>
             <TableCell className="flex justify-between">
               {/* Dialog editar*/}
-              <ServiceFormDialog
+              <UserFormDialog
                 icon={SquarePen}
                 mode="edit"
                 buttonColor="alert"
-                data={servicio}
-                onSubmit={(data) => onEdit(servicio.id, data)}
+                data={usuario}
+                onSubmit={(data) => onEdit(usuario.id, data)}
               />
               {/* Botón eliminar */}
               <Button
                 variant="destructive"
                 onClick={() => {
                   const confirmar = window.confirm(
-                    `¿Seguro que deseas eliminar el servicio "${servicio.nombre}"?`,
+                    `¿Seguro que deseas eliminar el servicio "${usuario.nombre}"?`,
                   );
 
                   if (!confirmar) return;
 
-                  onDelete(servicio.id);
+                  onDelete(usuario.id);
                 }}
               >
                 <Trash />
@@ -87,4 +87,4 @@ const ServiceTable = ({ servicios, onEdit, onDelete }: Props) => {
   );
 };
 
-export default ServiceTable;
+export default UserTable;

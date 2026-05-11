@@ -35,6 +35,7 @@ export default function RootLayout({
       lang="es"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${alfaSlab.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
     >
       <body>
         <ThemeProvider
