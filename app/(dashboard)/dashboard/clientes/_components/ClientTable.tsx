@@ -1,6 +1,7 @@
 "use client";
 
 import { SquarePen, Trash } from "lucide-react";
+import Link from "next/link";
 
 import {
   Table,
@@ -46,14 +47,10 @@ const ClientTable = ({ clientes, onEdit, onDelete }: Props) => {
             <TableCell>{cliente.telefono}</TableCell>
             <TableCell>{cliente.email}</TableCell>
             <TableCell>{cliente.direccion}</TableCell>
-            <TableCell className="flex justify-between">
-              <ClientFormDialog
-                icon={SquarePen}
-                mode="edit"
-                buttonColor="alert"
-                data={cliente}
-                onSubmit={(data) => onEdit(cliente.id, data)}
-              />
+            <TableCell className="flex gap-2">
+              <Button asChild variant="outline">
+                <Link href={`/dashboard/clientes/${cliente.id}`}>Perfil</Link>
+              </Button>
               <Button
                 variant="destructive"
                 onClick={() => {

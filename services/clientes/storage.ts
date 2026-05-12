@@ -11,6 +11,12 @@ export const saveClientes = (clientes: Cliente[]) => {
   StorageService.setItem(STORAGE_KEY, clientes);
 };
 
+export const getClienteById = (id: number): Cliente | undefined => {
+  const clientes = getClientes();
+
+  return clientes.find((item) => item.id === id);
+};
+
 export const createCliente = (cliente: Omit<Cliente, "id">): Cliente[] => {
   const clientes = getClientes();
 

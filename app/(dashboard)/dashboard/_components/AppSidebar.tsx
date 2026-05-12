@@ -69,8 +69,8 @@ const items = [
     icon: BookUser,
   },
   {
-    title: "Pacientes",
-    url: "/dashboard/pacientes",
+    title: "Mascotas",
+    url: "/dashboard/mascotas",
     icon: PawPrint,
   },
   {
