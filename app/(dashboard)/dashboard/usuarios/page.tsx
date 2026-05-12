@@ -21,7 +21,13 @@ const UsersPage = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
 
   useEffect(() => {
-    setUsuarios(getUsuarios());
+    const frameId = window.requestAnimationFrame(() => {
+      setUsuarios(getUsuarios());
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
   }, []);
 
   const handleCreate = (usuario: Omit<Usuario, "id">) => {
@@ -42,8 +48,8 @@ const UsersPage = () => {
   return (
     <div className="max-w-295 px-4 mx-auto border flex flex-col gap-8 border-amber-500">
       <SectionHeader
-        iconName="Icono usuarios"
-        iconLabel="usuarios"
+        iconName="Icono Usuarios"
+        iconLabel="Usuarios"
         title="Listado de usuarios"
         description="Vista donde podrás revisar y gestionar los usuarios"
         action={

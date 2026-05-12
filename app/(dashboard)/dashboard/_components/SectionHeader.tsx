@@ -1,17 +1,13 @@
 'use client'
 
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
 import {
-  BookUser,
+  CircleUserRound,
   ReceiptText,
+  BookUser,
   Calendar,
   PawPrint,
-  CirclePlus,
 } from "lucide-react";
-
-import ServiceFormDialog from "../servicios/_components/ServiceFormDialog";
 
 type SectionHeaderProps = {
   iconName?: string;
@@ -32,7 +28,11 @@ const SectionHeader = ({
     <Card className="flex-row justify-between items-center gap-6 p-6 rounded-b-4xl">
       <div>
         <span className="inline-flex items-center gap-2">
+          {iconName === "Icono Usuarios" && <CircleUserRound />}
           {iconName === "Icono Servicios" && <ReceiptText />}
+          {iconName === "Icono Clientes" && <BookUser />}
+          {iconName === "Icono Mascotas" && <PawPrint />}
+          {iconName === "Icono Citas" && <Calendar />}
           {iconLabel}
         </span>
 

@@ -4,7 +4,6 @@ import { LucideIcon } from "lucide-react";
 
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
@@ -16,7 +15,6 @@ import {
   FieldGroup,
   FieldLabel,
   FieldLegend,
-  FieldSeparator,
   FieldSet,
 } from "@/components/ui/field";
 
@@ -30,8 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { Textarea } from "@/components/ui/textarea";
 
 import { Button } from "@/components/ui/button";
 

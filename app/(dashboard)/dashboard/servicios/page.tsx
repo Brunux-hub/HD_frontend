@@ -21,7 +21,13 @@ const ServicesPage = () => {
   const [servicios, setServicios] = useState<Servicio[]>([]);
 
   useEffect(() => {
-    setServicios(getServicios());
+    const frameId = window.requestAnimationFrame(() => {
+      setServicios(getServicios());
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
   }, []);
 
   const handleCreate = (servicio: Omit<Servicio, "id">) => {
