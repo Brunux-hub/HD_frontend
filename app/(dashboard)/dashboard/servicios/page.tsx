@@ -2,7 +2,7 @@
 
 import { CirclePlus } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import SectionHeader from "../_components/SectionHeader";
 import ServiceTable from "./_components/ServiceTable";
@@ -18,17 +18,9 @@ import {
 } from "@/services/servicios/storage";
 
 const ServicesPage = () => {
-  const [servicios, setServicios] = useState<Servicio[]>([]);
-
-  useEffect(() => {
-    const frameId = window.requestAnimationFrame(() => {
-      setServicios(getServicios());
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-    };
-  }, []);
+  const [servicios, setServicios] = useState<Servicio[]>(() =>
+    typeof window === "undefined" ? [] : getServicios(),
+  );
 
   const handleCreate = (servicio: Omit<Servicio, "id">) => {
     const updated = createServicio(servicio);

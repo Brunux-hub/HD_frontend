@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CirclePlus } from "lucide-react";
 
 import SectionHeader from "../_components/SectionHeader";
@@ -16,17 +16,9 @@ import {
 } from "@/services/clientes/storage";
 
 const ClientsPage = () => {
-  const [clientes, setClientes] = useState<Cliente[]>([]);
-
-  useEffect(() => {
-    const frameId = window.requestAnimationFrame(() => {
-      setClientes(getClientes());
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-    };
-  }, []);
+  const [clientes, setClientes] = useState<Cliente[]>(() =>
+    typeof window === "undefined" ? [] : getClientes(),
+  );
 
   const handleCreate = (cliente: Omit<Cliente, "id">) => {
     const updated = createCliente(cliente);

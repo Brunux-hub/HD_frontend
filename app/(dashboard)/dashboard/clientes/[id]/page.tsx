@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { CirclePlus } from "lucide-react";
@@ -25,49 +25,53 @@ import {
 const ClientProfilePage = () => {
   const params = useParams<{ id: string }>();
   const clientId = Number(params.id);
+  const [cliente, setCliente] = useState<Cliente | null>(() => {
+    if (typeof window === "undefined" || !Number.isFinite(clientId)) {
+      return null;
+    }
 
-  const [cliente, setCliente] = useState<Cliente | null>(null);
-  const [mascotas, setMascotas] = useState<Mascota[]>([]);
-  const [isReady, setIsReady] = useState(false);
+    return getClienteById(clientId) ?? null;
+  });
+  const [mascotas, setMascotas] = useState<Mascota[]>(() => {
+    if (typeof window === "undefined" || !Number.isFinite(clientId)) {
+      return [];
+    }
 
-  useEffect(() => {
-    const frameId = window.requestAnimationFrame(() => {
-      if (!Number.isFinite(clientId)) {
-        setIsReady(true);
-        return;
-      }
+    return getMascotasByClienteId(clientId);
+  });
 
-      setCliente(getClienteById(clientId) ?? null);
-      setMascotas(getMascotasByClienteId(clientId));
-      setIsReady(true);
-    });
+  const loadData = () => {
+    if (typeof window === "undefined" || !Number.isFinite(clientId)) {
+      setCliente(null);
+      setMascotas([]);
+      return;
+    }
 
-    return () => {
-      window.cancelAnimationFrame(frameId);
-    };
-  }, [clientId]);
+    setCliente(getClienteById(clientId) ?? null);
+    setMascotas(getMascotasByClienteId(clientId));
+  };
 
   const handleClientUpdate = (data: Omit<Cliente, "id">) => {
     updateCliente(clientId, data);
-    setCliente(getClienteById(clientId) ?? null);
+    loadData();
   };
 
   const handleCreatePet = (data: Omit<Mascota, "id">) => {
     createMascota(data);
-    setMascotas(getMascotasByClienteId(clientId));
+    loadData();
   };
 
   const handleUpdatePet = (id: number, data: Omit<Mascota, "id">) => {
     updateMascota(id, data);
-    setMascotas(getMascotasByClienteId(clientId));
+    loadData();
   };
 
   const handleDeletePet = (id: number) => {
     deleteMascota(id);
-    setMascotas(getMascotasByClienteId(clientId));
+    loadData();
   };
 
-  if (isReady && !cliente) {
+  if (!Number.isFinite(clientId) || !cliente) {
     return (
       <div className="mx-auto flex max-w-295 flex-col gap-6 px-4">
         <SectionHeader
@@ -89,10 +93,6 @@ const ClientProfilePage = () => {
         </Card>
       </div>
     );
-  }
-
-  if (!cliente) {
-    return null;
   }
 
   return (

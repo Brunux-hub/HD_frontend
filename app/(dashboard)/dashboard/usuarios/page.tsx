@@ -2,7 +2,7 @@
 
 import { CirclePlus } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import SectionHeader from "../_components/SectionHeader";
 import UserTable from "./_components/UserTable";
@@ -18,17 +18,9 @@ import {
 } from "@/services/usuarios/storage";
 
 const UsersPage = () => {
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-
-  useEffect(() => {
-    const frameId = window.requestAnimationFrame(() => {
-      setUsuarios(getUsuarios());
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-    };
-  }, []);
+  const [usuarios, setUsuarios] = useState<Usuario[]>(() =>
+    typeof window === "undefined" ? [] : getUsuarios(),
+  );
 
   const handleCreate = (usuario: Omit<Usuario, "id">) => {
     const updated = createUsuarios(usuario);
