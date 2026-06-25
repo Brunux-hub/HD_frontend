@@ -78,6 +78,12 @@ const Navbar = () => {
                 Contacto
               </Link>
 
+              <Link
+                href="/login"
+                className="rounded-lg border border-teal-600 dark:border-teal-400 px-4 py-1.5 text-sm font-semibold text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors"
+              >
+                Iniciar sesión
+              </Link>
               <button
                 type="button"
                 aria-label={
@@ -139,6 +145,13 @@ const Navbar = () => {
                 onClick={() => setMobileMenuIsOpen(false)}
               >
                 Contacto
+              </Link>
+              <Link
+                href="/login"
+                className="block rounded-lg border border-teal-600 dark:border-teal-400 px-4 py-2 text-center text-sm font-semibold text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors"
+                onClick={() => setMobileMenuIsOpen(false)}
+              >
+                Iniciar sesión
               </Link>
             </div>
           </div>

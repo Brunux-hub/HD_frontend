@@ -1,28 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Alfa_Slab_One } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { SessionProvider } from "@/components/providers/SessionProvider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const alfaSlab = Alfa_Slab_One({
-  weight: "400", // Esta fuente usualmente solo tiene peso 400
-  subsets: ["latin"],
-  variable: "--font-alfa", // Creamos la variable CSS
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "Sistema Web Veterinaria",
-  description: "Powered by create NextJS",
+  title: "HealthyPets - Sistema Veterinario",
+  description: "Sistema de gestión para clínicas veterinarias",
 };
 
 export default function RootLayout({
@@ -31,12 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="es"
-      suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${alfaSlab.variable} h-full antialiased`}
-      data-scroll-behavior="smooth"
-    >
+    <html lang="es" suppressHydrationWarning className="h-full antialiased">
       <body>
         <ThemeProvider
           attribute="class"
@@ -44,7 +23,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <SessionProvider>
+            {children}
+          </SessionProvider>
+          <Toaster richColors closeButton />
         </ThemeProvider>
       </body>
     </html>

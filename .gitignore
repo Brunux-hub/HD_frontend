@@ -49,3 +49,6 @@ next-env.d.ts
 backups/
 *.bak
 file_copy.js
+
+*.md
+!README.md

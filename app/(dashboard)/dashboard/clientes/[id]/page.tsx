@@ -24,7 +24,7 @@ import {
 
 const ClientProfilePage = () => {
   const params = useParams<{ id: string }>();
-  const clientId = Number(params.id);
+  const clientId = Number(params?.id);
   const [cliente, setCliente] = useState<Cliente | null>(() => {
     if (typeof window === "undefined" || !Number.isFinite(clientId)) {
       return null;
