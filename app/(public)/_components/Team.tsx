@@ -1,59 +1,46 @@
-import TypographyH2 from "@/components/ThypographyH2";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
 import veterinarios from "@/data/vetEquipo.json";
 
 export default function Team() {
   return (
-    <section id="equipo" className="w-full bg-zinc-50 dark:bg-black py-4 ">
+    <section id="equipo" className="w-full bg-white py-20 dark:bg-black">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center mb-12 text-center">
-          <TypographyH2
-            someText="Equipo de Veterinarios"
-            className="font-bold mb-4"
-          />
-          <p className="text-muted-foreground max-w-2xl">
-            Contamos con un equipo de experimentados profesionales comprometidos
-            con la salud y bienestar integral de tus mascotas.
+        <div className="mx-auto mb-14 max-w-2xl text-center">
+          <span className="text-sm font-semibold uppercase tracking-widest text-teal-600 dark:text-teal-400">
+            Nuestro equipo
+          </span>
+          <h2 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl dark:text-white">
+            Profesionales que aman lo que hacen
+          </h2>
+          <p className="mt-4 text-base text-slate-600 dark:text-slate-300">
+            Un grupo de veterinarios y técnicos comprometidos con la salud y el
+            bienestar de cada paciente.
           </p>
         </div>
 
-        {/* Grid responsivo: 1 columna en móvil, 3 en tablet, 5 en escritorio */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
           {veterinarios.map((veterinario) => (
-            <Card
+            <article
               key={veterinario.id}
-              className="flex flex-col items-center text-center p-6 bg-card border-muted/50 transition-all hover:shadow-lg"
+              className="group flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-6 text-center transition hover:-translate-y-1 hover:border-teal-200 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900 dark:hover:border-teal-800"
             >
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/10 shadow-inner">
-                  <img
-                    src={veterinario.imagenUrl}
-                    alt={`${veterinario.nombre} ${veterinario.apellido}`}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-                  />
+              <div className="h-28 w-28 overflow-hidden rounded-full ring-4 ring-teal-100 dark:ring-teal-900/50">
+                <img
+                  src={veterinario.imagenUrl}
+                  alt={`${veterinario.nombre} ${veterinario.apellido}`}
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                />
               </div>
-              
-              <CardContent className="p-0 flex flex-col gap-1">
-                <CardTitle className="text-lg font-bold leading-tight">
-                  {veterinario.nombre} <br /> {veterinario.apellido}
-                </CardTitle>
-                
-                <span className="text-sm font-semibold text-primary/80 mt-1">
-                  {veterinario.rol}
-                </span>
-                
-                <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded-full w-fit mx-auto mt-2">
-                  {veterinario.area}
-                </span>
-              </CardContent>
-            </Card>
+
+              <h3 className="mt-4 text-base font-bold leading-tight text-slate-900 dark:text-white">
+                {veterinario.nombre} {veterinario.apellido}
+              </h3>
+              <span className="mt-1 text-sm font-semibold text-teal-600 dark:text-teal-400">
+                {veterinario.rol}
+              </span>
+              <span className="mt-3 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                {veterinario.area}
+              </span>
+            </article>
           ))}
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { CirclePlus } from "lucide-react";
@@ -12,9 +12,9 @@ import PetFormDialog from "../../mascotas/_components/PetFormDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { Cliente } from "@/types/cliente";
+import { Owner, OwnerRequest } from "@/types/owner";
 import { Mascota } from "@/types/mascota";
-import { getClienteById, updateCliente } from "@/services/clientes/storage";
+import { getOwnerById, updateOwner } from "@/services/owners/owners";
 import {
   createMascota,
   deleteMascota,
@@ -24,54 +24,75 @@ import {
 
 const ClientProfilePage = () => {
   const params = useParams<{ id: string }>();
-  const clientId = Number(params.id);
-  const [cliente, setCliente] = useState<Cliente | null>(() => {
-    if (typeof window === "undefined" || !Number.isFinite(clientId)) {
-      return null;
-    }
+  const ownerId = Number(params.id);
 
-    return getClienteById(clientId) ?? null;
-  });
-  const [mascotas, setMascotas] = useState<Mascota[]>(() => {
-    if (typeof window === "undefined" || !Number.isFinite(clientId)) {
-      return [];
-    }
+  const [owner, setOwner] = useState<Owner | null>(null);
+  const [mascotas, setMascotas] = useState<Mascota[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    return getMascotasByClienteId(clientId);
-  });
-
-  const loadData = () => {
-    if (typeof window === "undefined" || !Number.isFinite(clientId)) {
-      setCliente(null);
+  // Las mascotas siguen en almacenamiento local en esta parte;
+  // se conectarán al backend (/pet) en la Parte 3.
+  const loadPets = useCallback(() => {
+    if (typeof window === "undefined" || !Number.isFinite(ownerId)) {
       setMascotas([]);
       return;
     }
+    setMascotas(getMascotasByClienteId(ownerId));
+  }, [ownerId]);
 
-    setCliente(getClienteById(clientId) ?? null);
-    setMascotas(getMascotasByClienteId(clientId));
-  };
+  const loadOwner = useCallback(async () => {
+    if (!Number.isFinite(ownerId)) {
+      setOwner(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      setOwner(await getOwnerById(ownerId));
+    } catch (err) {
+      setOwner(null);
+      setError(err instanceof Error ? err.message : "No se pudo cargar el cliente.");
+    } finally {
+      setLoading(false);
+    }
+  }, [ownerId]);
 
-  const handleClientUpdate = (data: Omit<Cliente, "id">) => {
-    updateCliente(clientId, data);
-    loadData();
+  useEffect(() => {
+    loadOwner();
+    loadPets();
+  }, [loadOwner, loadPets]);
+
+  const handleClientUpdate = async (data: OwnerRequest) => {
+    await updateOwner(ownerId, data);
+    await loadOwner();
   };
 
   const handleCreatePet = (data: Omit<Mascota, "id">) => {
     createMascota(data);
-    loadData();
+    loadPets();
   };
 
   const handleUpdatePet = (id: number, data: Omit<Mascota, "id">) => {
     updateMascota(id, data);
-    loadData();
+    loadPets();
   };
 
   const handleDeletePet = (id: number) => {
     deleteMascota(id);
-    loadData();
+    loadPets();
   };
 
-  if (!Number.isFinite(clientId) || !cliente) {
+  if (loading) {
+    return (
+      <div className="mx-auto flex max-w-295 flex-col gap-6 px-4">
+        <p className="text-sm text-muted-foreground">Cargando cliente...</p>
+      </div>
+    );
+  }
+
+  if (!Number.isFinite(ownerId) || !owner) {
     return (
       <div className="mx-auto flex max-w-295 flex-col gap-6 px-4">
         <SectionHeader
@@ -87,8 +108,7 @@ const ClientProfilePage = () => {
         />
         <Card>
           <CardContent className="pt-2">
-            Verifica el enlace o regresa al listado para seleccionar otro
-            cliente.
+            {error ?? "Verifica el enlace o regresa al listado para seleccionar otro cliente."}
           </CardContent>
         </Card>
       </div>
@@ -100,11 +120,11 @@ const ClientProfilePage = () => {
       <SectionHeader
         iconName="Icono Clientes"
         iconLabel="Perfil del cliente"
-        title={cliente.nombre}
+        title={`${owner.names} ${owner.last_names}`}
         description="Gestiona los datos del cliente y el registro de sus mascotas."
         action={
           <PetFormDialog
-            clienteId={cliente.id}
+            clienteId={owner.id_owner}
             mode="create"
             icon={CirclePlus}
             buttonColor="success"
@@ -114,7 +134,7 @@ const ClientProfilePage = () => {
       />
 
       <ClientProfileCard
-        cliente={cliente}
+        owner={owner}
         petCount={mascotas.length}
         onUpdate={handleClientUpdate}
       />

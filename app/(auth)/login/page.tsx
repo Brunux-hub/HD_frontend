@@ -1,14 +1,56 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { login } from "@/services/auth/auth";
+import { getMyOwner } from "@/services/owners/owners";
+import { ApiError } from "@/lib/axios";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const router = useRouter();
+
+  // Precarga ambos destinos para que la navegación tras el login sea instantánea.
+  useEffect(() => {
+    router.prefetch("/dashboard");
+    router.prefetch("/cliente");
+  }, [router]);
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = () => {
-    console.log("Login:", { email, password });
+  const handleSubmit = async () => {
+    setError(null);
+
+    if (!username || !password) {
+      setError("Ingresa tu usuario y contraseña.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await login({ username, password });
+      // Si el usuario tiene ficha de Owner -> es cliente -> su área. Si no, staff.
+      let owner = null;
+      try {
+        owner = await getMyOwner();
+      } catch {
+        owner = null;
+      }
+      router.push(owner ? "/cliente" : "/dashboard");
+    } catch (err) {
+      const message =
+        err instanceof ApiError && err.status === 401
+          ? "Usuario o contraseña incorrectos."
+          : err instanceof Error
+            ? err.message
+            : "No se pudo iniciar sesión.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -284,14 +326,15 @@ export default function LoginPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div>
               <label style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-dark)", display: "block", marginBottom: "6px" }}>
-                Correo electrónico
+                Usuario
               </label>
               <input
                 className="input-field"
-                type="email"
-                placeholder="tucorreo@email.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
+                type="text"
+                placeholder="tu usuario"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") handleSubmit(); }}
               />
             </div>
 
@@ -311,6 +354,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") handleSubmit(); }}
                   style={{ paddingRight: "44px" }}
                 />
                 <button
@@ -335,8 +379,19 @@ export default function LoginPage() {
               </label>
             </div>
 
-            <button className="btn-pink" onClick={handleSubmit}>
-              Iniciar sesión →
+            {error && (
+              <p style={{ color: "#dc2626", fontSize: "13px", fontWeight: 700, margin: 0, textAlign: "center" }}>
+                {error}
+              </p>
+            )}
+
+            <button
+              className="btn-pink"
+              onClick={handleSubmit}
+              disabled={loading}
+              style={loading ? { opacity: 0.7, cursor: "not-allowed" } : undefined}
+            >
+              {loading ? "Ingresando..." : "Iniciar sesión →"}
             </button>
           </div>
 
