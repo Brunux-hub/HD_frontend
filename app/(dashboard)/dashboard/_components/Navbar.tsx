@@ -1,8 +1,10 @@
 "use client"
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { LogOut, Sun, Moon, Settings, User } from "lucide-react";
+import { logout } from "@/services/auth/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +20,13 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const Navbar = () => {
   const { setTheme } = useTheme();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <nav className="p-4 flex items-center justify-between border-b border-sidebar-border">
@@ -71,7 +80,7 @@ const Navbar = () => {
                 <Settings />
                 Configuracion
               </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive">
+              <DropdownMenuItem variant="destructive" onClick={handleLogout}>
                 <LogOut />
                 Cerrar Sesión
               </DropdownMenuItem>

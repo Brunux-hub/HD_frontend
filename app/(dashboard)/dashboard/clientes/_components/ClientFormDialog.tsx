@@ -20,14 +20,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { Cliente } from "@/types/cliente";
+import { Owner, OwnerRequest } from "@/types/owner";
 
 type Props = {
   mode?: "create" | "edit";
-  data?: Cliente;
+  data?: Owner;
   icon?: LucideIcon;
   buttonColor?: "default" | "success" | "alert";
-  onSubmit: (data: Omit<Cliente, "id">) => void;
+  onSubmit: (data: OwnerRequest) => Promise<void> | void;
 };
 
 const ClientFormDialog = ({
@@ -38,21 +38,32 @@ const ClientFormDialog = ({
   onSubmit,
 }: Props) => {
   const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
 
     const formData = new FormData(e.currentTarget);
 
-    const clientData: Omit<Cliente, "id"> = {
-      nombre: formData.get("nombre") as string,
-      telefono: formData.get("telefono") as string,
+    const payload: OwnerRequest = {
+      names: formData.get("names") as string,
+      last_names: formData.get("last_names") as string,
       email: formData.get("email") as string,
-      direccion: formData.get("direccion") as string,
+      phone_number: formData.get("phone_number") as string,
+      address: formData.get("address") as string,
     };
 
-    onSubmit(clientData);
-    setOpen(false);
+    setSubmitting(true);
+    try {
+      await onSubmit(payload);
+      setOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo guardar el cliente.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -71,22 +82,22 @@ const ClientFormDialog = ({
               </FieldLegend>
               <FieldGroup>
                 <Field>
-                  <FieldLabel htmlFor="input-nombre">Nombre</FieldLabel>
+                  <FieldLabel htmlFor="input-names">Nombres</FieldLabel>
                   <Input
-                    id="input-nombre"
-                    name="nombre"
-                    defaultValue={data?.nombre ?? ""}
-                    placeholder="Ej. Juan Perez"
+                    id="input-names"
+                    name="names"
+                    defaultValue={data?.names ?? ""}
+                    placeholder="Ej. Juan Carlos"
                     required
                   />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="input-telefono">Telefono</FieldLabel>
+                  <FieldLabel htmlFor="input-last-names">Apellidos</FieldLabel>
                   <Input
-                    id="input-telefono"
-                    name="telefono"
-                    defaultValue={data?.telefono ?? ""}
-                    placeholder="Ej. 987654321"
+                    id="input-last-names"
+                    name="last_names"
+                    defaultValue={data?.last_names ?? ""}
+                    placeholder="Ej. Pérez García"
                     required
                   />
                 </Field>
@@ -102,24 +113,41 @@ const ClientFormDialog = ({
                   />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="input-direccion">Direccion</FieldLabel>
+                  <FieldLabel htmlFor="input-phone">Teléfono</FieldLabel>
                   <Input
-                    id="input-direccion"
-                    name="direccion"
-                    defaultValue={data?.direccion ?? ""}
+                    id="input-phone"
+                    name="phone_number"
+                    defaultValue={data?.phone_number ?? ""}
+                    placeholder="Ej. 987654321"
+                    required
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="input-address">Dirección</FieldLabel>
+                  <Input
+                    id="input-address"
+                    name="address"
+                    defaultValue={data?.address ?? ""}
                     placeholder="Av. Principal 123"
                     required
                   />
                 </Field>
-                <Field
-                  orientation="horizontal"
-                  className="justify-center gap-4"
-                >
-                  <Button type="submit">Guardar</Button>
+
+                {error && (
+                  <p className="text-center text-sm font-medium text-destructive">
+                    {error}
+                  </p>
+                )}
+
+                <Field orientation="horizontal" className="justify-center gap-4">
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? "Guardando..." : "Guardar"}
+                  </Button>
                   <Button
                     variant="outline"
                     type="button"
                     onClick={() => setOpen(false)}
+                    disabled={submitting}
                   >
                     Cancelar
                   </Button>

@@ -1,47 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CirclePlus } from "lucide-react";
 
 import SectionHeader from "../_components/SectionHeader";
 import ClientFormDialog from "./_components/ClientFormDialog";
 import ClientTable from "./_components/ClientTable";
 
-import { Cliente } from "@/types/cliente";
+import { Owner, OwnerRequest } from "@/types/owner";
 import {
-  createCliente,
-  deleteCliente,
-  getClientes,
-  updateCliente,
-} from "@/services/clientes/storage";
+  createOwner,
+  deleteOwner,
+  getOwners,
+} from "@/services/owners/owners";
 
 const ClientsPage = () => {
-  const [clientes, setClientes] = useState<Cliente[]>(() =>
-    typeof window === "undefined" ? [] : getClientes(),
-  );
+  const [owners, setOwners] = useState<Owner[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCreate = (cliente: Omit<Cliente, "id">) => {
-    const updated = createCliente(cliente);
-    setClientes(updated);
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      setOwners(await getOwners());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudieron cargar los clientes.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const handleCreate = async (data: OwnerRequest) => {
+    await createOwner(data);
+    await load();
   };
 
-  const handleUpdate = (id: number, cliente: Omit<Cliente, "id">) => {
-    const updated = updateCliente(id, cliente);
-    setClientes(updated);
-  };
-
-  const handleDelete = (id: number) => {
-    const updated = deleteCliente(id);
-    setClientes(updated);
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteOwner(id);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo eliminar el cliente.");
+    }
   };
 
   return (
-    <div className="mx-auto flex max-w-295 flex-col gap-8 border border-amber-500 px-4">
+    <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
       <SectionHeader
         iconName="Icono Clientes"
         iconLabel="Clientes"
         title="Listado de clientes"
-        description="Vista donde podras revisar y gestionar los clientes"
+        description="Vista donde podrás revisar y gestionar los clientes"
         action={
           <ClientFormDialog
             mode="create"
@@ -52,11 +66,15 @@ const ClientsPage = () => {
         }
       />
 
-      <ClientTable
-        clientes={clientes}
-        onEdit={handleUpdate}
-        onDelete={handleDelete}
-      />
+      {error && (
+        <p className="text-sm font-medium text-destructive">{error}</p>
+      )}
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Cargando clientes...</p>
+      ) : (
+        <ClientTable owners={owners} onDelete={handleDelete} />
+      )}
     </div>
   );
 };
