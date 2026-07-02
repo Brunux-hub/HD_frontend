@@ -16,21 +16,21 @@ import { Button } from "@/components/ui/button";
 
 import PetFormDialog from "./PetFormDialog";
 
-import { Cliente } from "@/types/cliente";
-import { Mascota } from "@/types/mascota";
+import { Pet, PetRequest } from "@/types/pet";
+
+const sexoLabel = (g: Pet["pet_gender"]) => (g === "FEMALE" ? "Hembra" : "Macho");
+const fmtDate = (iso: string) => (iso ? iso.slice(0, 10) : "—");
 
 type Props = {
-  mascotas: Mascota[];
-  ownersById?: Record<number, Cliente | undefined>;
+  pets: Pet[];
   showOwner?: boolean;
   caption?: string;
-  onEdit?: (id: number, mascota: Omit<Mascota, "id">) => void;
+  onEdit?: (id: number, pet: PetRequest) => void;
   onDelete?: (id: number) => void;
 };
 
 const PetTable = ({
-  mascotas,
-  ownersById,
+  pets,
   showOwner = false,
   caption = "Lista de Mascotas",
   onEdit,
@@ -47,58 +47,56 @@ const PetTable = ({
           <TableHead>Nombre</TableHead>
           <TableHead>Especie</TableHead>
           <TableHead>Raza</TableHead>
-          <TableHead>Edad</TableHead>
           <TableHead>Sexo</TableHead>
-          <TableHead>Fecha nacimiento</TableHead>
-          {showOwner && <TableHead>Dueño principal</TableHead>}
-          {showOwner && <TableHead>Telefono</TableHead>}
+          <TableHead>Nacimiento</TableHead>
+          <TableHead>Peso</TableHead>
+          {showOwner && <TableHead>Dueño</TableHead>}
+          {showOwner && <TableHead>Teléfono</TableHead>}
           {hasActions && <TableHead className="w-32"></TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
-        {mascotas.map((mascota) => {
-          const owner = ownersById?.[mascota.clienteId];
-
-          return (
-            <TableRow key={mascota.id}>
-              <TableCell className="font-medium">{mascota.id}</TableCell>
-              <TableCell>{mascota.nombre}</TableCell>
-              <TableCell>{mascota.especie}</TableCell>
-              <TableCell>{mascota.raza}</TableCell>
-              <TableCell>{mascota.edad}</TableCell>
-              <TableCell>{mascota.sexo}</TableCell>
-              <TableCell>{mascota.fechaNacimiento}</TableCell>
-              {showOwner && <TableCell>{owner?.nombre ?? "Sin asignar"}</TableCell>}
-              {showOwner && <TableCell>{owner?.telefono ?? "Sin telefono"}</TableCell>}
-              {hasActions && onEdit && onDelete && (
-                <TableCell className="flex gap-2">
-                  <PetFormDialog
-                    clienteId={mascota.clienteId}
-                    icon={SquarePen}
-                    mode="edit"
-                    buttonColor="alert"
-                    data={mascota}
-                    onSubmit={(data) => onEdit(mascota.id, data)}
-                  />
-                  <Button
-                    variant="destructive"
-                    onClick={() => {
-                      const confirmar = window.confirm(
-                        `Seguro que deseas eliminar a la mascota "${mascota.nombre}"?`,
-                      );
-
-                      if (!confirmar) return;
-
-                      onDelete(mascota.id);
-                    }}
-                  >
-                    <Trash />
-                  </Button>
-                </TableCell>
-              )}
-            </TableRow>
-          );
-        })}
+        {pets.map((pet) => (
+          <TableRow key={pet.id_pet}>
+            <TableCell className="font-medium">{pet.id_pet}</TableCell>
+            <TableCell>{pet.name}</TableCell>
+            <TableCell>{pet.species}</TableCell>
+            <TableCell>{pet.race}</TableCell>
+            <TableCell>{sexoLabel(pet.pet_gender)}</TableCell>
+            <TableCell>{fmtDate(pet.birthdate)}</TableCell>
+            <TableCell>{pet.weight}</TableCell>
+            {showOwner && (
+              <TableCell>
+                {pet.owner ? `${pet.owner.names} ${pet.owner.last_names}` : "Sin asignar"}
+              </TableCell>
+            )}
+            {showOwner && <TableCell>{pet.owner?.phone_number ?? "—"}</TableCell>}
+            {hasActions && onEdit && onDelete && (
+              <TableCell className="flex gap-2">
+                <PetFormDialog
+                  ownerId={pet.owner?.id_owner ?? 0}
+                  icon={SquarePen}
+                  mode="edit"
+                  buttonColor="alert"
+                  data={pet}
+                  onSubmit={(payload) => onEdit(pet.id_pet, payload)}
+                />
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    const ok = window.confirm(
+                      `¿Seguro que deseas eliminar a la mascota "${pet.name}"?`,
+                    );
+                    if (!ok) return;
+                    onDelete(pet.id_pet);
+                  }}
+                >
+                  <Trash />
+                </Button>
+              </TableCell>
+            )}
+          </TableRow>
+        ))}
       </TableBody>
       <TableFooter>
         <TableRow>

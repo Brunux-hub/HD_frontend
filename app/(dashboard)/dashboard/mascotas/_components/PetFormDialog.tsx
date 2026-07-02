@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LucideIcon } from "lucide-react";
+import { LucideIcon, CheckCircle2, Loader2 } from "lucide-react";
 
 import {
   Dialog,
@@ -28,147 +28,191 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Mascota } from "@/types/mascota";
+import { Pet, PetRequest } from "@/types/pet";
+import { Owner } from "@/types/owner";
+import type { PetGender } from "@/types/enums";
+
+// La respuesta trae birthdate en ISO ("yyyy-MM-ddT..."); el input date necesita "yyyy-MM-dd".
+const toDateInput = (value?: string) => (value ? value.slice(0, 10) : "");
 
 type Props = {
-  clienteId: number;
+  /** Dueño fijo (perfil de cliente). Si no se pasa, se muestra el selector de dueños. */
+  ownerId?: number;
+  /** Lista de dueños para elegir (listado general). */
+  owners?: Owner[];
   mode?: "create" | "edit";
-  data?: Mascota;
+  data?: Pet;
   icon?: LucideIcon;
   buttonColor?: "default" | "success" | "alert";
-  onSubmit: (data: Omit<Mascota, "id">) => void;
+  onSubmit: (data: PetRequest) => Promise<void> | void;
 };
 
-const PetFormDialog = ({
-  clienteId,
-  mode,
-  data,
-  icon: Icon,
-  buttonColor,
-  onSubmit,
-}: Props) => {
+const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, onSubmit }: Props) => {
   const [open, setOpen] = useState(false);
-  const [sexo, setSexo] = useState<Mascota["sexo"]>(data?.sexo ?? "macho");
+  const [sex, setSex] = useState<PetGender>(data?.pet_gender ?? "MALE");
+  const [selectedOwner, setSelectedOwner] = useState<string>(
+    ownerId ? String(ownerId) : data?.owner?.id_owner ? String(data.owner.id_owner) : "",
+  );
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const showOwnerPicker = !ownerId && Boolean(owners);
+
+  const handleOpenChange = (v: boolean) => {
+    setOpen(v);
+    if (!v) {
+      setError(null);
+      setSuccess(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+
+    const resolvedOwner = ownerId ?? (selectedOwner ? Number(selectedOwner) : NaN);
+    if (!Number.isFinite(resolvedOwner)) {
+      setError("Selecciona un dueño.");
+      return;
+    }
 
     const formData = new FormData(e.currentTarget);
-
-    const petData: Omit<Mascota, "id"> = {
-      nombre: formData.get("nombre") as string,
-      especie: formData.get("especie") as string,
-      raza: formData.get("raza") as string,
-      edad: Number(formData.get("edad")),
-      sexo: formData.get("sexo") as Mascota["sexo"],
-      fechaNacimiento: formData.get("fechaNacimiento") as string,
-      clienteId,
+    const payload: PetRequest = {
+      id_owner: resolvedOwner as number,
+      name: formData.get("name") as string,
+      species: formData.get("species") as string,
+      race: formData.get("race") as string,
+      birthdate: formData.get("birthdate") as string,
+      sex,
+      weight: formData.get("weight") as string,
     };
 
-    onSubmit(petData);
-    setOpen(false);
+    setSubmitting(true);
+    try {
+      await onSubmit(payload);
+      setSuccess(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo guardar la mascota.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant={buttonColor}>{Icon && <Icon />}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle className="sr-only" />
         <DialogDescription className="sr-only" />
-        <form onSubmit={handleSubmit}>
-          <FieldGroup>
-            <FieldSet>
-              <FieldLegend className="text-center text-xl font-semibold">
-                {mode === "create" ? "Registrar Mascota" : "Modificar Mascota"}
-              </FieldLegend>
-              <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="input-nombre-mascota">Nombre</FieldLabel>
-                  <Input
-                    id="input-nombre-mascota"
-                    name="nombre"
-                    defaultValue={data?.nombre ?? ""}
-                    placeholder="Ej. Luna"
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="input-especie">Especie</FieldLabel>
-                  <Input
-                    id="input-especie"
-                    name="especie"
-                    defaultValue={data?.especie ?? ""}
-                    placeholder="Ej. Canino"
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="input-raza">Raza</FieldLabel>
-                  <Input
-                    id="input-raza"
-                    name="raza"
-                    defaultValue={data?.raza ?? ""}
-                    placeholder="Ej. Labrador"
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="input-edad">Edad</FieldLabel>
-                  <Input
-                    id="input-edad"
-                    name="edad"
-                    type="number"
-                    min="0"
-                    defaultValue={data?.edad ?? 0}
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="select-sexo">Sexo</FieldLabel>
-                  <Select value={sexo} onValueChange={(value) => setSexo(value as Mascota["sexo"])}>
-                    <input type="hidden" name="sexo" value={sexo} />
-                    <SelectTrigger id="select-sexo">
-                      <SelectValue placeholder="Selecciona un sexo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="macho">Macho</SelectItem>
-                        <SelectItem value="hembra">Hembra</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="input-fecha-nacimiento">
-                    Fecha de nacimiento
-                  </FieldLabel>
-                  <Input
-                    id="input-fecha-nacimiento"
-                    name="fechaNacimiento"
-                    type="date"
-                    defaultValue={data?.fechaNacimiento ?? ""}
-                    required
-                  />
-                </Field>
-                <Field
-                  orientation="horizontal"
-                  className="justify-center gap-4"
-                >
-                  <Button type="submit">Guardar</Button>
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => setOpen(false)}
-                  >
-                    Cancelar
-                  </Button>
-                </Field>
-              </FieldGroup>
-            </FieldSet>
-          </FieldGroup>
-        </form>
+
+        {success ? (
+          /* Confirmación de éxito */
+          <div className="flex flex-col items-center gap-4 py-8 text-center">
+            <span className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-green-600 duration-500 animate-in zoom-in-50 dark:bg-green-900/40 dark:text-green-400">
+              <CheckCircle2 className="h-11 w-11 duration-700 animate-in fade-in" />
+            </span>
+            <div className="duration-500 animate-in fade-in slide-in-from-bottom-2">
+              <p className="text-lg font-semibold">
+                {mode === "edit" ? "¡Mascota actualizada!" : "¡Mascota registrada!"}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Los datos se guardaron correctamente.
+              </p>
+            </div>
+            <Button onClick={() => handleOpenChange(false)} className="mt-2">
+              Listo
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <FieldGroup>
+              <FieldSet>
+                <FieldLegend className="text-center text-xl font-semibold">
+                  {mode === "create" ? "Registrar Mascota" : "Modificar Mascota"}
+                </FieldLegend>
+                <FieldGroup>
+                  {showOwnerPicker && (
+                    <Field>
+                      <FieldLabel htmlFor="select-owner">Dueño</FieldLabel>
+                      <Select value={selectedOwner} onValueChange={setSelectedOwner}>
+                        <SelectTrigger id="select-owner">
+                          <SelectValue placeholder="Selecciona un dueño" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {owners?.map((o) => (
+                              <SelectItem key={o.id_owner} value={String(o.id_owner)}>
+                                {o.names} {o.last_names}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )}
+                  <Field>
+                    <FieldLabel htmlFor="input-name">Nombre</FieldLabel>
+                    <Input id="input-name" name="name" defaultValue={data?.name ?? ""} placeholder="Ej. Luna" required />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="input-species">Especie</FieldLabel>
+                    <Input id="input-species" name="species" defaultValue={data?.species ?? ""} placeholder="Ej. Canino" required />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="input-race">Raza</FieldLabel>
+                    <Input id="input-race" name="race" defaultValue={data?.race ?? ""} placeholder="Ej. Labrador" required />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="select-sex">Sexo</FieldLabel>
+                    <Select value={sex} onValueChange={(v) => setSex(v as PetGender)}>
+                      <input type="hidden" name="sex" value={sex} />
+                      <SelectTrigger id="select-sex">
+                        <SelectValue placeholder="Selecciona un sexo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="MALE">Macho</SelectItem>
+                          <SelectItem value="FEMALE">Hembra</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="input-birthdate">Fecha de nacimiento</FieldLabel>
+                    <Input id="input-birthdate" name="birthdate" type="date" defaultValue={toDateInput(data?.birthdate)} required />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="input-weight">Peso</FieldLabel>
+                    <Input id="input-weight" name="weight" defaultValue={data?.weight ?? ""} placeholder="Ej. 28 kg" required />
+                  </Field>
+
+                  {error && (
+                    <p className="text-center text-sm font-medium text-destructive">{error}</p>
+                  )}
+
+                  <Field orientation="horizontal" className="justify-center gap-4">
+                    <Button type="submit" disabled={submitting}>
+                      {submitting ? (
+                        <>
+                          <Loader2 className="animate-spin" />
+                          Guardando...
+                        </>
+                      ) : (
+                        "Guardar"
+                      )}
+                    </Button>
+                    <Button variant="outline" type="button" onClick={() => handleOpenChange(false)} disabled={submitting}>
+                      Cancelar
+                    </Button>
+                  </Field>
+                </FieldGroup>
+              </FieldSet>
+            </FieldGroup>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { LucideIcon } from "lucide-react";
 
 import {
@@ -9,7 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
 import {
   Field,
   FieldGroup,
@@ -17,9 +17,7 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
-
 import { Input } from "@/components/ui/input";
-
 import {
   Select,
   SelectContent,
@@ -28,57 +26,45 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { Button } from "@/components/ui/button";
 
-// Contratos de Dominio
-import { Usuario } from "@/types/usuario";
-import { useState } from "react";
+import { User, UserRequest } from "@/types/user";
+import type { UserType } from "@/types/enums";
 
 type Props = {
-  mode?: string;
-  data?: Usuario;
+  mode?: "create" | "edit";
+  data?: User;
   icon?: LucideIcon;
   buttonColor?: "default" | "success" | "alert";
-  onSubmit: (data: Omit<Usuario, "id">) => void;
+  onSubmit: (data: UserRequest) => Promise<void> | void;
 };
 
-const UserFormDialog = ({
-  mode,
-  data,
-  icon: Icon,
-  buttonColor,
-  onSubmit,
-}: Props) => {
-  // Cerar Dialog
+const UserFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Props) => {
   const [open, setOpen] = useState(false);
-  // State Campos Formulario
-  const [rol, setRol] = useState(data?.rol ?? "");
-  const [estado, setEstado] = useState(data?.estado ? "true" : "false");
+  const [type, setType] = useState<UserType>(data?.type ?? "WORKER");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Manejar Submit
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
 
-    // Instancia de Interfaz(FormData) para captura de datos
     const formData = new FormData(e.currentTarget);
-
-    // Captura de datos
-    const dataUsuario: Omit<Usuario, "id"> = {
-      nombre: formData.get("nombre") as string,
-      apellidos: formData.get("apellidos") as string,
-      email: formData.get("email") as string,
+    const payload: UserRequest = {
+      username: formData.get("username") as string,
       password: formData.get("password") as string,
-      rol: formData.get("rol") as Usuario["rol"],
-      especialidad: formData.get("especialidad") as string,
-      estado: formData.get("estado") === "true",
+      type,
     };
 
-    // Enviar Datos
-    onSubmit(dataUsuario);
-
-    // Cambiar a false para Cerar Dialog
-    setOpen(false);
+    setSubmitting(true);
+    try {
+      await onSubmit(payload);
+      setOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo guardar el usuario.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -89,111 +75,63 @@ const UserFormDialog = ({
       <DialogContent>
         <DialogTitle className="sr-only" />
         <DialogDescription className="sr-only" />
-        {/*Formulario */}
         <form onSubmit={handleSubmit}>
           <FieldGroup>
             <FieldSet>
-              <FieldLegend className="text-center font-semibold text-xl">
-                {mode === "create" ? "Crear Usuario" : ""}
-                {mode === "edit" ? "Modificar Usuario" : ""}
+              <FieldLegend className="text-center text-xl font-semibold">
+                {mode === "create" ? "Crear Usuario" : "Modificar Usuario"}
               </FieldLegend>
               <FieldGroup>
-                {/* NOMBRE */}
                 <Field>
-                  <FieldLabel htmlFor="input-nombre">Nombre</FieldLabel>
+                  <FieldLabel htmlFor="input-username">Usuario</FieldLabel>
                   <Input
-                    id="input-nombre"
-                    name="nombre"
-                    defaultValue={data?.nombre ?? ""}
-                    placeholder="ej. John"
+                    id="input-username"
+                    name="username"
+                    defaultValue={data?.username ?? ""}
+                    placeholder="ej. jperez"
                     required
                   />
                 </Field>
-                {/* APELLIDOS */}
-                <Field>
-                  <FieldLabel htmlFor="input-apellidos">Apellidos</FieldLabel>
-                  <Input
-                    id="input-apellidos"
-                    name="apellidos"
-                    defaultValue={data?.apellidos ?? ""}
-                    placeholder="ej. Doe"
-                    required
-                  />
-                </Field>
-                {/* EMAIL */}
-                <Field>
-                  <FieldLabel htmlFor="input-email">Email</FieldLabel>
-                  <Input
-                    id="input-email"
-                    name="email"
-                    defaultValue={data?.email ?? ""}
-                    placeholder="example@gmail.com"
-                    required
-                  />
-                </Field>
-                {/* PASSWORD */}
                 <Field>
                   <FieldLabel htmlFor="input-password">Contraseña</FieldLabel>
                   <Input
                     id="input-password"
                     name="password"
-                    defaultValue={data?.password ?? ""}
-                    placeholder="*********"
+                    type="password"
+                    placeholder="********"
                     required
                   />
+                  {mode === "edit" && (
+                    <p className="text-xs text-muted-foreground">
+                      Al guardar se actualizará la contraseña.
+                    </p>
+                  )}
                 </Field>
-                {/* ROL */}
                 <Field>
-                  <FieldLabel htmlFor="select-rol">
-                    Elige un Rol para el Usuario
-                  </FieldLabel>
-                  <Select value={rol} onValueChange={setRol}>
-                    <input type="hidden" name="rol" value={rol} />
-                    <SelectTrigger id="select-rol">
-                      <SelectValue placeholder="Elige un Rol" />
+                  <FieldLabel htmlFor="select-type">Tipo de usuario</FieldLabel>
+                  <Select value={type} onValueChange={(v) => setType(v as UserType)}>
+                    <input type="hidden" name="type" value={type} />
+                    <SelectTrigger id="select-type">
+                      <SelectValue placeholder="Elige un tipo" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectItem value="Admin">Admin</SelectItem>
-                        <SelectItem value="Veterinario">Veterinario</SelectItem>
-                        <SelectItem value="Recepcionista">Recepcionista</SelectItem>
+                        <SelectItem value="ADMIN">Administrador (ADMIN)</SelectItem>
+                        <SelectItem value="WORKER">Trabajador (WORKER)</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
                 </Field>
-                {/* ESPECIALIDAD */}
-                <Field>
-                  <FieldLabel htmlFor="input-especialidad">Especialidad</FieldLabel>
-                  <Input
-                    id="input-especialidad"
-                    name="especialidad"
-                    defaultValue={data?.especialidad ?? ""}
-                    required
-                  />
-                </Field>
-                {/* ESTADO */}
-                <Field>
-                  <Select value={estado} onValueChange={setEstado}>
-                    <input type="hidden" name="estado" value={estado} />
-                    <SelectTrigger id="estado">
-                      <SelectValue placeholder="Configura el Estado" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="true">Activo</SelectItem>
-                        <SelectItem value="false">Inactivo</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Field>
-                {/* BOTON SUBMIT */}
-                <Field orientation="horizontal"  className="justify-center gap-4">
-                  <Button type="submit">Guardar</Button>
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => setOpen(false)}
-                  >
+
+                {error && (
+                  <p className="text-center text-sm font-medium text-destructive">{error}</p>
+                )}
+
+                <Field orientation="horizontal" className="justify-center gap-4">
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? "Guardando..." : "Guardar"}
+                  </Button>
+                  <Button variant="outline" type="button" onClick={() => setOpen(false)} disabled={submitting}>
                     Cancelar
                   </Button>
                 </Field>
@@ -207,4 +145,3 @@ const UserFormDialog = ({
 };
 
 export default UserFormDialog;
-
