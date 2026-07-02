@@ -8,6 +8,7 @@ import {
   Calendar,
   PawPrint,
   UserRoundCheck,
+  SquareUser,
 } from "lucide-react";
 
 type SectionHeaderProps = {
@@ -34,6 +35,7 @@ const SectionHeader = ({
           {iconName === "Icono Clientes" && <BookUser />}
           {iconName === "Icono Mascotas" && <PawPrint />}
           {iconName === "Icono Veterinarios" && <UserRoundCheck />}
+          {iconName === "Icono Recepcionistas" && <SquareUser />}
           {iconName === "Icono Citas" && <Calendar />}
           {iconLabel}
         </span>

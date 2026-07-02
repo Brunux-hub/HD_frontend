@@ -8,6 +8,7 @@ import {
   BookUser,
   PawPrint,
   UserRoundCheck,
+  SquareUser,
   Settings,
   User2,
   ChevronUp,
@@ -72,6 +73,11 @@ const items = [
     title: "Veterinarios",
     url: "/dashboard/veterinarios",
     icon: UserRoundCheck,
+  },
+  {
+    title: "Recepcionistas",
+    url: "/dashboard/recepcionistas",
+    icon: SquareUser,
   },
   {
     title: "Configuración",

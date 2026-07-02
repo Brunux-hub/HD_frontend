@@ -16,6 +16,9 @@ function serializeVeterinarianRequest(
     idUser: payload.idUser,
     id_user: payload.idUser,
     userId: payload.idUser,
+    user: {
+      idUser: payload.idUser,
+    },
     userResponse: {
       idUser: payload.idUser,
     },
