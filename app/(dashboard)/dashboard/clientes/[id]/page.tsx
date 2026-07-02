@@ -120,11 +120,11 @@ const ClientProfilePage = () => {
       <SectionHeader
         iconName="Icono Clientes"
         iconLabel="Perfil del cliente"
-        title={`${owner.names} ${owner.last_names}`}
+        title={`${owner.names} ${owner.lastNames}`}
         description="Gestiona los datos del cliente y el registro de sus mascotas."
         action={
           <PetFormDialog
-            clienteId={owner.id_owner}
+            clienteId={owner.idOwner}
             mode="create"
             icon={CirclePlus}
             buttonColor="success"

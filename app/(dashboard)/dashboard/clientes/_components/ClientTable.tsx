@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash } from "lucide-react";
+import { SquarePen, Trash } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -15,14 +15,18 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
+import ClientFormDialog from "./ClientFormDialog";
+
 import { Owner } from "@/types/owner";
+import type { OwnerRequest } from "@/types/owner";
 
 type Props = {
   owners: Owner[];
+  onEdit: (id: number, data: OwnerRequest) => Promise<void>;
   onDelete: (id: number) => void;
 };
 
-const ClientTable = ({ owners, onDelete }: Props) => {
+const ClientTable = ({ owners, onEdit, onDelete }: Props) => {
   return (
     <Table>
       <TableCaption>Lista de Clientes</TableCaption>
@@ -39,27 +43,34 @@ const ClientTable = ({ owners, onDelete }: Props) => {
       </TableHeader>
       <TableBody>
         {owners.map((owner) => (
-          <TableRow key={owner.id_owner}>
-            <TableCell className="font-medium">{owner.id_owner}</TableCell>
+          <TableRow key={owner.idOwner}>
+            <TableCell className="font-medium">{owner.idOwner}</TableCell>
             <TableCell>{owner.names}</TableCell>
-            <TableCell>{owner.last_names}</TableCell>
+            <TableCell>{owner.lastNames}</TableCell>
             <TableCell>{owner.email}</TableCell>
-            <TableCell>{owner.phone_number}</TableCell>
+            <TableCell>{owner.phoneNumber}</TableCell>
             <TableCell>{owner.address}</TableCell>
             <TableCell className="flex gap-2">
               <Button asChild variant="outline">
-                <Link href={`/dashboard/clientes/${owner.id_owner}`}>Perfil</Link>
+                <Link href={`/dashboard/clientes/${owner.idOwner}`}>Perfil</Link>
               </Button>
+              <ClientFormDialog
+                mode="edit"
+                icon={SquarePen}
+                buttonColor="alert"
+                data={owner}
+                onSubmit={(data) => onEdit(owner.idOwner, data)}
+              />
               <Button
                 variant="destructive"
                 onClick={() => {
                   const confirmar = window.confirm(
-                    `¿Seguro que deseas eliminar al cliente "${owner.names} ${owner.last_names}"?`,
+                    `¿Seguro que deseas eliminar al cliente "${owner.names} ${owner.lastNames}"?`,
                   );
 
                   if (!confirmar) return;
 
-                  onDelete(owner.id_owner);
+                  onDelete(owner.idOwner);
                 }}
               >
                 <Trash />

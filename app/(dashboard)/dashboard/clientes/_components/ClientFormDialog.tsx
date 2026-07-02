@@ -49,9 +49,9 @@ const ClientFormDialog = ({
 
     const payload: OwnerRequest = {
       names: formData.get("names") as string,
-      last_names: formData.get("last_names") as string,
+      lastNames: formData.get("lastNames") as string,
       email: formData.get("email") as string,
-      phone_number: formData.get("phone_number") as string,
+      phoneNumber: formData.get("phoneNumber") as string,
       address: formData.get("address") as string,
     };
 
@@ -95,8 +95,8 @@ const ClientFormDialog = ({
                   <FieldLabel htmlFor="input-last-names">Apellidos</FieldLabel>
                   <Input
                     id="input-last-names"
-                    name="last_names"
-                    defaultValue={data?.last_names ?? ""}
+                    name="lastNames"
+                    defaultValue={data?.lastNames ?? ""}
                     placeholder="Ej. Pérez García"
                     required
                   />
@@ -116,8 +116,8 @@ const ClientFormDialog = ({
                   <FieldLabel htmlFor="input-phone">Teléfono</FieldLabel>
                   <Input
                     id="input-phone"
-                    name="phone_number"
-                    defaultValue={data?.phone_number ?? ""}
+                    name="phoneNumber"
+                    defaultValue={data?.phoneNumber ?? ""}
                     placeholder="Ej. 987654321"
                     required
                   />

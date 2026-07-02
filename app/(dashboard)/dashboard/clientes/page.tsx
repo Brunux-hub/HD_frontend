@@ -12,6 +12,7 @@ import {
   createOwner,
   deleteOwner,
   getOwners,
+  updateOwner,
 } from "@/services/owners/owners";
 
 const ClientsPage = () => {
@@ -37,6 +38,11 @@ const ClientsPage = () => {
 
   const handleCreate = async (data: OwnerRequest) => {
     await createOwner(data);
+    await load();
+  };
+
+  const handleUpdate = async (id: number, data: OwnerRequest) => {
+    await updateOwner(id, data);
     await load();
   };
 
@@ -73,7 +79,7 @@ const ClientsPage = () => {
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando clientes...</p>
       ) : (
-        <ClientTable owners={owners} onDelete={handleDelete} />
+        <ClientTable owners={owners} onEdit={handleUpdate} onDelete={handleDelete} />
       )}
     </div>
   );

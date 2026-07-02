@@ -29,7 +29,7 @@ const ClientProfileCard = ({ owner, petCount, onUpdate }: Props) => {
             Responsable de las mascotas registradas
           </CardDescription>
           <CardTitle className="text-xl">
-            {owner.names} {owner.last_names}
+            {owner.names} {owner.lastNames}
           </CardTitle>
         </div>
         <ClientFormDialog
@@ -43,7 +43,7 @@ const ClientProfileCard = ({ owner, petCount, onUpdate }: Props) => {
       <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <div>
           <p className="text-xs text-muted-foreground">Teléfono</p>
-          <p className="font-medium">{owner.phone_number}</p>
+          <p className="font-medium">{owner.phoneNumber}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Email</p>

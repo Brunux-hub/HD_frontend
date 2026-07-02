@@ -1,6 +1,23 @@
-// OwnerResponse del backend: { id_owner, names, last_names, email, phone_number, address }
-// (El "Cliente" del front es el "Owner" del backend; no tiene usuario/login.)
 export interface Owner {
+  idOwner: number;
+  names: string;
+  lastNames: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+}
+
+export type OwnerResponse = Owner[];
+
+export interface OwnerRequest {
+  names: string;
+  lastNames: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+}
+
+export interface OwnerApiSnake {
   id_owner: number;
   names: string;
   last_names: string;
@@ -9,11 +26,13 @@ export interface Owner {
   address: string;
 }
 
-// OwnerRequest del backend: { names, last_names, email, phone_number, address }
-export interface OwnerRequest {
+export interface OwnerApiCamel {
+  idOwner: number;
   names: string;
-  last_names: string;
+  lastNames: string;
   email: string;
-  phone_number: string;
+  phoneNumber: string;
   address: string;
 }
+
+export type RawOwner = OwnerApiSnake | OwnerApiCamel;
