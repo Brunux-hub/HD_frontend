@@ -12,64 +12,64 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { Button } from "@/components/ui/button";
 
 import UserFormDialog from "./UserFormDialog";
 
-// Contratos de Dominio
-import { Usuario } from "@/types/usuario";
+import { User, UserRequest } from "@/types/user";
+
+const tipoLabel = (t: User["type"]) => (t === "ADMIN" ? "Administrador" : "Trabajador");
 
 type Props = {
-  usuarios: Usuario[];
-  onEdit: (id: number, usuario: Omit<Usuario, "id">) => void;
+  users: User[];
+  onEdit: (id: number, user: UserRequest) => void;
   onDelete: (id: number) => void;
 };
 
-const UserTable = ({ usuarios, onEdit, onDelete }: Props) => {
+const UserTable = ({ users, onEdit, onDelete }: Props) => {
   return (
     <Table>
       <TableCaption>Lista de Usuarios</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-10">ID</TableHead>
-          <TableHead>Nombre</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Rol</TableHead>
-          <TableHead>Especialidad</TableHead>
-          <TableHead>Estado</TableHead>
+          <TableHead>Usuario</TableHead>
+          <TableHead>Tipo</TableHead>
           <TableHead className="w-25"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {usuarios.map((usuario) => (
-          <TableRow key={usuario.id}>
-            <TableCell className="font-medium">{usuario.id}</TableCell>
-            <TableCell>{usuario.nombre}</TableCell>
-            <TableCell>{usuario.email}</TableCell>
-            <TableCell>{usuario.rol}</TableCell>
-            <TableCell>{usuario.especialidad}</TableCell>
-            <TableCell>{usuario.estado ? "Activo" : "Inactivo"}</TableCell>
-            <TableCell className="flex justify-between">
-              {/* Dialog editar*/}
+        {users.map((user) => (
+          <TableRow key={user.id_user}>
+            <TableCell className="font-medium">{user.id_user}</TableCell>
+            <TableCell>{user.username}</TableCell>
+            <TableCell>
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                  user.type === "ADMIN"
+                    ? "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300"
+                    : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                }`}
+              >
+                {tipoLabel(user.type)}
+              </span>
+            </TableCell>
+            <TableCell className="flex justify-between gap-2">
               <UserFormDialog
                 icon={SquarePen}
                 mode="edit"
                 buttonColor="alert"
-                data={usuario}
-                onSubmit={(data) => onEdit(usuario.id, data)}
+                data={user}
+                onSubmit={(payload) => onEdit(user.id_user, payload)}
               />
-              {/* Botón eliminar */}
               <Button
                 variant="destructive"
                 onClick={() => {
-                  const confirmar = window.confirm(
-                    `¿Seguro que deseas eliminar el servicio "${usuario.nombre}"?`,
+                  const ok = window.confirm(
+                    `¿Seguro que deseas eliminar al usuario "${user.username}"?`,
                   );
-
-                  if (!confirmar) return;
-
-                  onDelete(usuario.id);
+                  if (!ok) return;
+                  onDelete(user.id_user);
                 }}
               >
                 <Trash />
@@ -80,7 +80,7 @@ const UserTable = ({ usuarios, onEdit, onDelete }: Props) => {
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={7} className="text-center h-5"></TableCell>
+          <TableCell colSpan={4} className="h-5 text-center"></TableCell>
         </TableRow>
       </TableFooter>
     </Table>
