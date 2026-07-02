@@ -13,32 +13,35 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { Owner, OwnerRequest } from "@/types/owner";
-import { Mascota } from "@/types/mascota";
+import { CreatePetRequest, PetItem } from "@/types/mascota";
 import { getOwnerById, updateOwner } from "@/services/owners/owners";
 import {
-  createMascota,
-  deleteMascota,
-  getMascotasByClienteId,
-  updateMascota,
-} from "@/services/mascotas/storage";
+  createPet,
+  deletePet,
+  findAllPets,
+  updatePet,
+} from "@/services/mascotas/petService";
 
 const ClientProfilePage = () => {
   const params = useParams<{ id: string }>();
   const ownerId = Number(params.id);
 
   const [owner, setOwner] = useState<Owner | null>(null);
-  const [mascotas, setMascotas] = useState<Mascota[]>([]);
+  const [mascotas, setMascotas] = useState<PetItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Las mascotas siguen en almacenamiento local en esta parte;
-  // se conectarán al backend (/pet) en la Parte 3.
-  const loadPets = useCallback(() => {
-    if (typeof window === "undefined" || !Number.isFinite(ownerId)) {
+  const loadPets = useCallback(async () => {
+    if (!Number.isFinite(ownerId)) {
       setMascotas([]);
       return;
     }
-    setMascotas(getMascotasByClienteId(ownerId));
+    try {
+      const pets = await findAllPets();
+      setMascotas(pets.filter((pet) => pet.owner.idOwner === ownerId));
+    } catch {
+      setMascotas([]);
+    }
   }, [ownerId]);
 
   const loadOwner = useCallback(async () => {
@@ -60,8 +63,8 @@ const ClientProfilePage = () => {
   }, [ownerId]);
 
   useEffect(() => {
-    loadOwner();
-    loadPets();
+    void loadOwner();
+    void loadPets();
   }, [loadOwner, loadPets]);
 
   const handleClientUpdate = async (data: OwnerRequest) => {
@@ -69,19 +72,19 @@ const ClientProfilePage = () => {
     await loadOwner();
   };
 
-  const handleCreatePet = (data: Omit<Mascota, "id">) => {
-    createMascota(data);
-    loadPets();
+  const handleCreatePet = async (data: CreatePetRequest) => {
+    await createPet(data);
+    await loadPets();
   };
 
-  const handleUpdatePet = (id: number, data: Omit<Mascota, "id">) => {
-    updateMascota(id, data);
-    loadPets();
+  const handleUpdatePet = async (id: number, data: CreatePetRequest) => {
+    await updatePet(id, data);
+    await loadPets();
   };
 
-  const handleDeletePet = (id: number) => {
-    deleteMascota(id);
-    loadPets();
+  const handleDeletePet = async (id: number) => {
+    await deletePet(id);
+    await loadPets();
   };
 
   if (loading) {
@@ -124,7 +127,7 @@ const ClientProfilePage = () => {
         description="Gestiona los datos del cliente y el registro de sus mascotas."
         action={
           <PetFormDialog
-            clienteId={owner.idOwner}
+            ownerId={owner.idOwner}
             mode="create"
             icon={CirclePlus}
             buttonColor="success"

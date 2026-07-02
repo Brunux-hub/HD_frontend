@@ -1,58 +1,18 @@
 import { StorageService } from "@/lib/storageService";
-import { Mascota } from "@/types/mascota";
+import type { PetItem } from "@/types/mascota";
 
 const STORAGE_KEY = "mascotas";
 
-export const getMascotas = (): Mascota[] => {
-  return StorageService.getItem<Mascota[]>(STORAGE_KEY) ?? [];
+export const getMascotas = (): PetItem[] => {
+  return StorageService.getItem<PetItem[]>(STORAGE_KEY) ?? [];
 };
 
-export const getMascotasByClienteId = (clienteId: number): Mascota[] => {
+export const getMascotasByClienteId = (clienteId: number): PetItem[] => {
   const mascotas = getMascotas();
 
-  return mascotas.filter((item) => item.clienteId === clienteId);
+  return mascotas.filter((item) => item.owner.idOwner === clienteId);
 };
 
-export const saveMascotas = (mascotas: Mascota[]) => {
+export const saveMascotas = (mascotas: PetItem[]) => {
   StorageService.setItem(STORAGE_KEY, mascotas);
-};
-
-export const createMascota = (mascota: Omit<Mascota, "id">): Mascota[] => {
-  const mascotas = getMascotas();
-
-  const nuevaMascota: Mascota = {
-    id: Date.now(),
-    ...mascota,
-  };
-
-  const mascotasActualizadas = [...mascotas, nuevaMascota];
-
-  saveMascotas(mascotasActualizadas);
-
-  return mascotasActualizadas;
-};
-
-export const updateMascota = (
-  id: number,
-  mascota: Omit<Mascota, "id">,
-): Mascota[] => {
-  const mascotas = getMascotas();
-
-  const mascotasActualizadas = mascotas.map((item) =>
-    item.id === id ? { id, ...mascota } : item,
-  );
-
-  saveMascotas(mascotasActualizadas);
-
-  return mascotasActualizadas;
-};
-
-export const deleteMascota = (id: number): Mascota[] => {
-  const mascotas = getMascotas();
-
-  const mascotasActualizadas = mascotas.filter((item) => item.id !== id);
-
-  saveMascotas(mascotasActualizadas);
-
-  return mascotasActualizadas;
 };

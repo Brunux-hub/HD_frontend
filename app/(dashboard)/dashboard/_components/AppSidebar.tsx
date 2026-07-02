@@ -7,12 +7,10 @@ import {
   Calendar,
   BookUser,
   PawPrint,
+  UserRoundCheck,
   Settings,
   User2,
   ChevronUp,
-  Plus,
-  Projector,
-  ChevronDown,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,11 +35,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { logout } from "@/services/auth/auth";
 
 const items = [
@@ -74,6 +67,11 @@ const items = [
     title: "Mascotas",
     url: "/dashboard/mascotas",
     icon: PawPrint,
+  },
+  {
+    title: "Veterinarios",
+    url: "/dashboard/veterinarios",
+    icon: UserRoundCheck,
   },
   {
     title: "Configuración",
@@ -127,39 +125,7 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {/* COLLAPSABLE */}
-        <Collapsible defaultOpen className="group/collapsible">
-          <SidebarGroup>
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger>
-                Collapsable Group
-                <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="#">
-                        <Projector />
-                        See All Options
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="#">
-                        <Plus />
-                        Option 1
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
-        </Collapsible>
+        {/* FOOTER SIDEBAR */}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
