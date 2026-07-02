@@ -1,40 +1,62 @@
 "use client";
 
 import { CirclePlus } from "lucide-react";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import SectionHeader from "../_components/SectionHeader";
 import UserTable from "./_components/UserTable";
 import UserFormDialog from "./_components/UserFormDialog";
-
-import { Usuario } from "@/types/usuario";
-
 import {
-  getUsuarios,
-  createUsuarios,
-  updateUsuario,
-  deleteUsuario,
-} from "@/services/usuarios/storage";
+  createUser,
+  deleteUser,
+  findAllUsers,
+  updateUser,
+} from "@/services/usuarios/userService";
+import type { CreateUserRequest, UserItem } from "@/types/user";
 
 const UsersPage = () => {
-  const [usuarios, setUsuarios] = useState<Usuario[]>(() =>
-    typeof window === "undefined" ? [] : getUsuarios(),
-  );
+  const [usuarios, setUsuarios] = useState<UserItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCreate = (usuario: Omit<Usuario, "id">) => {
-    const updated = createUsuarios(usuario);
-    setUsuarios(updated);
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await findAllUsers();
+      setUsuarios(data);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "No se pudo cargar la lista de usuarios.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleUpdate = (id: number, usuario: Omit<Usuario, "id">) => {
-    const updated = updateUsuario(id, usuario);
-    setUsuarios(updated);
+  useEffect(() => {
+    void loadUsers();
+  }, []);
+
+  const handleCreate = async (payload: CreateUserRequest) => {
+    const createdUser = await createUser(payload);
+    setUsuarios((current) => [...current, createdUser]);
   };
 
-  const handleDelete = (id: number) => {
-    const updated = deleteUsuario(id);
-    setUsuarios(updated);
+  const handleUpdate = async (id: number, payload: CreateUserRequest) => {
+    const updatedUser = await updateUser(id, payload);
+    setUsuarios((current) =>
+      current.map((usuario) =>
+        usuario.id_user === id ? updatedUser : usuario,
+      ),
+    );
+  };
+
+  const handleDelete = async (id: number) => {
+    await deleteUser(id);
+    setUsuarios((current) => current.filter((usuario) => usuario.id_user !== id));
   };
 
   return (
@@ -54,12 +76,16 @@ const UsersPage = () => {
         }
       />
 
-      {/* TABLA DE usuarios */}
-      <UserTable
-        usuarios={usuarios}
-        onEdit={handleUpdate}
-        onDelete={handleDelete}
-      />
+      {error ? (
+        <p className="text-sm text-red-600">{error}</p>
+      ) : (
+        <UserTable
+          usuarios={usuarios}
+          loading={loading}
+          onEdit={handleUpdate}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
   );
 };

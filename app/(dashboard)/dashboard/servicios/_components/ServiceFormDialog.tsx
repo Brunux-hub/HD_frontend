@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { LucideIcon } from "lucide-react";
 
 import {
@@ -20,28 +21,19 @@ import {
 
 import { Input } from "@/components/ui/input";
 
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
 import { Textarea } from "@/components/ui/textarea";
 
 import { Button } from "@/components/ui/button";
 
-import { Servicio } from "@/types/servicio";
-import { useState } from "react";
+import { ApiError } from "@/lib/axios";
+import type { CreateServiceRequest, ServiceItem } from "@/types/servicio";
 
 type Props = {
-  mode?: string;
-  data?: Servicio;
+  mode?: "create" | "edit";
+  data?: ServiceItem;
   icon?: LucideIcon;
   buttonColor?: "default" | "success" | "alert";
-  onSubmit: (data: Omit<Servicio, "id">) => void;
+  onSubmit: (data: CreateServiceRequest) => Promise<void>;
 };
 
 const ServiceFormDialog = ({
@@ -51,33 +43,34 @@ const ServiceFormDialog = ({
   buttonColor,
   onSubmit,
 }: Props) => {
-  // Cerar Dialog
   const [open, setOpen] = useState(false);
-  // State Campos Formulario
-  const [categoria, setCategoria] = useState(data?.categoria ?? "");
-  const [estado, setEstado] = useState(data?.estado ? "true" : "false");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Manejar Submit
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Instancia de Interfaz(FormData) para captura de datos
     const formData = new FormData(e.currentTarget);
+    setSubmitError(null);
 
-    // Captura de datos
-    const dataServicio: Omit<Servicio, "id"> = {
-      nombre: formData.get("servicio") as string,
-      categoria: formData.get("categoria") as Servicio["categoria"],
-      descripcion: formData.get("descripcion") as string,
-      precio: Number(formData.get("precio")),
-      estado: formData.get("estado") === "true",
+    const payload: CreateServiceRequest = {
+      name: String(formData.get("name") ?? ""),
+      description: String(formData.get("description") ?? ""),
+      price: Number(formData.get("price")),
     };
 
-    // Enviar Datos
-    onSubmit(dataServicio);
-
-    // Cambiar a false para Cerar Dialog
-    setOpen(false);
+    try {
+      setSubmitting(true);
+      await onSubmit(payload);
+      setOpen(false);
+    } catch (error) {
+      const message =
+        error instanceof ApiError || error instanceof Error
+          ? error.message
+          : "No se pudo guardar el servicio.";
+      setSubmitError(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -88,65 +81,41 @@ const ServiceFormDialog = ({
       <DialogContent>
         <DialogTitle className="sr-only" />
         <DialogDescription className="sr-only" />
-        {/*Formulario */}
         <form onSubmit={handleSubmit}>
           <FieldGroup>
             <FieldSet>
               <FieldLegend className="text-center font-semibold text-xl">
-                {mode === "create" ? "Crear Servicio" : ""}
-                {mode === "edit" ? "Modificar Servicio" : ""}
+                {mode === "create" ? "Crear Servicio" : "Modificar Servicio"}
               </FieldLegend>
               <FieldGroup>
-                {/* SERVICIO */}
                 <Field>
-                  <FieldLabel htmlFor="input-servicio">Servicio</FieldLabel>
+                  <FieldLabel htmlFor="input-name">Servicio</FieldLabel>
                   <Input
-                    id="input-servicio"
-                    name="servicio"
-                    defaultValue={data?.nombre ?? ""}
+                    id="input-name"
+                    name="name"
+                    defaultValue={data?.name ?? ""}
                     placeholder="Escribe un servicio"
                     required
                   />
                 </Field>
-                {/* CATEGORÍA */}
-                <Field>
-                  <FieldLabel htmlFor="select-categoria">
-                    Elige una Categoria
-                  </FieldLabel>
-                  <Select value={categoria} onValueChange={setCategoria}>
-                    <input type="hidden" name="categoria" value={categoria} />
-                    <SelectTrigger id="select-categoria">
-                      <SelectValue placeholder="Elige un Categoría" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="consulta">Consulta</SelectItem>
-                        <SelectItem value="cirugia">Cirugia</SelectItem>
-                        <SelectItem value="grooming">Grooming</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Field>
-                {/* DESCRIPCIÓN */}
                 <Field>
                   <FieldLabel htmlFor="textarea-descripcion">
                     Descripción
                   </FieldLabel>
                   <Textarea
                     id="textarea-descripcion"
-                    name="descripcion"
-                    defaultValue={data?.descripcion ?? ""}
-                    placeholder="Agrea una descripción del Servicio"
+                    name="description"
+                    defaultValue={data?.description ?? ""}
+                    placeholder="Agrega una descripción del servicio"
                     className="resize-none"
                   />
                 </Field>
-                {/* PRECIO */}
                 <Field>
-                  <FieldLabel htmlFor="input-precio">Precio</FieldLabel>
+                  <FieldLabel htmlFor="input-price">Precio</FieldLabel>
                   <Input
-                    id="input-precio"
-                    name="precio"
-                    defaultValue={data?.precio ?? ""}
+                    id="input-price"
+                    name="price"
+                    defaultValue={data?.price ?? ""}
                     placeholder="0"
                     type="number"
                     min="0"
@@ -154,27 +123,17 @@ const ServiceFormDialog = ({
                     required
                   />
                 </Field>
-                {/* ESTADO */}
-                <Field>
-                  <Select value={estado} onValueChange={setEstado}>
-                    <input type="hidden" name="estado" value={estado} />
-                    <SelectTrigger id="estado">
-                      <SelectValue placeholder="Estado del Servicio" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="true">Activo</SelectItem>
-                        <SelectItem value="false">Inactivo</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Field>
-                {/* BOTON SUBMIT */}
-                <Field orientation="horizontal"  className="justify-center gap-4">
-                  <Button type="submit">Guardar</Button>
+                {submitError ? (
+                  <p className="text-sm text-red-600">{submitError}</p>
+                ) : null}
+                <Field orientation="horizontal" className="justify-center gap-4">
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? "Guardando..." : "Guardar"}
+                  </Button>
                   <Button
                     variant="outline"
                     type="button"
+                    disabled={submitting}
                     onClick={() => setOpen(false)}
                   >
                     Cancelar

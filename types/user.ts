@@ -1,7 +1,7 @@
 import type { UserType } from "@/types/enums";
 
 export interface UserItem {
-  id_user?: number;
+  id_user: number;
   username: string;
   type: UserType;
 }
@@ -22,4 +22,3 @@ export interface CreateUserRequest {
 }
 
 export type UpdateUserRequest = CreateUserRequest;
-

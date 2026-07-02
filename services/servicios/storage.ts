@@ -1,21 +1,23 @@
 import { StorageService } from "@/lib/storageService";
-import { Servicio } from "@/types/servicio";
+import type { CreateServiceRequest, ServiceItem } from "@/types/servicio";
 
 const STORAGE_KEY = "servicios";
 
-export const getServicios = (): Servicio[] => {
-  return StorageService.getItem<Servicio[]>(STORAGE_KEY) ?? [];
+export const getServicios = (): ServiceItem[] => {
+  return StorageService.getItem<ServiceItem[]>(STORAGE_KEY) ?? [];
 };
 
-export const saveServicios = (servicios: Servicio[]) => {
+export const saveServicios = (servicios: ServiceItem[]) => {
   StorageService.setItem(STORAGE_KEY, servicios);
 };
 
-export const createServicio = (servicio: Omit<Servicio, "id">): Servicio[] => {
+export const createServicio = (
+  servicio: CreateServiceRequest,
+): ServiceItem[] => {
   const servicios = getServicios();
 
-  const nuevoServicio: Servicio = {
-    id: Date.now(),
+  const nuevoServicio: ServiceItem = {
+    idService: Date.now(),
     ...servicio,
   };
 
@@ -28,12 +30,12 @@ export const createServicio = (servicio: Omit<Servicio, "id">): Servicio[] => {
 
 export const updateServicio = (
   id: number,
-  servicio: Omit<Servicio, "id">,
-): Servicio[] => {
+  servicio: CreateServiceRequest,
+): ServiceItem[] => {
   const servicios = getServicios();
 
   const serviciosActualizados = servicios.map((item) =>
-    item.id === id ? { id, ...servicio } : item,
+    item.idService === id ? { idService: id, ...servicio } : item,
   );
 
   saveServicios(serviciosActualizados);
@@ -41,10 +43,10 @@ export const updateServicio = (
   return serviciosActualizados;
 };
 
-export const deleteServicio = (id: number): Servicio[] => {
+export const deleteServicio = (id: number): ServiceItem[] => {
   const servicios = getServicios();
 
-  const serviciosActualizados = servicios.filter((item) => item.id !== id);
+  const serviciosActualizados = servicios.filter((item) => item.idService !== id);
 
   saveServicios(serviciosActualizados);
 
