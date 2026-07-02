@@ -1,6 +1,7 @@
 "use client";
 
-import { SquarePen, Trash } from "lucide-react";
+import Link from "next/link";
+import { SquarePen, Trash, NotebookText } from "lucide-react";
 
 import {
   Table,
@@ -29,6 +30,7 @@ type Props = {
   owners?: Owner[];
   showOwner?: boolean;
   caption?: string;
+  showHistoryLink?: boolean;
   onEdit?: (id: number, mascota: CreatePetRequest) => Promise<void>;
   onDelete?: (id: number) => Promise<void>;
 };
@@ -38,6 +40,7 @@ const PetTable = ({
   owners = [],
   showOwner = false,
   caption = "Lista de Mascotas",
+  showHistoryLink = false,
   onEdit,
   onDelete,
 }: Props) => {
@@ -57,6 +60,7 @@ const PetTable = ({
           <TableHead>Fecha nacimiento</TableHead>
           {showOwner && <TableHead>Dueño principal</TableHead>}
           {showOwner && <TableHead>Teléfono</TableHead>}
+          {showHistoryLink && <TableHead className="w-20">Historial</TableHead>}
           {hasActions && <TableHead className="w-32"></TableHead>}
         </TableRow>
       </TableHeader>
@@ -72,6 +76,15 @@ const PetTable = ({
             <TableCell>{mascota.birthdate.slice(0, 10)}</TableCell>
             {showOwner && <TableCell>{mascota.owner.names}</TableCell>}
             {showOwner && <TableCell>{mascota.owner.phoneNumber}</TableCell>}
+            {showHistoryLink && (
+              <TableCell>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/dashboard/mascotas/${mascota.idPet}/historial`}>
+                    <NotebookText />
+                  </Link>
+                </Button>
+              </TableCell>
+            )}
             {hasActions && onEdit && onDelete && (
               <TableCell className="flex gap-2">
                 <PetFormDialog
@@ -105,7 +118,12 @@ const PetTable = ({
       <TableFooter>
         <TableRow>
           <TableCell
-            colSpan={showOwner ? (hasActions ? 10 : 9) : hasActions ? 8 : 7}
+            colSpan={
+              (showOwner ? 2 : 0) +
+              (showHistoryLink ? 1 : 0) +
+              (hasActions ? 1 : 0) +
+              7
+            }
             className="h-5 text-center"
           ></TableCell>
         </TableRow>

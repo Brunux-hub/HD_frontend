@@ -83,6 +83,7 @@ const PetsPage = () => {
           mascotas={mascotas}
           owners={owners}
           showOwner
+          showHistoryLink
           caption={loading ? "Cargando mascotas..." : "Mascotas registradas en la veterinaria"}
           onEdit={handleUpdate}
           onDelete={handleDelete}
