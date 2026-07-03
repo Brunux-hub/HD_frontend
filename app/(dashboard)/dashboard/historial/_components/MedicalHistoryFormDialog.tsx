@@ -34,9 +34,6 @@ import { Appointment } from "@/types/appointment";
 import { Service } from "@/types/service";
 import { fmtDate } from "@/lib/utils";
 
-// La respuesta trae date en ISO ("yyyy-MM-ddTHH:mm..."); el input datetime-local necesita "yyyy-MM-ddTHH:mm".
-const toDateTimeInput = (value?: string) => (value ? value.slice(0, 16) : "");
-
 type Props = {
   appointments: Appointment[];
   services: Service[];
@@ -95,8 +92,9 @@ const MedicalHistoryFormDialog = ({
     const payload: MedicalHistoryRequest = {
       id_appointment: resolvedAppointment as number,
       id_service: resolvedService as number,
-      description: formData.get("description") as string,
-      date: formData.get("date") as string,
+      weight: formData.get("weight") as string,
+      diagnosis: formData.get("diagnosis") as string,
+      treatment: formData.get("treatment") as string,
     };
 
     setSubmitting(true);
@@ -180,22 +178,32 @@ const MedicalHistoryFormDialog = ({
                     </Select>
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-date">Fecha</FieldLabel>
+                    <FieldLabel htmlFor="input-weight">Peso (kg)</FieldLabel>
                     <Input
-                      id="input-date"
-                      name="date"
-                      type="datetime-local"
-                      defaultValue={toDateTimeInput(data?.date)}
+                      id="input-weight"
+                      name="weight"
+                      defaultValue={data?.weight ?? ""}
+                      placeholder="Ej. 8.5"
                       required
                     />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-description">Descripción</FieldLabel>
+                    <FieldLabel htmlFor="input-diagnosis">Diagnóstico</FieldLabel>
                     <Textarea
-                      id="input-description"
-                      name="description"
-                      defaultValue={data?.description ?? ""}
-                      placeholder="Detalle del historial médico"
+                      id="input-diagnosis"
+                      name="diagnosis"
+                      defaultValue={data?.diagnosis ?? ""}
+                      placeholder="Ej. Otitis externa"
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="input-treatment">Tratamiento</FieldLabel>
+                    <Textarea
+                      id="input-treatment"
+                      name="treatment"
+                      defaultValue={data?.treatment ?? ""}
+                      placeholder="Ej. Limpiador ótico c/s 7 días"
                       required
                     />
                   </Field>

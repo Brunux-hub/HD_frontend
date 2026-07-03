@@ -27,7 +27,6 @@ import MedicalHistoryFormDialog from "./MedicalHistoryFormDialog";
 import { MedicalHistory, MedicalHistoryRequest } from "@/types/medicalHistory";
 import { Appointment } from "@/types/appointment";
 import { Service } from "@/types/service";
-import { fmtDateTime } from "@/lib/utils";
 
 type Props = {
   medicalHistories: MedicalHistory[];
@@ -61,8 +60,9 @@ const MedicalHistoryTable = ({
           <TableHead>ID</TableHead>
           <TableHead>Cita</TableHead>
           <TableHead>Servicio</TableHead>
-          <TableHead>Descripción</TableHead>
-          <TableHead>Fecha</TableHead>
+          <TableHead>Peso</TableHead>
+          <TableHead>Diagnóstico</TableHead>
+          <TableHead>Tratamiento</TableHead>
           <TableHead></TableHead>
         </TableRow>
       </TableHeader>
@@ -74,8 +74,9 @@ const MedicalHistoryTable = ({
               {`#${mh.appointment?.id_appointment} ${mh.appointment?.pet?.name}`}
             </TableCell>
             <TableCell>{mh.services?.name}</TableCell>
-            <TableCell>{mh.description}</TableCell>
-            <TableCell>{fmtDateTime(mh.date)}</TableCell>
+            <TableCell>{mh.weight}</TableCell>
+            <TableCell>{mh.diagnosis}</TableCell>
+            <TableCell>{mh.treatment}</TableCell>
             <TableCell className="flex justify-between gap-2">
               <MedicalHistoryFormDialog
                 icon={SquarePen}
@@ -105,7 +106,7 @@ const MedicalHistoryTable = ({
       {totalPages > 1 && (
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={6} className="py-3">
+            <TableCell colSpan={7} className="py-3">
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
