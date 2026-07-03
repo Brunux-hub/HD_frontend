@@ -5,7 +5,6 @@ import { SquarePen, Trash } from "lucide-react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
@@ -29,7 +28,6 @@ type Props = {
 const UserTable = ({ users, onEdit, onDelete }: Props) => {
   return (
     <Table>
-      <TableCaption>Lista de Usuarios</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-10">ID</TableHead>

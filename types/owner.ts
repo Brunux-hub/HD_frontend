@@ -2,6 +2,7 @@
 // (El "Cliente" del front es el "Owner" del backend; no tiene usuario/login.)
 export interface Owner {
   id_owner: number;
+  dni: string;
   names: string;
   last_names: string;
   email: string;
@@ -11,6 +12,7 @@ export interface Owner {
 
 // OwnerRequest del backend: { names, last_names, email, phone_number, address }
 export interface OwnerRequest {
+  dni: string;
   names: string;
   last_names: string;
   email: string;

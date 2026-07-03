@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
@@ -25,10 +24,10 @@ type Props = {
 const ClientTable = ({ owners, onDelete }: Props) => {
   return (
     <Table>
-      <TableCaption>Lista de Clientes</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-10">ID</TableHead>
+          <TableHead>DNI</TableHead>
           <TableHead>Nombres</TableHead>
           <TableHead>Apellidos</TableHead>
           <TableHead>Email</TableHead>
@@ -41,6 +40,7 @@ const ClientTable = ({ owners, onDelete }: Props) => {
         {owners.map((owner) => (
           <TableRow key={owner.id_owner}>
             <TableCell className="font-medium">{owner.id_owner}</TableCell>
+            <TableCell>{owner.dni}</TableCell>
             <TableCell>{owner.names}</TableCell>
             <TableCell>{owner.last_names}</TableCell>
             <TableCell>{owner.email}</TableCell>
@@ -70,7 +70,7 @@ const ClientTable = ({ owners, onDelete }: Props) => {
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={7} className="h-5 text-center"></TableCell>
+          <TableCell colSpan={8} className="h-5 text-center"></TableCell>
         </TableRow>
       </TableFooter>
     </Table>

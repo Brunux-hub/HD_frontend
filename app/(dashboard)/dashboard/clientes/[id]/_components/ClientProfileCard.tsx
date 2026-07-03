@@ -42,6 +42,10 @@ const ClientProfileCard = ({ owner, petCount, onUpdate }: Props) => {
       </CardHeader>
       <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <div>
+          <p className="text-xs text-muted-foreground">DNI</p>
+          <p className="font-medium">{owner.dni}</p>
+        </div>
+        <div>
           <p className="text-xs text-muted-foreground">Teléfono</p>
           <p className="font-medium">{owner.phone_number}</p>
         </div>

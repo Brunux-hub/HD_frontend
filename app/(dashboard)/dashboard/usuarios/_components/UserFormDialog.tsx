@@ -70,7 +70,7 @@ const UserFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Props
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={buttonColor}>{Icon && <Icon />}</Button>
+        <Button variant={mode === "create" ? "teal" : buttonColor}>{Icon && <Icon />}{mode === "create" && "Agregar"}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle className="sr-only" />

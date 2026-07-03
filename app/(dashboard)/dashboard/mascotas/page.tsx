@@ -48,27 +48,25 @@ const PetsPage = () => {
         iconLabel="Mascotas"
         title="Listado general de mascotas"
         description="Vista general de pacientes con su dueño y teléfono de contacto."
-        action={
-          <PetFormDialog
-            mode="create"
-            owners={owners}
-            icon={CirclePlus}
-            buttonColor="success"
-            onSubmit={handleCreate}
-          />
-        }
+        accent="teal"
       />
 
       {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
+      <div className="flex">
+        <PetFormDialog
+          mode="create"
+          owners={owners}
+          icon={CirclePlus}
+          buttonColor="success"
+          onSubmit={handleCreate}
+        />
+      </div>
+
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando mascotas...</p>
       ) : (
-        <PetTable
-          pets={pets}
-          showOwner
-          caption="Mascotas registradas en la veterinaria"
-        />
+        <PetTable pets={pets} showOwner />
       )}
     </div>
   );

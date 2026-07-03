@@ -56,19 +56,21 @@ const ClientsPage = () => {
         iconLabel="Clientes"
         title="Listado de clientes"
         description="Vista donde podrás revisar y gestionar los clientes"
-        action={
-          <ClientFormDialog
-            mode="create"
-            icon={CirclePlus}
-            buttonColor="success"
-            onSubmit={handleCreate}
-          />
-        }
+        accent="teal"
       />
 
       {error && (
         <p className="text-sm font-medium text-destructive">{error}</p>
       )}
+
+      <div className="flex">
+        <ClientFormDialog
+          mode="create"
+          icon={CirclePlus}
+          buttonColor="success"
+          onSubmit={handleCreate}
+        />
+      </div>
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando clientes...</p>

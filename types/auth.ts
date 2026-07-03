@@ -11,6 +11,20 @@ export interface AuthResponse {
   token: string;
 }
 
+// Rol "fino" que devuelve el backend en GET /auth/me.
+export type StaffRole =
+  | "ADMIN"
+  | "VETERINARIAN"
+  | "RECEPTIONIST"
+  | "CLIENT"
+  | "WORKER";
+
+// Respuesta de GET /auth/me
+export interface MeResponse {
+  username: string;
+  role: StaffRole;
+}
+
 // POST /auth/register (admin, uso interno) — crea un User "pelado"
 export interface RegisterRequest {
   username: string;
@@ -23,6 +37,7 @@ export interface RegisterRequest {
 export interface ClientRegisterRequest {
   username: string;
   password: string;
+  dni: string;
   names: string;
   last_names: string;
   email: string;

@@ -62,17 +62,19 @@ const UsersPage = () => {
         iconLabel="Usuarios"
         title="Listado de usuarios"
         description="Vista donde podrás revisar y gestionar las cuentas de acceso."
-        action={
-          <UserFormDialog
-            mode="create"
-            icon={CirclePlus}
-            buttonColor="success"
-            onSubmit={handleCreate}
-          />
-        }
+        accent="teal"
       />
 
       {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+
+      <div className="flex">
+        <UserFormDialog
+          mode="create"
+          icon={CirclePlus}
+          buttonColor="success"
+          onSubmit={handleCreate}
+        />
+      </div>
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando usuarios...</p>
