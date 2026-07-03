@@ -102,6 +102,7 @@ const ClientProfilePage = () => {
           iconLabel="Clientes"
           title="Cliente no encontrado"
           description="El registro solicitado no existe o fue eliminado."
+          accent="teal"
           action={
             <Button asChild variant="outline">
               <Link href="/dashboard/clientes">Volver al listado</Link>
@@ -124,15 +125,7 @@ const ClientProfilePage = () => {
         iconLabel="Perfil del cliente"
         title={`${owner.names} ${owner.last_names}`}
         description="Gestiona los datos del cliente y el registro de sus mascotas."
-        action={
-          <PetFormDialog
-            ownerId={owner.id_owner}
-            mode="create"
-            icon={CirclePlus}
-            buttonColor="success"
-            onSubmit={handleCreatePet}
-          />
-        }
+        accent="teal"
       />
 
       <ClientProfileCard
@@ -141,9 +134,18 @@ const ClientProfilePage = () => {
         onUpdate={handleClientUpdate}
       />
 
+      <div className="flex">
+        <PetFormDialog
+          ownerId={owner.id_owner}
+          mode="create"
+          icon={CirclePlus}
+          buttonColor="success"
+          onSubmit={handleCreatePet}
+        />
+      </div>
+
       <PetTable
         pets={pets}
-        caption="Mascotas registradas para este cliente"
         onEdit={handleUpdatePet}
         onDelete={handleDeletePet}
       />

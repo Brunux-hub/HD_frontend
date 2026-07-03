@@ -102,7 +102,7 @@ const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, o
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={buttonColor}>{Icon && <Icon />}</Button>
+        <Button variant={mode === "create" ? "teal" : buttonColor}>{Icon && <Icon />}{mode === "create" && "Agregar"}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle className="sr-only" />

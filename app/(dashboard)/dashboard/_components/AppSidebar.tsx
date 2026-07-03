@@ -7,12 +7,14 @@ import {
   Calendar,
   BookUser,
   PawPrint,
-  Settings,
+  Stethoscope,
+  Headset,
+  ClipboardList,
+  Syringe,
+  ShieldCheck,
+  BarChart3,
   User2,
   ChevronUp,
-  Plus,
-  Projector,
-  ChevronDown,
 } from "lucide-react";
 import {
   Sidebar,
@@ -23,10 +25,10 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import Image from "next/image";
@@ -37,53 +39,36 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { logout } from "@/services/auth/auth";
+import type { Role } from "@/lib/auth";
 
 const items = [
-  {
-    title: "Home",
-    url: "/dashboard",
-    icon: Home,
-  },
-  {
-    title: "Usuarios",
-    url: "/dashboard/usuarios",
-    icon: CircleUserRound,
-  },
-  {
-    title: "Servicios",
-    url: "/dashboard/servicios",
-    icon: ReceiptText,
-  },
-  {
-    title: "Citas",
-    url: "/dashboard/citas",
-    icon: Calendar,
-  },
-  {
-    title: "Clientes",
-    url: "/dashboard/clientes",
-    icon: BookUser,
-  },
-  {
-    title: "Mascotas",
-    url: "/dashboard/mascotas",
-    icon: PawPrint,
-  },
-  {
-    title: "Configuración",
-    url: "#",
-    icon: Settings,
-  },
+  { title: "Home", url: "/dashboard", icon: Home },
+  { title: "Clientes", url: "/dashboard/clientes", icon: BookUser },
+  { title: "Mascotas", url: "/dashboard/mascotas", icon: PawPrint },
+  { title: "Citas", url: "/dashboard/citas", icon: Calendar },
+  { title: "Historial", url: "/dashboard/historial", icon: ClipboardList },
+  { title: "Vacunas", url: "/dashboard/vacunas", icon: Syringe },
+  { title: "Vacunación", url: "/dashboard/vacunacion", icon: ShieldCheck },
+  { title: "Servicios", url: "/dashboard/servicios", icon: ReceiptText },
+  { title: "Veterinarios", url: "/dashboard/veterinarios", icon: Stethoscope },
+  { title: "Recepcionistas", url: "/dashboard/recepcionistas", icon: Headset },
+  { title: "Usuarios", url: "/dashboard/usuarios", icon: CircleUserRound },
+  { title: "Reportes", url: "/dashboard/reportes", icon: BarChart3 },
 ];
 
-const AppSidebar = () => {
+// Secciones ocultas por rol (ruta base).
+const HIDDEN_BY_ROLE: Record<string, string[]> = {
+  veterinarian: ["/dashboard/clientes", "/dashboard/veterinarios"],
+  receptionist: ["/dashboard/recepcionistas"],
+};
+
+const AppSidebar = ({ role = "worker" }: { role?: Role }) => {
   const router = useRouter();
+  const { setOpen, isMobile } = useSidebar();
+
+  const hidden = HIDDEN_BY_ROLE[role] ?? [];
+  const visibleItems = items.filter((item) => !hidden.includes(item.url));
 
   const handleLogout = () => {
     logout();
@@ -91,8 +76,16 @@ const AppSidebar = () => {
     router.refresh();
   };
 
+  // En desktop: crece al pasar el mouse y se colapsa al salir.
+  const hoverProps = isMobile
+    ? {}
+    : {
+        onMouseEnter: () => setOpen(true),
+        onMouseLeave: () => setOpen(false),
+      };
+
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" {...hoverProps}>
       <SidebarHeader className="py-4">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -108,10 +101,10 @@ const AppSidebar = () => {
       <SidebarSeparator />
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu de Acciones</SidebarGroupLabel>
+          <SidebarGroupLabel>Menú de Acciones</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>
@@ -119,47 +112,11 @@ const AppSidebar = () => {
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
-                  {item.title === "Inbox" && (
-                    <SidebarMenuBadge>24</SidebarMenuBadge>
-                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {/* COLLAPSABLE */}
-        <Collapsible defaultOpen className="group/collapsible">
-          <SidebarGroup>
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger>
-                Collapsable Group
-                <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="#">
-                        <Projector />
-                        See All Options
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="#">
-                        <Plus />
-                        Option 1
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
-        </Collapsible>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
@@ -167,14 +124,12 @@ const AppSidebar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  <User2 /> John Doe <ChevronUp className="ml-auto" />
+                  <User2 /> Mi cuenta <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Perfil</DropdownMenuItem>
-                <DropdownMenuItem>Configuracion</DropdownMenuItem>
                 <DropdownMenuItem variant="destructive" onClick={handleLogout}>
-                  Cerrar Sesion
+                  Cerrar Sesión
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

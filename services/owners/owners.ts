@@ -33,3 +33,9 @@ export const getMyOwner = async (): Promise<Owner | null> => {
   const { data } = await http.get<Owner>(`${BASE}/me`);
   return data || null;
 };
+
+// GET /owner/dni/{dni} -> Owner con ese DNI, o null si no existe (204).
+export const getOwnerByDni = async (dni: string): Promise<Owner | null> => {
+  const { data } = await http.get<Owner>(`${BASE}/dni/${encodeURIComponent(dni)}`);
+  return data || null;
+};

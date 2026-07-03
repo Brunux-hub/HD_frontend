@@ -28,10 +28,18 @@ export const http = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// --- Request: adjunta el JWT si existe ---
+// --- Request: adjunta el JWT si existe, EXCEPTO en los endpoints públicos de auth ---
+// (login/register no deben llevar un token viejo: si es de un usuario borrado,
+//  el backend responde 401 y rompe el login/registro de forma intermitente).
 http.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const url = config.url ?? "";
+  const isPublicAuth =
+    url.startsWith("/auth/login") || url.startsWith("/auth/register");
+
+  if (!isPublicAuth) {
+    const token = getToken();
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 

@@ -34,6 +34,102 @@
 /* Directiva de Componentes */
 @layer components {
 
+  /* --------------------------------------------------------------
+     Sombra suave con degradado morado.
+     EXCLUSIVA de la pantalla de inicio del dashboard (Panel de control).
+     Se construye con varias capas de sombra en distintos tonos de
+     morado para simular un degradado ligero y vaporoso.
+  ----------------------------------------------------------------*/
+  .glow-purple {
+    box-shadow:
+      0 2px 6px -2px rgba(196, 181, 253, 0.35),
+      0 10px 24px -10px rgba(167, 139, 250, 0.45),
+      0 24px 55px -22px rgba(124, 58, 237, 0.38);
+    transition: box-shadow 0.35s ease, transform 0.35s ease;
+  }
+  .glow-purple:hover {
+    box-shadow:
+      0 4px 10px -2px rgba(196, 181, 253, 0.45),
+      0 14px 30px -10px rgba(167, 139, 250, 0.55),
+      0 30px 65px -22px rgba(124, 58, 237, 0.48);
+  }
+  .dark .glow-purple {
+    box-shadow:
+      0 2px 6px -2px rgba(167, 139, 250, 0.25),
+      0 10px 24px -10px rgba(139, 92, 246, 0.32),
+      0 24px 55px -22px rgba(124, 58, 237, 0.30);
+  }
+
+  /* Borde superior con degradado morado para el hero de inicio */
+  .hero-purple-ring {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+      0 10px 30px -12px rgba(124, 58, 237, 0.55),
+      0 30px 70px -25px rgba(109, 40, 217, 0.45);
+  }
+
+  /* --------------------------------------------------------------
+     Versión TEAL del shadowbox (mismo color del sidebar).
+     Se usa en el hero "Bienvenido a la clínica".
+  ----------------------------------------------------------------*/
+  .glow-teal {
+    box-shadow:
+      0 2px 6px -2px rgba(45, 212, 191, 0.35),
+      0 10px 24px -10px rgba(20, 184, 166, 0.45),
+      0 24px 55px -22px rgba(13, 148, 136, 0.38);
+    transition: box-shadow 0.35s ease, transform 0.35s ease;
+  }
+  .dark .glow-teal {
+    box-shadow:
+      0 2px 6px -2px rgba(45, 212, 191, 0.25),
+      0 10px 24px -10px rgba(20, 184, 166, 0.32),
+      0 24px 55px -22px rgba(13, 148, 136, 0.30);
+  }
+  .hero-teal-ring {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+      0 4px 12px -4px rgba(45, 212, 191, 0.40),
+      0 14px 34px -10px rgba(20, 184, 166, 0.50),
+      0 30px 70px -22px rgba(13, 148, 136, 0.45);
+    transition: box-shadow 0.35s ease;
+  }
+  .dark .hero-teal-ring {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+      0 4px 12px -4px rgba(45, 212, 191, 0.28),
+      0 14px 34px -10px rgba(20, 184, 166, 0.34),
+      0 30px 70px -22px rgba(13, 148, 136, 0.32);
+  }
+
+  /* Elevación genérica suave para tarjetas/encabezados de otras vistas */
+  .card-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  /* --------------------------------------------------------------
+     Tarjetas del inicio (todas menos el hero "Bienvenido a la clínica"):
+     al pasar el mouse la tarjeta se agranda y un borde morado animado
+     se dibuja alrededor hasta "cerrar" la tarjeta.
+     El morado es el mismo del efecto de shadowbox que se usaba antes.
+  ----------------------------------------------------------------*/
+  .hovercard {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .hovercard:hover {
+    transform: scale(1.02);
+    box-shadow: 0 14px 34px -16px rgba(15, 23, 42, 0.22);
+  }
+  .hovercard .ab-rect {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    transition: stroke-dashoffset 0.6s ease;
+  }
+  .hovercard:hover .ab-rect {
+    stroke-dashoffset: 0;
+  }
 }
 
 
@@ -110,14 +206,15 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Sidebar en color teal (mismo acento que la vista de Mascotas) */
+  --sidebar: oklch(0.52 0.085 190);
+  --sidebar-foreground: oklch(0.98 0.02 190);
+  --sidebar-primary: oklch(0.985 0 0);
+  --sidebar-primary-foreground: oklch(0.45 0.08 190);
+  --sidebar-accent: oklch(0.45 0.09 190);
+  --sidebar-accent-foreground: oklch(0.99 0.01 190);
+  --sidebar-border: oklch(1 0 0 / 18%);
+  --sidebar-ring: oklch(0.75 0.1 190);
 }
 
 
@@ -146,12 +243,13 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  /* Sidebar teal en modo oscuro (tono más profundo) */
+  --sidebar: oklch(0.3 0.055 195);
+  --sidebar-foreground: oklch(0.95 0.02 190);
+  --sidebar-primary: oklch(0.7 0.12 188);
+  --sidebar-primary-foreground: oklch(0.18 0.03 195);
+  --sidebar-accent: oklch(0.4 0.07 193);
+  --sidebar-accent-foreground: oklch(0.98 0.01 190);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: oklch(0.7 0.1 190);
 }

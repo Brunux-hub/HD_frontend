@@ -4,18 +4,23 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PawPrint, Syringe, CalendarClock, AlertTriangle, ChevronRight } from "lucide-react";
 
-import { getMascotas, edadEnAnios } from "@/lib/cliente/data";
-import { getMyOwner } from "@/services/owners/owners";
+import { getClientData, edadEnAnios, type Mascota } from "@/lib/cliente/data";
+import PetAvatar from "../_components/PetAvatar";
 import type { Owner } from "@/types/owner";
 
 export default function ClienteHome() {
   const [owner, setOwner] = useState<Owner | null>(null);
-  const mascotas = getMascotas();
+  const [mascotas, setMascotas] = useState<Mascota[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getMyOwner()
-      .then(setOwner)
-      .catch(() => setOwner(null));
+    getClientData()
+      .then(({ owner, mascotas }) => {
+        setOwner(owner);
+        setMascotas(mascotas);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const vacunas = mascotas.flatMap((m) => m.vacunas);
@@ -35,16 +40,15 @@ export default function ClienteHome() {
       {/* Bienvenida */}
       <div className="rounded-3xl bg-gradient-to-br from-teal-600 to-teal-800 p-7 text-white shadow-lg sm:p-9">
         <p className="text-sm text-teal-100">Portal del cliente</p>
-        <h1 className="mt-1 text-3xl font-bold">
-          Hola{owner ? `, ${owner.names}` : ""} 👋
-        </h1>
+        <h1 className="mt-1 text-3xl font-bold">Hola{owner ? `, ${owner.names}` : ""} 👋</h1>
         <p className="mt-2 max-w-lg text-teal-50/90">
           Aquí puedes revisar a tus mascotas y el estado de sus vacunas.
         </p>
       </div>
 
-      {mascotas.length === 0 ? (
-        /* Estado vacío */
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Cargando tu información...</p>
+      ) : mascotas.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300">
             <PawPrint className="h-8 w-8" />
@@ -92,7 +96,7 @@ export default function ClienteHome() {
                   href={`/cliente/mascotas/${m.id}`}
                   className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-teal-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
                 >
-                  <img src={m.foto} alt={m.nombre} className="h-16 w-16 rounded-xl object-cover" />
+                  <PetAvatar name={m.nombre} className="h-16 w-16 text-xl" />
                   <div className="min-w-0 flex-1">
                     <p className="font-bold text-slate-900 dark:text-white">{m.nombre}</p>
                     <p className="truncate text-sm text-slate-500">

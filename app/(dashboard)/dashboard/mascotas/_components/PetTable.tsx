@@ -5,7 +5,6 @@ import { SquarePen, Trash } from "lucide-react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
@@ -24,7 +23,6 @@ const fmtDate = (iso: string) => (iso ? iso.slice(0, 10) : "—");
 type Props = {
   pets: Pet[];
   showOwner?: boolean;
-  caption?: string;
   onEdit?: (id: number, pet: PetRequest) => void;
   onDelete?: (id: number) => void;
 };
@@ -32,7 +30,6 @@ type Props = {
 const PetTable = ({
   pets,
   showOwner = false,
-  caption = "Lista de Mascotas",
   onEdit,
   onDelete,
 }: Props) => {
@@ -40,7 +37,6 @@ const PetTable = ({
 
   return (
     <Table>
-      <TableCaption>{caption}</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-10">ID</TableHead>

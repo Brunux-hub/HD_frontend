@@ -23,6 +23,8 @@ const buttonVariants = cva(
           "bg-yellow-500/75 text-white shadow-xs hover:bg-yellow-600 focus-visible:ring-yellow-500/50",
         success:
           "bg-green-500/75 text-white shadow-xs hover:bg-green-600 focus-visible:ring-green-500/50",
+        teal:
+          "bg-sidebar text-sidebar-foreground shadow-xs hover:bg-sidebar/90 focus-visible:ring-sidebar/50",
       },
       size: {
         default:

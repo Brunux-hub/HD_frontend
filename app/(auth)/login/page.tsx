@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { login } from "@/services/auth/auth";
-import { getMyOwner } from "@/services/owners/owners";
+import { login, getMe } from "@/services/auth/auth";
+import { setRole, type Role } from "@/lib/auth";
 import { ApiError } from "@/lib/axios";
 
 export default function LoginPage() {
@@ -32,14 +32,16 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login({ username, password });
-      // Si el usuario tiene ficha de Owner -> es cliente -> su área. Si no, staff.
-      let owner = null;
+      // Rol fino (admin/veterinario/recepcionista/cliente) para enrutar y filtrar secciones.
+      let role: Role = "worker";
       try {
-        owner = await getMyOwner();
+        const me = await getMe();
+        role = me.role.toLowerCase() as Role;
       } catch {
-        owner = null;
+        role = "worker";
       }
-      router.push(owner ? "/cliente" : "/dashboard");
+      setRole(role);
+      router.push(role === "client" ? "/cliente" : "/dashboard");
     } catch (err) {
       const message =
         err instanceof ApiError && err.status === 401
@@ -253,9 +255,9 @@ export default function LoginPage() {
         <span className="paw-bg" style={{ top: "50%", left: "10px", fontSize: "80px" }}>🐾</span>
 
         <div style={{ textAlign: "center", position: "relative", zIndex: 1, width: "100%", maxWidth: "380px" }}>
-          <div className="logo-circle" style={{ width: "140px", height: "140px" }}>
+          <Link href="/" aria-label="Ir al inicio" className="logo-circle" style={{ width: "140px", height: "140px", cursor: "pointer" }}>
             <img src="/logovet2.jpg" alt="Healthy Pets" />
-          </div>
+          </Link>
 
           <h1 style={{
             fontFamily: "'Nunito', sans-serif",
@@ -292,9 +294,9 @@ export default function LoginPage() {
         <div className="card">
           {/* Logo pequeño - exactamente como lo quieres */}
           <div style={{ textAlign: "center", marginBottom: "28px" }}>
-            <div className="logo-circle">
+            <Link href="/" aria-label="Ir al inicio" className="logo-circle" style={{ cursor: "pointer" }}>
               <img src="/logovet2.jpg" alt="Healthy Pets" />
-            </div>
+            </Link>
             <h2 style={{
               fontFamily: "'Nunito', sans-serif",
               fontSize: "24px",

@@ -8,11 +8,10 @@ import type { UserType } from "@/types/enums";
 
 export const TOKEN_COOKIE = "hd_vet_token";
 
-/** Guarda el token en una cookie (7 días). */
+/** Guarda el token en una cookie de sesión (se borra al cerrar el navegador). */
 export function setToken(token: string) {
   if (typeof document === "undefined") return;
-  const maxAge = 60 * 60 * 24 * 7; // 7 días
-  document.cookie = `${TOKEN_COOKIE}=${token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  document.cookie = `${TOKEN_COOKIE}=${token}; path=/; SameSite=Lax`;
 }
 
 /** Lee el token desde la cookie. */
@@ -28,6 +27,34 @@ export function getToken(): string | null {
 export function clearToken() {
   if (typeof document === "undefined") return;
   document.cookie = `${TOKEN_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+}
+
+// --- Rol (cliente vs staff) para enrutar y proteger áreas desde el middleware ---
+export const ROLE_COOKIE = "hd_vet_role";
+export type Role =
+  | "admin"
+  | "veterinarian"
+  | "receptionist"
+  | "client"
+  | "worker";
+
+export function setRole(role: Role) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${ROLE_COOKIE}=${role}; path=/; SameSite=Lax`;
+}
+
+/** Lee el rol desde la cookie (lado cliente). */
+export function getRole(): Role | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${ROLE_COOKIE}=`));
+  return match ? (decodeURIComponent(match.split("=")[1]) as Role) : null;
+}
+
+export function clearRole() {
+  if (typeof document === "undefined") return;
+  document.cookie = `${ROLE_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
 }
 
 export function isAuthenticated(): boolean {

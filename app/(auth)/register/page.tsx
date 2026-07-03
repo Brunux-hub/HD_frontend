@@ -17,6 +17,7 @@ export default function RegisterPage() {
     username: "",
     password: "",
     confirm: "",
+    dni: "",
     names: "",
     lastNames: "",
     email: "",
@@ -47,12 +48,17 @@ export default function RegisterPage() {
       setError("Las contraseñas no coinciden.");
       return;
     }
+    if (!form.dni.trim()) {
+      setError("Ingresa tu DNI.");
+      return;
+    }
 
     setLoading(true);
     try {
       await register({
         username: form.username,
         password: form.password,
+        dni: form.dni,
         names: form.names,
         last_names: form.lastNames,
         email: form.email,
@@ -140,6 +146,10 @@ export default function RegisterPage() {
               <p className="text-xs font-semibold uppercase tracking-widest text-teal-600">
                 Tus datos
               </p>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">DNI</label>
+                <input type="text" value={form.dni} onChange={set("dni")} placeholder="Ej. 45678912" className={inputClass} />
+              </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-700">Nombres</label>

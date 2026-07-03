@@ -5,71 +5,59 @@ import { SquarePen, Trash } from "lucide-react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { Button } from "@/components/ui/button";
 
 import ServiceFormDialog from "./ServiceFormDialog";
 
-// Contratos de Dominio
-import { Servicio } from "@/types/servicio";
+import { Service, ServiceRequest } from "@/types/service";
 
 type Props = {
-  servicios: Servicio[];
-  onEdit: (id: number, servicio: Omit<Servicio, "id">) => void;
+  services: Service[];
+  onEdit: (id: number, service: ServiceRequest) => void;
   onDelete: (id: number) => void;
 };
 
-const ServiceTable = ({ servicios, onEdit, onDelete }: Props) => {
+const ServiceTable = ({ services, onEdit, onDelete }: Props) => {
   return (
     <Table>
-      <TableCaption>Lista de Servicios Veterinarios</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-10">ID</TableHead>
           <TableHead>Nombre</TableHead>
-          <TableHead>Categoria</TableHead>
           <TableHead>Descripción</TableHead>
           <TableHead>Precio</TableHead>
-          <TableHead>Estado</TableHead>
           <TableHead className="w-25"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {servicios.map((servicio) => (
-          <TableRow key={servicio.id}>
-            <TableCell className="font-medium">{servicio.id}</TableCell>
-            <TableCell>{servicio.nombre}</TableCell>
-            <TableCell>{servicio.categoria}</TableCell>
-            <TableCell>{servicio.descripcion}</TableCell>
-            <TableCell>{servicio.precio}</TableCell>
-            <TableCell>{servicio.estado ? "Activo" : "Inactivo"}</TableCell>
-            <TableCell className="flex justify-between">
-              {/* Dialog editar*/}
+        {services.map((service) => (
+          <TableRow key={service.id_service}>
+            <TableCell className="font-medium">{service.id_service}</TableCell>
+            <TableCell>{service.name}</TableCell>
+            <TableCell>{service.description}</TableCell>
+            <TableCell>{service.price}</TableCell>
+            <TableCell className="flex justify-between gap-2">
               <ServiceFormDialog
                 icon={SquarePen}
                 mode="edit"
                 buttonColor="alert"
-                data={servicio}
-                onSubmit={(data) => onEdit(servicio.id, data)}
+                data={service}
+                onSubmit={(payload) => onEdit(service.id_service, payload)}
               />
-              {/* Botón eliminar */}
               <Button
                 variant="destructive"
                 onClick={() => {
-                  const confirmar = window.confirm(
-                    `¿Seguro que deseas eliminar el servicio "${servicio.nombre}"?`,
+                  const ok = window.confirm(
+                    `¿Seguro que deseas eliminar el servicio "${service.name}"?`,
                   );
-
-                  if (!confirmar) return;
-
-                  onDelete(servicio.id);
+                  if (!ok) return;
+                  onDelete(service.id_service);
                 }}
               >
                 <Trash />
@@ -80,7 +68,7 @@ const ServiceTable = ({ servicios, onEdit, onDelete }: Props) => {
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={7} className="text-center h-5"></TableCell>
+          <TableCell colSpan={5} className="h-5 text-center"></TableCell>
         </TableRow>
       </TableFooter>
     </Table>

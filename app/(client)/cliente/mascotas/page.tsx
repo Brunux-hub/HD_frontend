@@ -1,10 +1,22 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Syringe, Mars, Venus, PawPrint } from "lucide-react";
 
-import { getMascotas, edadEnAnios } from "@/lib/cliente/data";
+import { getClientData, edadEnAnios, type Mascota } from "@/lib/cliente/data";
+import PetAvatar from "../../_components/PetAvatar";
 
 export default function MisMascotas() {
-  const mascotas = getMascotas();
+  const [mascotas, setMascotas] = useState<Mascota[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getClientData()
+      .then(({ mascotas }) => setMascotas(mascotas))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -15,7 +27,9 @@ export default function MisMascotas() {
         </p>
       </div>
 
-      {mascotas.length === 0 ? (
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Cargando...</p>
+      ) : mascotas.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300">
             <PawPrint className="h-8 w-8" />
@@ -36,25 +50,24 @@ export default function MisMascotas() {
                 key={m.id}
                 className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
               >
-                <div className="relative h-40">
-                  <img src={m.foto} alt={m.nombre} className="h-full w-full object-cover" />
-                  <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-700 backdrop-blur dark:bg-slate-900/90 dark:text-slate-200">
-                    {m.sexo === "FEMALE" ? (
-                      <Venus className="h-3.5 w-3.5 text-pink-500" />
-                    ) : (
-                      <Mars className="h-3.5 w-3.5 text-blue-500" />
-                    )}
-                    {m.sexo === "FEMALE" ? "Hembra" : "Macho"}
-                  </span>
+                <div className="flex items-center gap-4 p-5">
+                  <PetAvatar name={m.nombre} className="h-16 w-16 text-2xl" />
+                  <div className="min-w-0">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{m.nombre}</h3>
+                    <p className="text-sm text-slate-500">{m.especie} · {m.raza}</p>
+                    <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-slate-500">
+                      {m.sexo === "FEMALE" ? (
+                        <Venus className="h-3.5 w-3.5 text-pink-500" />
+                      ) : (
+                        <Mars className="h-3.5 w-3.5 text-blue-500" />
+                      )}
+                      {m.sexo === "FEMALE" ? "Hembra" : "Macho"}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{m.nombre}</h3>
-                  <p className="text-sm text-slate-500">
-                    {m.especie} · {m.raza}
-                  </p>
-
-                  <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <div className="px-5 pb-5">
+                  <dl className="grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <dt className="text-xs text-slate-400">Edad</dt>
                       <dd className="font-medium text-slate-700 dark:text-slate-200">

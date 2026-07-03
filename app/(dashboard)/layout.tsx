@@ -2,6 +2,7 @@ import AppSidebar from "./dashboard/_components/AppSidebar";
 import Navbar from "./dashboard/_components/Navbar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { cookies } from "next/headers";
+import type { Role } from "@/lib/auth";
 
 export default async function DashboardLayout({
   children,
@@ -9,15 +10,17 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
 
-  // Cookies
-  const cookieStore = await cookies()
-  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
+  // El rol define qué secciones ve cada quien (se pasa desde el server para
+  // evitar parpadeos: veterinario oculta Clientes/Veterinarios, recepcionista Recepcionistas).
+  const cookieStore = await cookies();
+  const role = (cookieStore.get("hd_vet_role")?.value ?? "worker") as Role;
 
+  // Arranca colapsado (solo íconos); se expande al pasar el mouse.
   return (
     <div className="min-h-screen flex">
 
-      <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar/>
+      <SidebarProvider defaultOpen={false}>
+        <AppSidebar role={role} />
         <main className="w-full">
           <Navbar/>
           <div className="px-4">

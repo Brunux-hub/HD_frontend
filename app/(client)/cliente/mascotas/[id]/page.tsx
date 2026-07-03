@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft, Syringe, CalendarDays, Stethoscope, Building2 } from "lucide-react";
 
-import { getMascotaById, edadEnAnios, type Vacuna } from "@/lib/cliente/data";
+import { getClientData, edadEnAnios, type Mascota, type Vacuna } from "@/lib/cliente/data";
+import PetAvatar from "../../../_components/PetAvatar";
 
 const estadoStyles: Record<Vacuna["estado"], string> = {
   Aplicada: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
@@ -14,7 +16,7 @@ const estadoStyles: Record<Vacuna["estado"], string> = {
 
 const fmt = (iso: string | null) =>
   iso
-    ? new Date(iso + "T00:00:00").toLocaleDateString("es-PE", {
+    ? new Date(iso.slice(0, 10) + "T00:00:00").toLocaleDateString("es-PE", {
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -23,7 +25,20 @@ const fmt = (iso: string | null) =>
 
 export default function MascotaDetalle() {
   const params = useParams<{ id: string }>();
-  const mascota = getMascotaById(Number(params.id));
+  const id = Number(params.id);
+  const [mascota, setMascota] = useState<Mascota | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getClientData()
+      .then(({ mascotas }) => setMascota(mascotas.find((m) => m.id === id) ?? null))
+      .catch(() => setMascota(null))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return <p className="text-sm text-muted-foreground">Cargando...</p>;
+  }
 
   if (!mascota) {
     return (
@@ -44,9 +59,9 @@ export default function MascotaDetalle() {
         <ArrowLeft className="h-4 w-4" /> Mis mascotas
       </Link>
 
-      {/* Cabecera de la mascota */}
+      {/* Cabecera */}
       <div className="flex flex-col gap-5 rounded-3xl border border-slate-200 bg-white p-6 sm:flex-row sm:items-center dark:border-slate-800 dark:bg-slate-900">
-        <img src={mascota.foto} alt={mascota.nombre} className="h-28 w-28 rounded-2xl object-cover" />
+        <PetAvatar name={mascota.nombre} className="h-28 w-28 text-4xl" />
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{mascota.nombre}</h1>
           <p className="text-sm text-slate-500">
@@ -100,7 +115,7 @@ export default function MascotaDetalle() {
                     </span>
                   </div>
                   <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-400">
-                    <Building2 className="h-3.5 w-3.5" /> {v.fabricante}
+                    <Building2 className="h-3.5 w-3.5" /> {v.fabricante || "—"}
                     <span className="mx-1">·</span>
                     <Stethoscope className="h-3.5 w-3.5" /> {v.veterinario}
                   </p>
