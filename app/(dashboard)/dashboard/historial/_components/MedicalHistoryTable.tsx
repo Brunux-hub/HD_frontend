@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { SquarePen, Trash } from "lucide-react";
 
 import {
@@ -12,12 +13,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 import MedicalHistoryFormDialog from "./MedicalHistoryFormDialog";
 
 import { MedicalHistory, MedicalHistoryRequest } from "@/types/medicalHistory";
 import { Appointment } from "@/types/appointment";
 import { Service } from "@/types/service";
+import { fmtDateTime } from "@/lib/utils";
 
 type Props = {
   medicalHistories: MedicalHistory[];
@@ -27,6 +37,8 @@ type Props = {
   onDelete: (id: number) => void;
 };
 
+const PAGE_SIZE = 8;
+
 const MedicalHistoryTable = ({
   medicalHistories,
   appointments,
@@ -34,20 +46,28 @@ const MedicalHistoryTable = ({
   onEdit,
   onDelete,
 }: Props) => {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.ceil(medicalHistories.length / PAGE_SIZE);
+  const paginated = medicalHistories.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) setPage(totalPages);
+  }, [totalPages, page]);
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">ID</TableHead>
+          <TableHead>ID</TableHead>
           <TableHead>Cita</TableHead>
           <TableHead>Servicio</TableHead>
           <TableHead>Descripción</TableHead>
           <TableHead>Fecha</TableHead>
-          <TableHead className="w-25"></TableHead>
+          <TableHead></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {medicalHistories.map((mh) => (
+        {paginated.map((mh) => (
           <TableRow key={mh.id_medical_history}>
             <TableCell className="font-medium">{mh.id_medical_history}</TableCell>
             <TableCell>
@@ -55,7 +75,7 @@ const MedicalHistoryTable = ({
             </TableCell>
             <TableCell>{mh.services?.name}</TableCell>
             <TableCell>{mh.description}</TableCell>
-            <TableCell>{mh.date?.slice(0, 16).replace("T", " ")}</TableCell>
+            <TableCell>{fmtDateTime(mh.date)}</TableCell>
             <TableCell className="flex justify-between gap-2">
               <MedicalHistoryFormDialog
                 icon={SquarePen}
@@ -82,11 +102,31 @@ const MedicalHistoryTable = ({
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={6} className="h-5 text-center"></TableCell>
-        </TableRow>
-      </TableFooter>
+      {totalPages > 1 && (
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={6} className="py-3">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <PaginationItem key={p}>
+                      <PaginationLink isActive={p === page} onClick={() => setPage(p)}>
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages} />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      )}
     </Table>
   );
 };

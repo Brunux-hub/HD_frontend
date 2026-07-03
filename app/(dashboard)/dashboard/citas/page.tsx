@@ -10,7 +10,6 @@ import AppointmentFormDialog from "./_components/AppointmentFormDialog";
 import { Appointment, AppointmentRequest } from "@/types/appointment";
 import { Pet } from "@/types/pet";
 import { Veterinarian } from "@/types/veterinarian";
-import { Receptionist } from "@/types/receptionist";
 import {
   getAppointments,
   createAppointment,
@@ -19,13 +18,11 @@ import {
 } from "@/services/appointments/appointments";
 import { getPets } from "@/services/pets/pets";
 import { getVeterinarians } from "@/services/veterinarians/veterinarians";
-import { getReceptionists } from "@/services/receptionists/receptionists";
 
 const AppointmentsPage = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [pets, setPets] = useState<Pet[]>([]);
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
-  const [receptionists, setReceptionists] = useState<Receptionist[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,16 +30,14 @@ const AppointmentsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const [appointmentsData, petsData, vetsData, receptionistsData] = await Promise.all([
+      const [appointmentsData, petsData, vetsData] = await Promise.all([
         getAppointments(),
         getPets(),
         getVeterinarians(),
-        getReceptionists(),
       ]);
       setAppointments(appointmentsData);
       setPets(petsData);
       setVeterinarians(vetsData);
-      setReceptionists(receptionistsData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar las citas.");
     } finally {
@@ -92,7 +87,6 @@ const AppointmentsPage = () => {
           buttonColor="success"
           pets={pets}
           veterinarians={veterinarians}
-          receptionists={receptionists}
           onSubmit={handleCreate}
         />
       </div>
@@ -104,7 +98,6 @@ const AppointmentsPage = () => {
           appointments={appointments}
           pets={pets}
           veterinarians={veterinarians}
-          receptionists={receptionists}
           onEdit={handleUpdate}
           onDelete={handleDelete}
         />

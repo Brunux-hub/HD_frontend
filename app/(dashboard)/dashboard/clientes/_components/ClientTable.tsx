@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Trash } from "lucide-react";
 import Link from "next/link";
 
@@ -13,6 +14,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 import { Owner } from "@/types/owner";
 
@@ -21,25 +31,37 @@ type Props = {
   onDelete: (id: number) => void;
 };
 
+const PAGE_SIZE = 8;
+
 const ClientTable = ({ owners, onDelete }: Props) => {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.ceil(owners.length / PAGE_SIZE);
+  const paginated = owners.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) setPage(totalPages);
+  }, [totalPages, page]);
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">ID</TableHead>
-          <TableHead>DNI</TableHead>
+          <TableHead>ID</TableHead>
+          <TableHead>Doc.</TableHead>
+          <TableHead>N° Documento</TableHead>
           <TableHead>Nombres</TableHead>
           <TableHead>Apellidos</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Teléfono</TableHead>
           <TableHead>Dirección</TableHead>
-          <TableHead className="w-25"></TableHead>
+          <TableHead></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {owners.map((owner) => (
+        {paginated.map((owner) => (
           <TableRow key={owner.id_owner}>
             <TableCell className="font-medium">{owner.id_owner}</TableCell>
+            <TableCell>{owner.document_type ?? "DNI"}</TableCell>
             <TableCell>{owner.dni}</TableCell>
             <TableCell>{owner.names}</TableCell>
             <TableCell>{owner.last_names}</TableCell>
@@ -68,11 +90,31 @@ const ClientTable = ({ owners, onDelete }: Props) => {
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={8} className="h-5 text-center"></TableCell>
-        </TableRow>
-      </TableFooter>
+      {totalPages > 1 && (
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={9} className="py-3">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <PaginationItem key={p}>
+                      <PaginationLink isActive={p === page} onClick={() => setPage(p)}>
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages} />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      )}
     </Table>
   );
 };

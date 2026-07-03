@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { SquarePen, Trash } from "lucide-react";
 
 import {
@@ -12,15 +13,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 import AppointmentFormDialog from "./AppointmentFormDialog";
 
 import { Appointment, AppointmentRequest } from "@/types/appointment";
 import { Pet } from "@/types/pet";
 import { Veterinarian } from "@/types/veterinarian";
-import { Receptionist } from "@/types/receptionist";
 import { AppointmentStatus } from "@/types/enums";
-
+import { fmtDateTime } from "@/lib/utils";
 const STATUS_LABELS: Record<AppointmentStatus, string> = {
   OPENED: "Abierta",
   CLOSED: "Cerrada",
@@ -35,41 +43,47 @@ const STATUS_STYLES: Record<AppointmentStatus, string> = {
   RESCHEDULED: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
 };
 
-const fmtDateTime = (iso: string) => (iso ? iso.slice(0, 16).replace("T", " ") : "—");
+
 
 type Props = {
   appointments: Appointment[];
   pets: Pet[];
   veterinarians: Veterinarian[];
-  receptionists: Receptionist[];
   onEdit: (id: number, appointment: AppointmentRequest) => void;
   onDelete: (id: number) => void;
 };
+
+const PAGE_SIZE = 8;
 
 const AppointmentTable = ({
   appointments,
   pets,
   veterinarians,
-  receptionists,
   onEdit,
   onDelete,
 }: Props) => {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.ceil(appointments.length / PAGE_SIZE);
+  const paginated = appointments.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) setPage(totalPages);
+  }, [totalPages, page]);
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">ID</TableHead>
+          <TableHead>ID</TableHead>
           <TableHead>Mascota</TableHead>
           <TableHead>Veterinario</TableHead>
           <TableHead>Fecha</TableHead>
-          <TableHead>Duración</TableHead>
-          <TableHead>Motivo</TableHead>
           <TableHead>Estado</TableHead>
-          <TableHead className="w-32"></TableHead>
+          <TableHead></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {appointments.map((appointment) => (
+        {paginated.map((appointment) => (
           <TableRow key={appointment.id_appointment}>
             <TableCell className="font-medium">{appointment.id_appointment}</TableCell>
             <TableCell>{appointment.pet.name}</TableCell>
@@ -77,8 +91,6 @@ const AppointmentTable = ({
               {appointment.veterinarian.names} {appointment.veterinarian.last_names}
             </TableCell>
             <TableCell>{fmtDateTime(appointment.date)}</TableCell>
-            <TableCell>{appointment.time_minutes} min</TableCell>
-            <TableCell>{appointment.reason}</TableCell>
             <TableCell>
               <span
                 className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLES[appointment.status]}`}
@@ -94,7 +106,6 @@ const AppointmentTable = ({
                 data={appointment}
                 pets={pets}
                 veterinarians={veterinarians}
-                receptionists={receptionists}
                 onSubmit={(payload) => onEdit(appointment.id_appointment, payload)}
               />
               <Button
@@ -113,11 +124,31 @@ const AppointmentTable = ({
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={8} className="h-5 text-center"></TableCell>
-        </TableRow>
-      </TableFooter>
+      {totalPages > 1 && (
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={6} className="py-3">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <PaginationItem key={p}>
+                      <PaginationLink isActive={p === page} onClick={() => setPage(p)}>
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages} />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      )}
     </Table>
   );
 };

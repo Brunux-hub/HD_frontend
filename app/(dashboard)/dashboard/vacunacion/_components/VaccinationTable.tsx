@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { SquarePen, Trash } from "lucide-react";
 
 import {
@@ -12,12 +13,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 import VaccinationFormDialog from "./VaccinationFormDialog";
 
 import { Vaccination, VaccinationRequest } from "@/types/vaccination";
 import { MedicalHistory } from "@/types/medicalHistory";
 import { Vaccine } from "@/types/vaccine";
+import { fmtDate } from "@/lib/utils";
 
 type Props = {
   vaccinations: Vaccination[];
@@ -27,6 +37,8 @@ type Props = {
   onDelete: (id: number) => void;
 };
 
+const PAGE_SIZE = 8;
+
 const VaccinationTable = ({
   vaccinations,
   medicalHistories,
@@ -34,27 +46,35 @@ const VaccinationTable = ({
   onEdit,
   onDelete,
 }: Props) => {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.ceil(vaccinations.length / PAGE_SIZE);
+  const paginated = vaccinations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) setPage(totalPages);
+  }, [totalPages, page]);
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">ID</TableHead>
+          <TableHead>ID</TableHead>
           <TableHead>Vacuna</TableHead>
           <TableHead>Historial</TableHead>
           <TableHead>Aplicación</TableHead>
           <TableHead>Próxima</TableHead>
           <TableHead>Observación</TableHead>
-          <TableHead className="w-25"></TableHead>
+          <TableHead></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {vaccinations.map((vac) => (
+        {paginated.map((vac) => (
           <TableRow key={vac.id_vaccination}>
             <TableCell className="font-medium">{vac.id_vaccination}</TableCell>
             <TableCell>{vac.vaccine?.name}</TableCell>
             <TableCell>#{vac.medical_history?.id_medical_history}</TableCell>
-            <TableCell>{vac.application_date?.slice(0, 10)}</TableCell>
-            <TableCell>{vac.next_application_date?.slice(0, 10)}</TableCell>
+            <TableCell>{fmtDate(vac.application_date)}</TableCell>
+            <TableCell>{fmtDate(vac.next_application_date)}</TableCell>
             <TableCell>{vac.observation}</TableCell>
             <TableCell className="flex justify-between gap-2">
               <VaccinationFormDialog
@@ -82,11 +102,31 @@ const VaccinationTable = ({
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={7} className="h-5 text-center"></TableCell>
-        </TableRow>
-      </TableFooter>
+      {totalPages > 1 && (
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={7} className="py-3">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <PaginationItem key={p}>
+                      <PaginationLink isActive={p === page} onClick={() => setPage(p)}>
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages} />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      )}
     </Table>
   );
 };

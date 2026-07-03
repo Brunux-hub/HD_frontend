@@ -49,6 +49,7 @@ type Props = {
 
 const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, onSubmit }: Props) => {
   const [open, setOpen] = useState(false);
+  const [species, setSpecies] = useState(data?.species ?? "DOG");
   const [sex, setSex] = useState<PetGender>(data?.pet_gender ?? "MALE");
   const [selectedOwner, setSelectedOwner] = useState<string>(
     ownerId ? String(ownerId) : data?.owner?.id_owner ? String(data.owner.id_owner) : "",
@@ -81,11 +82,10 @@ const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, o
     const payload: PetRequest = {
       id_owner: resolvedOwner as number,
       name: formData.get("name") as string,
-      species: formData.get("species") as string,
+      species,
       race: formData.get("race") as string,
       birthdate: formData.get("birthdate") as string,
       sex,
-      weight: formData.get("weight") as string,
     };
 
     setSubmitting(true);
@@ -158,8 +158,19 @@ const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, o
                     <Input id="input-name" name="name" defaultValue={data?.name ?? ""} placeholder="Ej. Luna" required />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-species">Especie</FieldLabel>
-                    <Input id="input-species" name="species" defaultValue={data?.species ?? ""} placeholder="Ej. Canino" required />
+                    <FieldLabel htmlFor="select-species">Especie</FieldLabel>
+                    <Select value={species} onValueChange={setSpecies}>
+                      <input type="hidden" name="species" value={species} />
+                      <SelectTrigger id="select-species">
+                        <SelectValue placeholder="Selecciona una especie" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="DOG">Perro</SelectItem>
+                          <SelectItem value="CAT">Gato</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="input-race">Raza</FieldLabel>
@@ -184,10 +195,7 @@ const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, o
                     <FieldLabel htmlFor="input-birthdate">Fecha de nacimiento</FieldLabel>
                     <Input id="input-birthdate" name="birthdate" type="date" defaultValue={toDateInput(data?.birthdate)} required />
                   </Field>
-                  <Field>
-                    <FieldLabel htmlFor="input-weight">Peso</FieldLabel>
-                    <Input id="input-weight" name="weight" defaultValue={data?.weight ?? ""} placeholder="Ej. 28 kg" required />
-                  </Field>
+
 
                   {error && (
                     <p className="text-center text-sm font-medium text-destructive">{error}</p>

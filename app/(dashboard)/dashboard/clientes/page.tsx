@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { CirclePlus } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { CirclePlus, Search } from "lucide-react";
 
 import SectionHeader from "../_components/SectionHeader";
 import ClientFormDialog from "./_components/ClientFormDialog";
 import ClientTable from "./_components/ClientTable";
+import { Input } from "@/components/ui/input";
 
 import { Owner, OwnerRequest } from "@/types/owner";
 import {
@@ -16,8 +17,22 @@ import {
 
 const ClientsPage = () => {
   const [owners, setOwners] = useState<Owner[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const filtered = useMemo(
+    () =>
+      search
+        ? owners.filter(
+            (o) =>
+              (o.names ?? "").toLowerCase().includes(search) ||
+              (o.last_names ?? "").toLowerCase().includes(search) ||
+              (o.dni ?? "").includes(search),
+          )
+        : owners,
+    [owners, search],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -50,7 +65,7 @@ const ClientsPage = () => {
   };
 
   return (
-    <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
+    <div className="flex flex-col gap-8">
       <SectionHeader
         iconName="Icono Clientes"
         iconLabel="Clientes"
@@ -63,19 +78,28 @@ const ClientsPage = () => {
         <p className="text-sm font-medium text-destructive">{error}</p>
       )}
 
-      <div className="flex">
+      <div className="flex items-center justify-between gap-4">
         <ClientFormDialog
           mode="create"
           icon={CirclePlus}
           buttonColor="success"
           onSubmit={handleCreate}
         />
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nombre, apellido o N° de documento..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value.toLowerCase())}
+            className="w-80 pl-9"
+          />
+        </div>
       </div>
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando clientes...</p>
       ) : (
-        <ClientTable owners={owners} onDelete={handleDelete} />
+        <ClientTable owners={filtered} onDelete={handleDelete} />
       )}
     </div>
   );

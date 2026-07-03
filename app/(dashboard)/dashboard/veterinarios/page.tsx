@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CirclePlus } from "lucide-react";
 
 import SectionHeader from "../_components/SectionHeader";
@@ -8,6 +8,7 @@ import VetTable from "./_components/VetTable";
 import VetFormDialog from "./_components/VetFormDialog";
 
 import { Veterinarian, VeterinarianRequest } from "@/types/veterinarian";
+import { Receptionist } from "@/types/receptionist";
 import { User } from "@/types/user";
 import {
   getVeterinarians,
@@ -15,20 +16,39 @@ import {
   updateVeterinarian,
   deleteVeterinarian,
 } from "@/services/veterinarians/veterinarians";
+import { getReceptionists } from "@/services/receptionists/receptionists";
 import { getUsers } from "@/services/users/users";
 
 const VeterinariansPage = () => {
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
+  const [receptionists, setReceptionists] = useState<Receptionist[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const assignedUserIds = useMemo(
+    () => new Set([
+      ...veterinarians.map((v) => v.user_response?.id_user).filter(Boolean),
+      ...receptionists.map((r) => r.user?.id_user).filter(Boolean),
+    ]),
+    [veterinarians, receptionists],
+  );
+  const availableUsers = useMemo(
+    () => users.filter((u) => !assignedUserIds.has(u.id_user)),
+    [users, assignedUserIds],
+  );
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [vetsData, usersData] = await Promise.all([getVeterinarians(), getUsers()]);
+      const [vetsData, receptionistsData, usersData] = await Promise.all([
+        getVeterinarians(),
+        getReceptionists(),
+        getUsers(),
+      ]);
       setVeterinarians(vetsData);
+      setReceptionists(receptionistsData);
       setUsers(usersData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar los veterinarios.");
@@ -75,7 +95,7 @@ const VeterinariansPage = () => {
       <div className="flex">
         <VetFormDialog
           mode="create"
-          users={users}
+          users={availableUsers}
           icon={CirclePlus}
           buttonColor="success"
           onSubmit={handleCreate}

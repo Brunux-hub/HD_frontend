@@ -32,6 +32,7 @@ import {
 import { MedicalHistory, MedicalHistoryRequest } from "@/types/medicalHistory";
 import { Appointment } from "@/types/appointment";
 import { Service } from "@/types/service";
+import { fmtDate } from "@/lib/utils";
 
 // La respuesta trae date en ISO ("yyyy-MM-ddTHH:mm..."); el input datetime-local necesita "yyyy-MM-ddTHH:mm".
 const toDateTimeInput = (value?: string) => (value ? value.slice(0, 16) : "");
@@ -154,7 +155,7 @@ const MedicalHistoryFormDialog = ({
                         <SelectGroup>
                           {appointments.map((a) => (
                             <SelectItem key={a.id_appointment} value={String(a.id_appointment)}>
-                              {`Cita #${a.id_appointment} — ${a.pet?.name} (${a.date?.slice(0, 10)})`}
+                              {`Cita #${a.id_appointment} — ${a.pet?.name} (${fmtDate(a.date)})`}
                             </SelectItem>
                           ))}
                         </SelectGroup>

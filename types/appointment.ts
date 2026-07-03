@@ -18,12 +18,9 @@ export interface Appointment {
 
 // AppointmentRequest del backend: referencia a las entidades por id.
 export interface AppointmentRequest {
-  id_receptionist: number;
   id_pet: number;
   id_veterinarian: number;
   date: string; // "yyyy-MM-ddTHH:mm"
-  time_minutes: number;
   reason: string;
   notes: string;
-  status: AppointmentStatus;
 }

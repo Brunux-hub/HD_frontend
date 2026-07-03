@@ -4,7 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { register } from "@/services/auth/auth";
+import type { DocumentType } from "@/types/owner";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -13,6 +22,7 @@ export default function RegisterPage() {
   useEffect(() => {
     router.prefetch("/login");
   }, [router]);
+  const [documentType, setDocumentType] = useState<DocumentType>("DNI");
   const [form, setForm] = useState({
     username: "",
     password: "",
@@ -28,6 +38,13 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const maxDigits = documentType === "DNI" ? 8 : 9;
+
+  const handleDniChange = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, maxDigits);
+    setForm((f) => ({ ...f, dni: digits }));
+  };
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -49,7 +66,7 @@ export default function RegisterPage() {
       return;
     }
     if (!form.dni.trim()) {
-      setError("Ingresa tu DNI.");
+      setError(`Ingresa tu ${documentType}.`);
       return;
     }
 
@@ -58,6 +75,7 @@ export default function RegisterPage() {
       await register({
         username: form.username,
         password: form.password,
+        document_type: documentType,
         dni: form.dni,
         names: form.names,
         last_names: form.lastNames,
@@ -147,8 +165,28 @@ export default function RegisterPage() {
                 Tus datos
               </p>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">DNI</label>
-                <input type="text" value={form.dni} onChange={set("dni")} placeholder="Ej. 45678912" className={inputClass} />
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Documento</label>
+                <div className="flex gap-2">
+                  <Select
+                    value={documentType}
+                    onValueChange={(v) => { setDocumentType(v as DocumentType); setForm((f) => ({ ...f, dni: "" })); }}
+                  >
+                    <SelectTrigger className="w-24 shrink-0">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="DNI">DNI</SelectItem>
+                      <SelectItem value="CE">CE</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <input
+                    type="text"
+                    value={form.dni}
+                    onChange={(e) => handleDniChange(e.target.value)}
+                    placeholder={documentType === "DNI" ? "Ej. 45678912" : "Ej. 123456789"}
+                    className={`${inputClass} flex-1`}
+                  />
+                </div>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
@@ -167,7 +205,7 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-700">Teléfono</label>
-                  <input type="text" value={form.phone} onChange={set("phone")} placeholder="987 654 321" className={inputClass} />
+                  <input type="text" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/\D/g, "").slice(0, 9) }))} placeholder="987 654 321" className={inputClass} />
                 </div>
               </div>
               <div>

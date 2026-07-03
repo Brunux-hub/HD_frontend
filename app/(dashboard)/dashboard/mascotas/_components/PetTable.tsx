@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { SquarePen, Trash } from "lucide-react";
 
 import {
@@ -12,13 +13,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 import PetFormDialog from "./PetFormDialog";
 
 import { Pet, PetRequest } from "@/types/pet";
+import { fmtDate } from "@/lib/utils";
 
 const sexoLabel = (g: Pet["pet_gender"]) => (g === "FEMALE" ? "Hembra" : "Macho");
-const fmtDate = (iso: string) => (iso ? iso.slice(0, 10) : "—");
+const especieLabel = (s: string) => (s === "CAT" ? "Gato" : "Perro");
 
 type Props = {
   pets: Pet[];
@@ -27,40 +37,48 @@ type Props = {
   onDelete?: (id: number) => void;
 };
 
+const PAGE_SIZE = 8;
+
 const PetTable = ({
   pets,
   showOwner = false,
   onEdit,
   onDelete,
 }: Props) => {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.ceil(pets.length / PAGE_SIZE);
+  const paginated = pets.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const hasActions = Boolean(onEdit && onDelete);
+  const colSpan = 6 + (showOwner ? 2 : 0) + (hasActions ? 1 : 0);
+
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) setPage(totalPages);
+  }, [totalPages, page]);
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">ID</TableHead>
+          <TableHead>ID</TableHead>
           <TableHead>Nombre</TableHead>
           <TableHead>Especie</TableHead>
           <TableHead>Raza</TableHead>
           <TableHead>Sexo</TableHead>
           <TableHead>Nacimiento</TableHead>
-          <TableHead>Peso</TableHead>
           {showOwner && <TableHead>Dueño</TableHead>}
           {showOwner && <TableHead>Teléfono</TableHead>}
-          {hasActions && <TableHead className="w-32"></TableHead>}
+          {hasActions && <TableHead></TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
-        {pets.map((pet) => (
+        {paginated.map((pet) => (
           <TableRow key={pet.id_pet}>
             <TableCell className="font-medium">{pet.id_pet}</TableCell>
             <TableCell>{pet.name}</TableCell>
-            <TableCell>{pet.species}</TableCell>
+            <TableCell>{especieLabel(pet.species)}</TableCell>
             <TableCell>{pet.race}</TableCell>
             <TableCell>{sexoLabel(pet.pet_gender)}</TableCell>
             <TableCell>{fmtDate(pet.birthdate)}</TableCell>
-            <TableCell>{pet.weight}</TableCell>
             {showOwner && (
               <TableCell>
                 {pet.owner ? `${pet.owner.names} ${pet.owner.last_names}` : "Sin asignar"}
@@ -94,14 +112,31 @@ const PetTable = ({
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell
-            colSpan={showOwner ? (hasActions ? 10 : 9) : hasActions ? 8 : 7}
-            className="h-5 text-center"
-          ></TableCell>
-        </TableRow>
-      </TableFooter>
+      {totalPages > 1 && (
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={colSpan} className="py-3">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <PaginationItem key={p}>
+                      <PaginationLink isActive={p === page} onClick={() => setPage(p)}>
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages} />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      )}
     </Table>
   );
 };

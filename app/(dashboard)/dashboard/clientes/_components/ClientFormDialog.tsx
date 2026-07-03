@@ -20,8 +20,15 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-import { Owner, OwnerRequest } from "@/types/owner";
+import { Owner, OwnerRequest, DocumentType } from "@/types/owner";
 import { getOwnerByDni } from "@/services/owners/owners";
 
 type Props = {
@@ -37,16 +44,27 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
   const [open, setOpen] = useState(false);
   // En crear se arranca en el paso de búsqueda por DNI; en editar se va directo al formulario.
   const [step, setStep] = useState<"search" | "form">(isEdit ? "form" : "search");
+  const [documentType, setDocumentType] = useState<DocumentType>("DNI");
   const [dni, setDni] = useState(data?.dni ?? "");
+  const [phone, setPhone] = useState(data?.phone_number ?? "");
   const [existing, setExisting] = useState<Owner | null>(null);
   const [searching, setSearching] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const maxDigits = documentType === "DNI" ? 8 : 9;
+
+  const handleDniChange = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, maxDigits);
+    setDni(digits);
+  };
+
   const reset = () => {
     setStep(isEdit ? "form" : "search");
+    setDocumentType("DNI");
     setDni(data?.dni ?? "");
+    setPhone(data?.phone_number ?? "");
     setExisting(null);
     setError(null);
     setSuccess(false);
@@ -61,7 +79,7 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
     setError(null);
     setExisting(null);
     if (!dni.trim()) {
-      setError("Ingresa un DNI.");
+      setError(`Ingresa un ${documentType}.`);
       return;
     }
     setSearching(true);
@@ -70,7 +88,7 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
       if (found) setExisting(found);
       else setStep("form");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo verificar el DNI.");
+      setError(err instanceof Error ? err.message : `No se pudo verificar el ${documentType}.`);
     } finally {
       setSearching(false);
     }
@@ -81,11 +99,12 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
     setError(null);
     const formData = new FormData(e.currentTarget);
     const payload: OwnerRequest = {
+      document_type: documentType,
       dni: dni.trim(),
       names: formData.get("names") as string,
       last_names: formData.get("last_names") as string,
       email: formData.get("email") as string,
-      phone_number: formData.get("phone_number") as string,
+      phone_number: phone,
       address: formData.get("address") as string,
     };
     setSubmitting(true);
@@ -119,20 +138,33 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
             <Button onClick={() => handleOpenChange(false)}>Listo</Button>
           </div>
         ) : step === "search" ? (
-          /* Paso 1: verificar por DNI */
+          /* Paso 1: verificar por DNI/CE */
           <FieldGroup>
             <FieldSet>
               <FieldLegend className="text-center text-xl font-semibold">Registrar Cliente</FieldLegend>
               <FieldGroup>
                 <Field>
-                  <FieldLabel htmlFor="search-dni">DNI del cliente</FieldLabel>
+                  <FieldLabel htmlFor="search-dni">Documento del cliente</FieldLabel>
                   <div className="flex gap-2">
+                    <Select
+                      value={documentType}
+                      onValueChange={(v) => { setDocumentType(v as DocumentType); setDni(""); }}
+                    >
+                      <SelectTrigger className="w-24 shrink-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DNI">DNI</SelectItem>
+                        <SelectItem value="CE">CE</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <Input
                       id="search-dni"
                       value={dni}
-                      onChange={(e) => setDni(e.target.value)}
-                      placeholder="Ej. 45678912"
+                      onChange={(e) => handleDniChange(e.target.value)}
+                      placeholder={documentType === "DNI" ? "Ej. 45678912" : "Ej. 123456789"}
                       onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSearch(); } }}
+                      className="flex-1"
                     />
                     <Button type="button" onClick={handleSearch} disabled={searching}>
                       {searching ? <Loader2 className="animate-spin" /> : <Search />}
@@ -148,7 +180,7 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
                     <UserCheck className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
                     <div>
                       <p className="font-medium text-amber-800 dark:text-amber-300">
-                        Ya existe un cliente con ese DNI:
+                        Ya existe un cliente con ese {documentType}:
                       </p>
                       <p className="text-amber-700 dark:text-amber-200">
                         {existing.names} {existing.last_names}
@@ -176,15 +208,30 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
                 </FieldLegend>
                 <FieldGroup>
                   <Field>
-                    <FieldLabel htmlFor="input-dni">DNI</FieldLabel>
-                    <Input
-                      id="input-dni"
-                      value={dni}
-                      onChange={(e) => setDni(e.target.value)}
-                      readOnly={!isEdit}
-                      className={!isEdit ? "bg-muted" : undefined}
-                      required
-                    />
+                    <FieldLabel htmlFor="input-dni">Documento</FieldLabel>
+                    <div className="flex gap-2">
+                      <Select
+                        value={documentType}
+                        onValueChange={(v) => { setDocumentType(v as DocumentType); setDni(""); }}
+                        disabled={!isEdit}
+                      >
+                        <SelectTrigger className="w-24 shrink-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="DNI">DNI</SelectItem>
+                          <SelectItem value="CE">CE</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        id="input-dni"
+                        value={dni}
+                        onChange={(e) => handleDniChange(e.target.value)}
+                        readOnly={!isEdit}
+                        className={!isEdit ? "bg-muted flex-1" : "flex-1"}
+                        required
+                      />
+                    </div>
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="input-names">Nombres</FieldLabel>
@@ -200,7 +247,7 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="input-phone">Teléfono</FieldLabel>
-                    <Input id="input-phone" name="phone_number" defaultValue={data?.phone_number ?? ""} placeholder="Ej. 987654321" required />
+                    <Input id="input-phone" name="phone_number" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 9))} placeholder="Ej. 987654321" required />
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="input-address">Dirección</FieldLabel>

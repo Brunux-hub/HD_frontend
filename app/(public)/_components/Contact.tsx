@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -11,6 +14,8 @@ const info = [
 ];
 
 export default function Contact() {
+  const [phone, setPhone] = useState("");
+
   return (
     <section id="contacto" className="w-full bg-slate-50 py-20 dark:bg-slate-950">
       <div className="mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
@@ -74,7 +79,7 @@ export default function Contact() {
                 <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Teléfono
                 </label>
-                <Input id="phone" autoComplete="off" placeholder="987 654 321" className="rounded-xl" />
+                <Input id="phone" autoComplete="off" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 9))} placeholder="987 654 321" className="rounded-xl" />
               </div>
             </div>
 

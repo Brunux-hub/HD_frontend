@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CirclePlus } from "lucide-react";
 
 import SectionHeader from "../_components/SectionHeader";
@@ -8,6 +8,7 @@ import ReceptionistTable from "./_components/ReceptionistTable";
 import ReceptionistFormDialog from "./_components/ReceptionistFormDialog";
 
 import { Receptionist, ReceptionistRequest } from "@/types/receptionist";
+import { Veterinarian } from "@/types/veterinarian";
 import { User } from "@/types/user";
 import {
   getReceptionists,
@@ -15,23 +16,39 @@ import {
   updateReceptionist,
   deleteReceptionist,
 } from "@/services/receptionists/receptionists";
+import { getVeterinarians } from "@/services/veterinarians/veterinarians";
 import { getUsers } from "@/services/users/users";
 
 const ReceptionistsPage = () => {
   const [receptionists, setReceptionists] = useState<Receptionist[]>([]);
+  const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const assignedUserIds = useMemo(
+    () => new Set([
+      ...receptionists.map((r) => r.user?.id_user).filter(Boolean),
+      ...veterinarians.map((v) => v.user_response?.id_user).filter(Boolean),
+    ]),
+    [receptionists, veterinarians],
+  );
+  const availableUsers = useMemo(
+    () => users.filter((u) => !assignedUserIds.has(u.id_user)),
+    [users, assignedUserIds],
+  );
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [receptionistsData, usersData] = await Promise.all([
+      const [receptionistsData, vetsData, usersData] = await Promise.all([
         getReceptionists(),
+        getVeterinarians(),
         getUsers(),
       ]);
       setReceptionists(receptionistsData);
+      setVeterinarians(vetsData);
       setUsers(usersData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar los recepcionistas.");
@@ -78,7 +95,7 @@ const ReceptionistsPage = () => {
       <div className="flex">
         <ReceptionistFormDialog
           mode="create"
-          users={users}
+          users={availableUsers}
           icon={CirclePlus}
           buttonColor="success"
           onSubmit={handleCreate}

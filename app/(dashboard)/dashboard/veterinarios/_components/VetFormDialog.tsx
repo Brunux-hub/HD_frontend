@@ -46,6 +46,7 @@ const VetFormDialog = ({ users, mode, data, icon: Icon, buttonColor, onSubmit }:
   const [selectedUser, setSelectedUser] = useState<string>(
     data?.user_response?.id_user ? String(data.user_response.id_user) : "",
   );
+  const [phone, setPhone] = useState(data?.phone_number ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -76,7 +77,7 @@ const VetFormDialog = ({ users, mode, data, icon: Icon, buttonColor, onSubmit }:
       number_license: formData.get("number_license") as string,
       specialty: formData.get("specialty") as string,
       email: formData.get("email") as string,
-      phone_number: formData.get("phone_number") as string,
+      phone_number: phone,
     };
 
     setSubmitting(true);
@@ -164,7 +165,7 @@ const VetFormDialog = ({ users, mode, data, icon: Icon, buttonColor, onSubmit }:
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="input-phone_number">Teléfono</FieldLabel>
-                    <Input id="input-phone_number" name="phone_number" defaultValue={data?.phone_number ?? ""} placeholder="Ej. 987654321" required />
+                    <Input id="input-phone_number" name="phone_number" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 9))} placeholder="Ej. 987654321" required />
                   </Field>
 
                   {error && (

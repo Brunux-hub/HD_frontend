@@ -32,7 +32,7 @@ const STATUS_LABELS: Record<AppointmentStatus, string> = {
   RESCHEDULED: "Reprogramada",
 };
 
-const fmtDate = (date?: string) => date?.slice(0, 16).replace("T", " ") ?? "";
+import { fmtDateTime } from "@/lib/utils";
 
 const SectionCard = ({
   title,
@@ -151,7 +151,7 @@ const ReportesPage = () => {
                   </TableCell>
                   <TableCell>{mh.services?.name}</TableCell>
                   <TableCell className="whitespace-normal">{mh.description}</TableCell>
-                  <TableCell>{fmtDate(mh.date)}</TableCell>
+                   <TableCell>{fmtDateTime(mh.date)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -209,7 +209,7 @@ const ReportesPage = () => {
                   <TableCell>
                     {a.veterinarian?.names} {a.veterinarian?.last_names}
                   </TableCell>
-                  <TableCell>{fmtDate(a.date)}</TableCell>
+                   <TableCell>{fmtDateTime(a.date)}</TableCell>
                   <TableCell>
                     <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-semibold text-teal-700 dark:bg-teal-900/40 dark:text-teal-300">
                       {STATUS_LABELS[a.status]}

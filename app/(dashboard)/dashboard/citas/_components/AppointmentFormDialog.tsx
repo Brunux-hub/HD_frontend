@@ -32,16 +32,6 @@ import {
 import { Appointment, AppointmentRequest } from "@/types/appointment";
 import { Pet } from "@/types/pet";
 import { Veterinarian } from "@/types/veterinarian";
-import { Receptionist } from "@/types/receptionist";
-import { AppointmentStatus, APPOINTMENT_STATUSES } from "@/types/enums";
-
-// Etiquetas en español para el estado de la cita.
-const STATUS_LABELS: Record<AppointmentStatus, string> = {
-  OPENED: "Abierta",
-  CLOSED: "Cerrada",
-  CANCELED: "Cancelada",
-  RESCHEDULED: "Reprogramada",
-};
 
 // La respuesta trae date como LocalDateTime ISO; el input datetime-local necesita "yyyy-MM-ddTHH:mm".
 const toDateTimeInput = (value?: string) => (value ? value.slice(0, 16) : "");
@@ -49,7 +39,6 @@ const toDateTimeInput = (value?: string) => (value ? value.slice(0, 16) : "");
 type Props = {
   pets: Pet[];
   veterinarians: Veterinarian[];
-  receptionists: Receptionist[];
   mode?: "create" | "edit";
   data?: Appointment;
   icon?: LucideIcon;
@@ -60,7 +49,6 @@ type Props = {
 const AppointmentFormDialog = ({
   pets,
   veterinarians,
-  receptionists,
   mode,
   data,
   icon: Icon,
@@ -74,10 +62,6 @@ const AppointmentFormDialog = ({
   const [selectedVet, setSelectedVet] = useState<string>(
     data?.veterinarian?.id_veterinarian ? String(data.veterinarian.id_veterinarian) : "",
   );
-  const [selectedReceptionist, setSelectedReceptionist] = useState<string>(
-    data?.receptionist?.id_receptionist ? String(data.receptionist.id_receptionist) : "",
-  );
-  const [status, setStatus] = useState<AppointmentStatus>(data?.status ?? "OPENED");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -96,7 +80,6 @@ const AppointmentFormDialog = ({
 
     const idPet = selectedPet ? Number(selectedPet) : NaN;
     const idVet = selectedVet ? Number(selectedVet) : NaN;
-    const idReceptionist = selectedReceptionist ? Number(selectedReceptionist) : NaN;
 
     if (!Number.isFinite(idPet)) {
       setError("Selecciona una mascota.");
@@ -106,21 +89,14 @@ const AppointmentFormDialog = ({
       setError("Selecciona un veterinario.");
       return;
     }
-    if (!Number.isFinite(idReceptionist)) {
-      setError("Selecciona un recepcionista.");
-      return;
-    }
 
     const formData = new FormData(e.currentTarget);
     const payload: AppointmentRequest = {
-      id_receptionist: idReceptionist,
       id_pet: idPet,
       id_veterinarian: idVet,
       date: formData.get("date") as string,
-      time_minutes: Number(formData.get("time_minutes")),
       reason: formData.get("reason") as string,
       notes: formData.get("notes") as string,
-      status,
     };
 
     setSubmitting(true);
@@ -206,24 +182,6 @@ const AppointmentFormDialog = ({
                   </Field>
 
                   <Field>
-                    <FieldLabel htmlFor="select-receptionist">Recepcionista</FieldLabel>
-                    <Select value={selectedReceptionist} onValueChange={setSelectedReceptionist}>
-                      <SelectTrigger id="select-receptionist">
-                        <SelectValue placeholder="Selecciona un recepcionista" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {receptionists.map((r) => (
-                            <SelectItem key={r.id_receptionist} value={String(r.id_receptionist)}>
-                              {r.names} {r.last_names}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-
-                  <Field>
                     <FieldLabel htmlFor="input-date">Fecha y hora</FieldLabel>
                     <Input
                       id="input-date"
@@ -235,56 +193,23 @@ const AppointmentFormDialog = ({
                   </Field>
 
                   <Field>
-                    <FieldLabel htmlFor="input-time-minutes">Duración (min)</FieldLabel>
-                    <Input
-                      id="input-time-minutes"
-                      name="time_minutes"
-                      type="number"
-                      min={1}
-                      defaultValue={data?.time_minutes ?? ""}
-                      placeholder="Ej. 30"
-                      required
-                    />
-                  </Field>
-
-                  <Field>
-                    <FieldLabel htmlFor="input-reason">Motivo</FieldLabel>
+                    <FieldLabel htmlFor="input-reason">Motivo <span className="text-xs text-muted-foreground font-normal">(opcional)</span></FieldLabel>
                     <Input
                       id="input-reason"
                       name="reason"
                       defaultValue={data?.reason ?? ""}
                       placeholder="Ej. Vacunación"
-                      required
                     />
                   </Field>
 
                   <Field>
-                    <FieldLabel htmlFor="input-notes">Notas</FieldLabel>
+                    <FieldLabel htmlFor="input-notes">Notas <span className="text-xs text-muted-foreground font-normal">(opcional)</span></FieldLabel>
                     <Textarea
                       id="input-notes"
                       name="notes"
                       defaultValue={data?.notes ?? ""}
                       placeholder="Observaciones adicionales"
-                      required
                     />
-                  </Field>
-
-                  <Field>
-                    <FieldLabel htmlFor="select-status">Estado</FieldLabel>
-                    <Select value={status} onValueChange={(v) => setStatus(v as AppointmentStatus)}>
-                      <SelectTrigger id="select-status">
-                        <SelectValue placeholder="Selecciona un estado" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {APPOINTMENT_STATUSES.map((s) => (
-                            <SelectItem key={s} value={s}>
-                              {STATUS_LABELS[s]}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
                   </Field>
 
                   {error && (

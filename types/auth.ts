@@ -34,9 +34,12 @@ export interface RegisterRequest {
 
 // POST /auth/register (público) — registro de cliente: crea User (login) + Owner (ficha).
 // Campos en snake_case porque el backend usa Jackson SNAKE_CASE.
+import type { DocumentType } from "@/types/owner";
+
 export interface ClientRegisterRequest {
   username: string;
   password: string;
+  document_type: DocumentType;
   dni: string;
   names: string;
   last_names: string;

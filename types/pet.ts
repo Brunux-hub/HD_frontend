@@ -14,7 +14,7 @@ export interface Pet {
   weight: string;
 }
 
-// PetRequest del backend: { id_owner, name, species, race, birthdate, sex, weight }
+// PetRequest del backend: { id_owner, name, species, race, birthdate, sex }
 // OJO: en el request el sexo se manda como "sex".
 export interface PetRequest {
   id_owner: number;
@@ -23,5 +23,4 @@ export interface PetRequest {
   race: string;
   birthdate: string; // "yyyy-MM-dd"
   sex: PetGender;
-  weight: string;
 }

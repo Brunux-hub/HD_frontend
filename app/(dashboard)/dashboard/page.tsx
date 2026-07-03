@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { fmtDateTime } from "@/lib/utils";
 import {
   BookUser,
   PawPrint,
@@ -270,7 +271,7 @@ export default function DashboardPage() {
                       con {a.veterinarian?.names} {a.veterinarian?.last_names}
                     </span>
                     <span className="ml-auto tabular-nums text-slate-500">
-                      {a.date?.slice(0, 16).replace("T", " ")}
+                      {fmtDateTime(a.date)}
                     </span>
                   </li>
                 ))}
