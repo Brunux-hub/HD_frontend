@@ -1,23 +1,16 @@
 import { http } from "@/lib/axios";
-import { setToken, clearToken, clearRole } from "@/lib/auth";
+import { setToken, clearToken, clearRole, clearUserData } from "@/lib/auth";
 import type {
   AuthResponse,
   ClientRegisterRequest,
   LoginRequest,
-  MeResponse,
 } from "@/types/auth";
 import type { Owner } from "@/types/owner";
 
-/** POST /auth/login -> guarda el token JWT en cookie y lo devuelve. */
+/** POST /v1/auth/login -> guarda el token JWT en cookie y lo devuelve. */
 export async function login(credentials: LoginRequest): Promise<AuthResponse> {
-  const { data } = await http.post<AuthResponse>("/auth/login", credentials);
+  const { data } = await http.post<AuthResponse>("/v1/auth/login", credentials);
   setToken(data.token);
-  return data;
-}
-
-/** GET /auth/me -> rol fino del usuario autenticado. */
-export async function getMe(): Promise<MeResponse> {
-  const { data } = await http.get<MeResponse>("/auth/me");
   return data;
 }
 
@@ -27,8 +20,9 @@ export async function register(payload: ClientRegisterRequest): Promise<Owner> {
   return data;
 }
 
-/** Logout: elimina el token y el rol. */
+/** Logout: elimina el token, el rol y los datos del usuario. */
 export function logout() {
   clearToken();
   clearRole();
+  clearUserData();
 }

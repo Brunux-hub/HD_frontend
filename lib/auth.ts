@@ -68,6 +68,31 @@ export type JwtPayload = {
   exp?: number;
 };
 
+// --- Datos del usuario (para mostrar en UI) ---
+
+export interface UserData {
+  idUsuario: number;
+  correo: string;
+  nombres: string;
+  apellidos: string;
+}
+
+export function setUserData(data: UserData) {
+  if (typeof document === "undefined") return;
+  document.cookie = `hd_vet_id_usuario=${data.idUsuario}; path=/; SameSite=Lax`;
+  document.cookie = `hd_vet_correo=${encodeURIComponent(data.correo)}; path=/; SameSite=Lax`;
+  document.cookie = `hd_vet_nombres=${encodeURIComponent(data.nombres)}; path=/; SameSite=Lax`;
+  document.cookie = `hd_vet_apellidos=${encodeURIComponent(data.apellidos)}; path=/; SameSite=Lax`;
+}
+
+export function clearUserData() {
+  if (typeof document === "undefined") return;
+  document.cookie = `hd_vet_id_usuario=; path=/; max-age=0; SameSite=Lax`;
+  document.cookie = `hd_vet_correo=; path=/; max-age=0; SameSite=Lax`;
+  document.cookie = `hd_vet_nombres=; path=/; max-age=0; SameSite=Lax`;
+  document.cookie = `hd_vet_apellidos=; path=/; max-age=0; SameSite=Lax`;
+}
+
 /** Decodifica el payload del JWT (sin verificar la firma) para mostrar datos en UI. */
 export function decodeToken(token: string | null = getToken()): JwtPayload | null {
   if (!token) return null;

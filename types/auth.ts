@@ -1,29 +1,29 @@
 import type { UserType } from "@/types/enums";
 
-// POST /auth/login
+// POST /api/v1/auth/login
 export interface LoginRequest {
-  username: string;
-  password: string;
+  correo: string;
+  contrasenia: string;
 }
 
-// Respuesta de /auth/login
+// Respuesta de /api/v1/auth/login
 export interface AuthResponse {
   token: string;
+  idUsuario: number;
+  correo: string;
+  rol: StaffRole;
+  habilitado: boolean;
+  nombres: string;
+  apellidos: string;
 }
 
-// Rol "fino" que devuelve el backend en GET /auth/me.
+// Roles del sistema
 export type StaffRole =
   | "ADMIN"
   | "VETERINARIAN"
   | "RECEPTIONIST"
   | "CLIENT"
   | "WORKER";
-
-// Respuesta de GET /auth/me
-export interface MeResponse {
-  username: string;
-  role: StaffRole;
-}
 
 // POST /auth/register (admin, uso interno) — crea un User "pelado"
 export interface RegisterRequest {
