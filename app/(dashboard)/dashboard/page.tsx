@@ -8,7 +8,6 @@ import {
   Calendar,
   Stethoscope,
   ReceiptText,
-  Syringe,
 } from "lucide-react";
 
 import { getOwners } from "@/services/owners/owners";
@@ -16,7 +15,6 @@ import { getPets } from "@/services/pets/pets";
 import { getAppointments } from "@/services/appointments/appointments";
 import { getVeterinarians } from "@/services/veterinarians/veterinarians";
 import { getServices } from "@/services/services/services";
-import { getVaccinations } from "@/services/vaccinations/vaccinations";
 import type { Appointment } from "@/types/appointment";
 
 // Estados de cita: colores categóricos validados (CVD ΔE 21.2) — con etiqueta directa.
@@ -131,7 +129,7 @@ function AnimatedBorder() {
 // -------- Página --------
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
-  const [counts, setCounts] = useState({ owners: 0, pets: 0, appts: 0, vets: 0, services: 0, vaccinations: 0 });
+  const [counts, setCounts] = useState({ owners: 0, pets: 0, appts: 0, vets: 0, services: 0 });
   const [byStatus, setByStatus] = useState<Record<string, number>>({});
   const [bySpecies, setBySpecies] = useState<{ label: string; value: number }[]>([]);
   const [upcoming, setUpcoming] = useState<Appointment[]>([]);
@@ -144,16 +142,14 @@ export default function DashboardPage() {
       safe(getAppointments()),
       safe(getVeterinarians()),
       safe(getServices()),
-      safe(getVaccinations()),
     ])
-      .then(([owners, pets, appts, vets, services, vaccinations]) => {
+      .then(([owners, pets, appts, vets, services]) => {
         setCounts({
           owners: owners.length,
           pets: pets.length,
           appts: appts.length,
           vets: vets.length,
           services: services.length,
-          vaccinations: vaccinations.length,
         });
 
         const status: Record<string, number> = {};
@@ -186,7 +182,6 @@ export default function DashboardPage() {
     { label: "Citas", value: counts.appts, icon: Calendar, href: "/dashboard/citas" },
     { label: "Veterinarios", value: counts.vets, icon: Stethoscope, href: "/dashboard/veterinarios" },
     { label: "Servicios", value: counts.services, icon: ReceiptText, href: "/dashboard/servicios" },
-    { label: "Vacunas aplicadas", value: counts.vaccinations, icon: Syringe, href: "/dashboard/vacunacion" },
   ];
 
   const donutData = STATUS_ORDER.map((s) => ({

@@ -2,7 +2,7 @@ import { http } from "@/lib/axios";
 import type { Pet, PetRequest } from "@/types/pet";
 
 // CRUD de mascotas (Pet) contra el backend: /pet
-const BASE = "/pet";
+const BASE = "/v1/mascotas";
 
 export const getPets = async () => {
   const { data } = await http.get<Pet[]>(BASE);

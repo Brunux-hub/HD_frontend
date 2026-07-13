@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Syringe, Mars, Venus, PawPrint } from "lucide-react";
+import { Mars, Venus, PawPrint } from "lucide-react";
 
 import { getClientData, edadEnAnios, type Mascota } from "@/lib/cliente/data";
 import PetAvatar from "../../_components/PetAvatar";
@@ -23,7 +23,7 @@ export default function MisMascotas() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Mis mascotas</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Aquí verás tus mascotas y el detalle de sus vacunas.
+          Aquí verás tus mascotas registradas.
         </p>
       </div>
 
@@ -43,57 +43,44 @@ export default function MisMascotas() {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {mascotas.map((m) => {
-            const pendientes = m.vacunas.filter((v) => v.estado !== "Aplicada").length;
-            return (
-              <div
-                key={m.id}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
-              >
-                <div className="flex items-center gap-4 p-5">
-                  <PetAvatar name={m.nombre} className="h-16 w-16 text-2xl" />
-                  <div className="min-w-0">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{m.nombre}</h3>
-                    <p className="text-sm text-slate-500">{m.especie} · {m.raza}</p>
-                    <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-slate-500">
-                      {m.sexo === "FEMALE" ? (
-                        <Venus className="h-3.5 w-3.5 text-pink-500" />
-                      ) : (
-                        <Mars className="h-3.5 w-3.5 text-blue-500" />
-                      )}
-                      {m.sexo === "FEMALE" ? "Hembra" : "Macho"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="px-5 pb-5">
-                  <dl className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <dt className="text-xs text-slate-400">Edad</dt>
-                      <dd className="font-medium text-slate-700 dark:text-slate-200">
-                        {edadEnAnios(m.nacimiento)} años
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-slate-400">Peso</dt>
-                      <dd className="font-medium text-slate-700 dark:text-slate-200">{m.peso}</dd>
-                    </div>
-                  </dl>
-
-                  <Link
-                    href={`/cliente/mascotas/${m.id}`}
-                    className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700"
-                  >
-                    <Syringe className="h-4 w-4" />
-                    Ver vacunas
-                    {pendientes > 0 && (
-                      <span className="ml-1 rounded-full bg-white/25 px-2 text-xs">{pendientes}</span>
+          {mascotas.map((m) => (
+            <Link
+              key={m.id}
+              href={`/cliente/mascotas/${m.id}`}
+              className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-teal-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+            >
+              <div className="flex items-center gap-4 p-5">
+                <PetAvatar name={m.nombre} className="h-16 w-16 text-2xl" />
+                <div className="min-w-0">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{m.nombre}</h3>
+                  <p className="text-sm text-slate-500">{m.especie} · {m.raza}</p>
+                  <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-slate-500">
+                    {m.sexo === "FEMALE" ? (
+                      <Venus className="h-3.5 w-3.5 text-pink-500" />
+                    ) : (
+                      <Mars className="h-3.5 w-3.5 text-blue-500" />
                     )}
-                  </Link>
+                    {m.sexo === "FEMALE" ? "Hembra" : "Macho"}
+                  </span>
                 </div>
               </div>
-            );
-          })}
+
+              <div className="px-5 pb-5">
+                <dl className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <dt className="text-xs text-slate-400">Edad</dt>
+                    <dd className="font-medium text-slate-700 dark:text-slate-200">
+                      {edadEnAnios(m.nacimiento)} años
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-slate-400">Peso</dt>
+                    <dd className="font-medium text-slate-700 dark:text-slate-200">{m.peso}</dd>
+                  </div>
+                </dl>
+              </div>
+            </Link>
+          ))}
         </div>
       )}
     </div>

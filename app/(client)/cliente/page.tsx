@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { PawPrint, Syringe, CalendarClock, AlertTriangle, ChevronRight } from "lucide-react";
+import { PawPrint, ChevronRight } from "lucide-react";
 
 import { getClientData, edadEnAnios, type Mascota } from "@/lib/cliente/data";
 import PetAvatar from "../_components/PetAvatar";
@@ -23,16 +23,8 @@ export default function ClienteHome() {
       .finally(() => setLoading(false));
   }, []);
 
-  const vacunas = mascotas.flatMap((m) => m.vacunas);
-  const aplicadas = vacunas.filter((v) => v.estado === "Aplicada").length;
-  const proximas = vacunas.filter((v) => v.estado === "Próxima").length;
-  const vencidas = vacunas.filter((v) => v.estado === "Vencida").length;
-
   const stats = [
     { label: "Mascotas", value: mascotas.length, icon: PawPrint, color: "text-teal-600 bg-teal-100 dark:bg-teal-900/40 dark:text-teal-300" },
-    { label: "Vacunas al día", value: aplicadas, icon: Syringe, color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-300" },
-    { label: "Próximas dosis", value: proximas, icon: CalendarClock, color: "text-amber-600 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300" },
-    { label: "Vencidas", value: vencidas, icon: AlertTriangle, color: "text-red-600 bg-red-100 dark:bg-red-900/40 dark:text-red-300" },
   ];
 
   return (
@@ -42,7 +34,7 @@ export default function ClienteHome() {
         <p className="text-sm text-teal-100">Portal del cliente</p>
         <h1 className="mt-1 text-3xl font-bold">Hola{owner ? `, ${owner.names}` : ""} 👋</h1>
         <p className="mt-2 max-w-lg text-teal-50/90">
-          Aquí puedes revisar a tus mascotas y el estado de sus vacunas.
+          Aquí puedes revisar a tus mascotas.
         </p>
       </div>
 
@@ -56,20 +48,13 @@ export default function ClienteHome() {
           <h2 className="mt-5 text-lg font-bold text-slate-900 dark:text-white">
             Aún no tienes mascotas registradas
           </h2>
-          <p className="mt-2 max-w-sm text-sm text-slate-500">
-            Cuando registremos a tu mascota (por ejemplo, al generar una cita),
-            aparecerá aquí junto con sus vacunas.
-          </p>
+        <p className="mt-2 max-w-sm text-sm text-slate-500">
+          Cuando registremos a tu mascota (por ejemplo, al generar una cita),
+          aparecerá aquí.
+        </p>
         </div>
       ) : (
         <>
-          {vencidas > 0 && (
-            <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
-              <AlertTriangle className="h-5 w-5 shrink-0" />
-              Tienes <b>{vencidas}</b> vacuna(s) vencida(s). Revisa tus mascotas y agenda una cita.
-            </div>
-          )}
-
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {stats.map((s) => (
               <div key={s.label} className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">

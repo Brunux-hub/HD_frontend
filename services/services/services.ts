@@ -2,7 +2,7 @@ import { http } from "@/lib/axios";
 import type { Service, ServiceRequest } from "@/types/service";
 
 // CRUD de servicios contra el backend: /services
-const BASE = "/services";
+const BASE = "/v1/servicios";
 
 export const getServices = async () => {
   const { data } = await http.get<Service[]>(BASE);

@@ -2,7 +2,7 @@ import { http } from "@/lib/axios";
 import type { Appointment, AppointmentRequest } from "@/types/appointment";
 
 // CRUD de citas contra el backend: /appointment
-const BASE = "/appointment";
+const BASE = "/v1/citas";
 
 export const getAppointments = async () => {
   const { data } = await http.get<Appointment[]>(BASE);

@@ -2,7 +2,7 @@ import { http } from "@/lib/axios";
 import type { Owner, OwnerRequest } from "@/types/owner";
 
 // CRUD de clientes (Owner) contra el backend: /owner  (usando Axios)
-const BASE = "/owner";
+const BASE = "/v1/clientes";
 
 export const getOwners = async () => {
   const { data } = await http.get<Owner[]>(BASE);
