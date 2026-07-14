@@ -16,13 +16,19 @@ import { Button } from "@/components/ui/button";
 import PetFormDialog from "./PetFormDialog";
 
 import { Pet, PetRequest } from "@/types/pet";
+import { ClienteResponse } from "@/types/cliente";
 
-const sexoLabel = (g: Pet["pet_gender"]) => (g === "FEMALE" ? "Hembra" : "Macho");
-const fmtDate = (iso: string) => (iso ? iso.slice(0, 10) : "—");
+const sexoLabel = (g: string) => (g === "HEMBRA" ? "Hembra" : "Macho");
+const fmtDate = (iso: string) => {
+  if (!iso) return "—";
+  const [y, m, d] = iso.slice(0, 10).split("-");
+  return `${d}/${m}/${y}`;
+};
 
 type Props = {
   pets: Pet[];
   showOwner?: boolean;
+  owners?: ClienteResponse[];
   onEdit?: (id: number, pet: PetRequest) => void;
   onDelete?: (id: number) => void;
 };
@@ -30,61 +36,60 @@ type Props = {
 const PetTable = ({
   pets,
   showOwner = false,
+  owners,
   onEdit,
   onDelete,
 }: Props) => {
   const hasActions = Boolean(onEdit && onDelete);
+  const ownerMap = new Map(owners?.map((o) => [o.idUsuario, o]));
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">ID</TableHead>
           <TableHead>Nombre</TableHead>
           <TableHead>Especie</TableHead>
           <TableHead>Raza</TableHead>
           <TableHead>Sexo</TableHead>
           <TableHead>Nacimiento</TableHead>
-          <TableHead>Peso</TableHead>
           {showOwner && <TableHead>Dueño</TableHead>}
-          {showOwner && <TableHead>Teléfono</TableHead>}
           {hasActions && <TableHead className="w-32"></TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
         {pets.map((pet) => (
-          <TableRow key={pet.id_pet}>
-            <TableCell className="font-medium">{pet.id_pet}</TableCell>
-            <TableCell>{pet.name}</TableCell>
-            <TableCell>{pet.species}</TableCell>
-            <TableCell>{pet.race}</TableCell>
-            <TableCell>{sexoLabel(pet.pet_gender)}</TableCell>
-            <TableCell>{fmtDate(pet.birthdate)}</TableCell>
-            <TableCell>{pet.weight}</TableCell>
+          <TableRow key={pet.idMascota}>
+            <TableCell>{pet.nombre}</TableCell>
+            <TableCell>{pet.especie}</TableCell>
+            <TableCell>{pet.raza}</TableCell>
+            <TableCell>{sexoLabel(pet.sexo)}</TableCell>
+            <TableCell>{fmtDate(pet.fechaNacimiento)}</TableCell>
             {showOwner && (
               <TableCell>
-                {pet.owner ? `${pet.owner.nombres} ${pet.owner.apellidos}` : "Sin asignar"}
+                {(() => {
+                  const o = ownerMap.get(pet.idUsuarioCliente);
+                  return o ? `${o.nombres} ${o.apellidos}` : `ID ${pet.idUsuarioCliente}`;
+                })()}
               </TableCell>
             )}
-            {showOwner && <TableCell>{pet.owner?.telefono ?? "—"}</TableCell>}
             {hasActions && onEdit && onDelete && (
               <TableCell className="flex gap-2">
                 <PetFormDialog
-                  ownerId={pet.owner?.idUsuario ?? 0}
+                  ownerId={pet.idUsuarioCliente}
                   icon={SquarePen}
                   mode="edit"
                   buttonColor="alert"
                   data={pet}
-                  onSubmit={(payload) => onEdit(pet.id_pet, payload)}
+                  onSubmit={(payload) => onEdit(pet.idMascota, payload)}
                 />
                 <Button
                   variant="destructive"
                   onClick={() => {
                     const ok = window.confirm(
-                      `¿Seguro que deseas eliminar a la mascota "${pet.name}"?`,
+                      `¿Seguro que deseas eliminar a la mascota "${pet.nombre}"?`,
                     );
                     if (!ok) return;
-                    onDelete(pet.id_pet);
+                    onDelete(pet.idMascota);
                   }}
                 >
                   <Trash />
@@ -97,7 +102,7 @@ const PetTable = ({
       <TableFooter>
         <TableRow>
           <TableCell
-            colSpan={showOwner ? (hasActions ? 10 : 9) : hasActions ? 8 : 7}
+            colSpan={showOwner ? (hasActions ? 8 : 7) : hasActions ? 7 : 6}
             className="h-5 text-center"
           ></TableCell>
         </TableRow>

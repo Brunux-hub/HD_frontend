@@ -14,6 +14,7 @@ import {
   updateReceptionist,
   deleteReceptionist,
 } from "@/services/receptionists/receptionists";
+import { activateUser, deactivateUser } from "@/services/users/users";
 
 const ReceptionistsPage = () => {
   const [receptionists, setReceptionists] = useState<Receptionist[]>([]);
@@ -56,6 +57,16 @@ const ReceptionistsPage = () => {
     }
   };
 
+  const handleActivate = async (id: number) => {
+    await activateUser(id);
+    await load();
+  };
+
+  const handleDeactivate = async (id: number) => {
+    await deactivateUser(id);
+    await load();
+  };
+
   return (
     <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
       <SectionHeader
@@ -84,6 +95,8 @@ const ReceptionistsPage = () => {
           receptionists={receptionists}
           onEdit={handleUpdate}
           onDelete={handleDelete}
+          onActivate={handleActivate}
+          onDeactivate={handleDeactivate}
         />
       )}
     </div>

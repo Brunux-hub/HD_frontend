@@ -14,6 +14,7 @@ import {
   updateVeterinarian,
   deleteVeterinarian,
 } from "@/services/veterinarians/veterinarians";
+import { activateUser, deactivateUser } from "@/services/users/users";
 
 const VeterinariansPage = () => {
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
@@ -56,6 +57,16 @@ const VeterinariansPage = () => {
     }
   };
 
+  const handleActivate = async (id: number) => {
+    await activateUser(id);
+    await load();
+  };
+
+  const handleDeactivate = async (id: number) => {
+    await deactivateUser(id);
+    await load();
+  };
+
   return (
     <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
       <SectionHeader
@@ -84,6 +95,8 @@ const VeterinariansPage = () => {
           veterinarians={veterinarians}
           onEdit={handleUpdate}
           onDelete={handleDelete}
+          onActivate={handleActivate}
+          onDeactivate={handleDeactivate}
         />
       )}
     </div>

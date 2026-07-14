@@ -27,3 +27,11 @@ export const updateUser = async (id: number, payload: UserRequest) => {
 export const deleteUser = async (id: number): Promise<void> => {
   await http.delete(`${BASE}/${id}`);
 };
+
+export const activateUser = async (id: number): Promise<void> => {
+  await http.patch(`/v1/usuarios/${id}/activar`);
+};
+
+export const deactivateUser = async (id: number): Promise<void> => {
+  await http.patch(`/v1/usuarios/${id}/desactivar`);
+};

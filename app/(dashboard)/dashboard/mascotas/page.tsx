@@ -66,7 +66,7 @@ const PetsPage = () => {
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando mascotas...</p>
       ) : (
-        <PetTable pets={pets} showOwner />
+        <PetTable pets={pets} showOwner owners={owners} />
       )}
     </div>
   );

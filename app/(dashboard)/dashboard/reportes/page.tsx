@@ -135,7 +135,6 @@ const ReportesPage = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-10">ID</TableHead>
                 <TableHead>Cita</TableHead>
                 <TableHead>Servicio</TableHead>
                 <TableHead>Descripción</TableHead>
@@ -145,7 +144,6 @@ const ReportesPage = () => {
             <TableBody>
               {services.map((mh) => (
                 <TableRow key={mh.id_medical_history}>
-                  <TableCell className="font-medium">{mh.id_medical_history}</TableCell>
                   <TableCell>
                     #{mh.appointment?.id_appointment} {mh.appointment?.pet?.name}
                   </TableCell>
@@ -194,7 +192,6 @@ const ReportesPage = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-10">ID</TableHead>
                 <TableHead>Mascota</TableHead>
                 <TableHead>Veterinario</TableHead>
                 <TableHead>Fecha</TableHead>
@@ -204,7 +201,6 @@ const ReportesPage = () => {
             <TableBody>
               {appointments.map((a) => (
                 <TableRow key={a.id_appointment}>
-                  <TableCell className="font-medium">{a.id_appointment}</TableCell>
                   <TableCell>{a.pet?.name}</TableCell>
                   <TableCell>
                     {a.veterinarian?.names} {a.veterinarian?.last_names}

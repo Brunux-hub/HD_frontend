@@ -28,7 +28,6 @@ const ServiceTable = ({ services, onEdit, onDelete }: Props) => {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">ID</TableHead>
           <TableHead>Nombre</TableHead>
           <TableHead>Descripción</TableHead>
           <TableHead>Precio</TableHead>
@@ -38,7 +37,6 @@ const ServiceTable = ({ services, onEdit, onDelete }: Props) => {
       <TableBody>
         {services.map((service) => (
           <TableRow key={service.id_service}>
-            <TableCell className="font-medium">{service.id_service}</TableCell>
             <TableCell>{service.name}</TableCell>
             <TableCell>{service.description}</TableCell>
             <TableCell>{service.price}</TableCell>

@@ -138,7 +138,7 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
                     <Input
                       id="search-dni"
                       value={dni}
-                      onChange={(e) => setDni(e.target.value)}
+                      onChange={(e) => setDni(e.target.value.replace(/\D/g, "").slice(0, 9))}
                       placeholder="Ej. 45678912"
                       onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSearch(); } }}
                     />
@@ -225,7 +225,7 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
                     <Input
                       id="input-dni"
                       value={dni}
-                      onChange={(e) => setDni(e.target.value)}
+                      onChange={(e) => setDni(e.target.value.replace(/\D/g, "").slice(0, 9))}
                       readOnly={!isEdit}
                       className={!isEdit ? "bg-muted" : undefined}
                       required

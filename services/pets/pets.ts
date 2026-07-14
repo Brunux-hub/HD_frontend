@@ -14,11 +14,9 @@ export const getPetById = async (id: number) => {
   return data;
 };
 
-// Mascotas de un dueño: el backend no filtra por owner, así que traemos todas
-// y filtramos por el owner embebido en la respuesta.
 export const getPetsByOwner = async (idOwner: number) => {
   const pets = await getPets();
-  return pets.filter((p) => p.owner?.id_owner === idOwner);
+  return pets.filter((p) => p.idUsuarioCliente === idOwner);
 };
 
 export const createPet = async (payload: PetRequest) => {

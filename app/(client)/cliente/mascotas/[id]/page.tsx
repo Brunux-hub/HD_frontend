@@ -12,7 +12,7 @@ const fmt = (iso: string | null) =>
   iso
     ? new Date(iso.slice(0, 10) + "T00:00:00").toLocaleDateString("es-PE", {
         day: "2-digit",
-        month: "short",
+        month: "2-digit",
         year: "numeric",
       })
     : "—";
@@ -59,16 +59,12 @@ export default function MascotaDetalle() {
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{mascota.nombre}</h1>
           <p className="text-sm text-slate-500">
-            {mascota.especie} · {mascota.raza} · {mascota.sexo === "FEMALE" ? "Hembra" : "Macho"}
+            {mascota.especie} · {mascota.raza} · {mascota.sexo === "HEMBRA" ? "Hembra" : "Macho"}
           </p>
-          <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+          <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-xs text-slate-400">Edad</p>
               <p className="font-medium text-slate-700 dark:text-slate-200">{edadEnAnios(mascota.nacimiento)} años</p>
-            </div>
-            <div>
-              <p className="text-xs text-slate-400">Peso</p>
-              <p className="font-medium text-slate-700 dark:text-slate-200">{mascota.peso}</p>
             </div>
             <div>
               <p className="text-xs text-slate-400">Nacimiento</p>

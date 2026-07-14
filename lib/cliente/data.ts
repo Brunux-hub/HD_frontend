@@ -7,9 +7,8 @@ export type Mascota = {
   nombre: string;
   especie: string;
   raza: string;
-  sexo: "MALE" | "FEMALE";
+  sexo: string;
   nacimiento: string;
-  peso: string;
 };
 
 /** Edad en años a partir de la fecha de nacimiento (ISO). */
@@ -32,13 +31,12 @@ export async function getClientData(): Promise<{ owner: ClienteResponse | null; 
   ]);
 
   const mascotas: Mascota[] = pets.map((p) => ({
-    id: p.id_pet,
-    nombre: p.name,
-    especie: p.species,
-    raza: p.race,
-    sexo: p.pet_gender,
-    nacimiento: (p.birthdate ?? "").slice(0, 10),
-    peso: p.weight,
+    id: p.idMascota,
+    nombre: p.nombre,
+    especie: p.especie,
+    raza: p.raza,
+    sexo: p.sexo,
+    nacimiento: (p.fechaNacimiento ?? "").slice(0, 10),
   }));
 
   return { owner, mascotas };

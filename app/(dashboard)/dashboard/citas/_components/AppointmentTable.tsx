@@ -58,7 +58,6 @@ const AppointmentTable = ({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">ID</TableHead>
           <TableHead>Mascota</TableHead>
           <TableHead>Veterinario</TableHead>
           <TableHead>Fecha</TableHead>
@@ -71,7 +70,6 @@ const AppointmentTable = ({
       <TableBody>
         {appointments.map((appointment) => (
           <TableRow key={appointment.id_appointment}>
-            <TableCell className="font-medium">{appointment.id_appointment}</TableCell>
             <TableCell>{appointment.pet.name}</TableCell>
             <TableCell>
               {appointment.veterinarian.names} {appointment.veterinarian.last_names}

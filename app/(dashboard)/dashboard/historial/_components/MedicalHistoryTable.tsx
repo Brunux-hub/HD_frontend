@@ -38,7 +38,6 @@ const MedicalHistoryTable = ({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">ID</TableHead>
           <TableHead>Cita</TableHead>
           <TableHead>Servicio</TableHead>
           <TableHead>Descripción</TableHead>
@@ -49,7 +48,6 @@ const MedicalHistoryTable = ({
       <TableBody>
         {medicalHistories.map((mh) => (
           <TableRow key={mh.id_medical_history}>
-            <TableCell className="font-medium">{mh.id_medical_history}</TableCell>
             <TableCell>
               {`#${mh.appointment?.id_appointment} ${mh.appointment?.pet?.name}`}
             </TableCell>

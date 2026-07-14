@@ -55,12 +55,12 @@ export default function MisMascotas() {
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white">{m.nombre}</h3>
                   <p className="text-sm text-slate-500">{m.especie} · {m.raza}</p>
                   <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-slate-500">
-                    {m.sexo === "FEMALE" ? (
+                    {m.sexo === "HEMBRA" ? (
                       <Venus className="h-3.5 w-3.5 text-pink-500" />
                     ) : (
                       <Mars className="h-3.5 w-3.5 text-blue-500" />
                     )}
-                    {m.sexo === "FEMALE" ? "Hembra" : "Macho"}
+                    {m.sexo === "HEMBRA" ? "Hembra" : "Macho"}
                   </span>
                 </div>
               </div>
@@ -72,10 +72,6 @@ export default function MisMascotas() {
                     <dd className="font-medium text-slate-700 dark:text-slate-200">
                       {edadEnAnios(m.nacimiento)} años
                     </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-slate-400">Peso</dt>
-                    <dd className="font-medium text-slate-700 dark:text-slate-200">{m.peso}</dd>
                   </div>
                 </dl>
               </div>

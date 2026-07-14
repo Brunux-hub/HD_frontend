@@ -13,6 +13,7 @@ import {
   deleteOwner,
   getOwners,
 } from "@/services/owners/owners";
+import { activateUser, deactivateUser } from "@/services/users/users";
 
 const ClientsPage = () => {
   const [owners, setOwners] = useState<ClienteResponse[]>([]);
@@ -49,6 +50,16 @@ const ClientsPage = () => {
     }
   };
 
+  const handleActivate = async (id: number) => {
+    await activateUser(id);
+    await load();
+  };
+
+  const handleDeactivate = async (id: number) => {
+    await deactivateUser(id);
+    await load();
+  };
+
   return (
     <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
       <SectionHeader
@@ -75,7 +86,7 @@ const ClientsPage = () => {
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando clientes...</p>
       ) : (
-        <ClientTable owners={owners} onDelete={handleDelete} />
+        <ClientTable owners={owners} onDelete={handleDelete} onActivate={handleActivate} onDeactivate={handleDeactivate} />
       )}
     </div>
   );

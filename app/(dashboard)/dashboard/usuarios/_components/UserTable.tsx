@@ -30,7 +30,6 @@ const UserTable = ({ users, onEdit, onDelete }: Props) => {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">ID</TableHead>
           <TableHead>Usuario</TableHead>
           <TableHead>Tipo</TableHead>
           <TableHead className="w-25"></TableHead>
@@ -39,7 +38,6 @@ const UserTable = ({ users, onEdit, onDelete }: Props) => {
       <TableBody>
         {users.map((user) => (
           <TableRow key={user.id_user}>
-            <TableCell className="font-medium">{user.id_user}</TableCell>
             <TableCell>{user.username}</TableCell>
             <TableCell>
               <span

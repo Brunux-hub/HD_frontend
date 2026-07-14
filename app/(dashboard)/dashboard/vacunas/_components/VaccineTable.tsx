@@ -28,7 +28,6 @@ const VaccineTable = ({ vaccines, onEdit, onDelete }: Props) => {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-10">ID</TableHead>
           <TableHead>Nombre</TableHead>
           <TableHead>Fabricante</TableHead>
           <TableHead>Descripción</TableHead>
@@ -39,7 +38,6 @@ const VaccineTable = ({ vaccines, onEdit, onDelete }: Props) => {
       <TableBody>
         {vaccines.map((vaccine) => (
           <TableRow key={vaccine.id_vaccine}>
-            <TableCell className="font-medium">{vaccine.id_vaccine}</TableCell>
             <TableCell>{vaccine.name}</TableCell>
             <TableCell>{vaccine.manufacturer}</TableCell>
             <TableCell>{vaccine.description}</TableCell>

@@ -30,15 +30,11 @@ import {
 
 import { Pet, PetRequest } from "@/types/pet";
 import { ClienteResponse } from "@/types/cliente";
-import type { PetGender } from "@/types/enums";
 
-// La respuesta trae birthdate en ISO ("yyyy-MM-ddT..."); el input date necesita "yyyy-MM-dd".
 const toDateInput = (value?: string) => (value ? value.slice(0, 10) : "");
 
 type Props = {
-  /** Dueño fijo (perfil de cliente). Si no se pasa, se muestra el selector de dueños. */
   ownerId?: number;
-  /** Lista de dueños para elegir (listado general). */
   owners?: ClienteResponse[];
   mode?: "create" | "edit";
   data?: Pet;
@@ -49,9 +45,9 @@ type Props = {
 
 const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, onSubmit }: Props) => {
   const [open, setOpen] = useState(false);
-  const [sex, setSex] = useState<PetGender>(data?.pet_gender ?? "MALE");
+  const [sex, setSex] = useState(data?.sexo ?? "MACHO");
   const [selectedOwner, setSelectedOwner] = useState<string>(
-    ownerId ? String(ownerId) : data?.owner?.idUsuario ? String(data.owner.idUsuario) : "",
+    ownerId ? String(ownerId) : data?.idUsuarioCliente ? String(data.idUsuarioCliente) : "",
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,13 +75,13 @@ const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, o
 
     const formData = new FormData(e.currentTarget);
     const payload: PetRequest = {
-      id_owner: resolvedOwner as number,
-      name: formData.get("name") as string,
-      species: formData.get("species") as string,
-      race: formData.get("race") as string,
-      birthdate: formData.get("birthdate") as string,
-      sex,
-      weight: formData.get("weight") as string,
+      nombre: formData.get("nombre") as string,
+      especie: formData.get("especie") as string,
+      raza: formData.get("raza") as string,
+      sexo: sex,
+      fechaNacimiento: formData.get("fechaNacimiento") as string,
+      idUsuarioCliente: resolvedOwner as number,
+      activo: true,
     };
 
     setSubmitting(true);
@@ -109,7 +105,6 @@ const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, o
         <DialogDescription className="sr-only" />
 
         {success ? (
-          /* Confirmación de éxito */
           <div className="flex flex-col items-center gap-4 py-8 text-center">
             <span className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-green-600 duration-500 animate-in zoom-in-50 dark:bg-green-900/40 dark:text-green-400">
               <CheckCircle2 className="h-11 w-11 duration-700 animate-in fade-in" />
@@ -144,8 +139,8 @@ const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, o
                         <SelectContent>
                           <SelectGroup>
                             {owners?.map((o) => (
-                              <SelectItem key={o.id_owner} value={String(o.id_owner)}>
-                                {o.names} {o.last_names}
+                              <SelectItem key={o.idUsuario} value={String(o.idUsuario)}>
+                                {o.nombres} {o.apellidos}
                               </SelectItem>
                             ))}
                           </SelectGroup>
@@ -154,39 +149,35 @@ const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, o
                     </Field>
                   )}
                   <Field>
-                    <FieldLabel htmlFor="input-name">Nombre</FieldLabel>
-                    <Input id="input-name" name="name" defaultValue={data?.name ?? ""} placeholder="Ej. Luna" required />
+                    <FieldLabel htmlFor="input-nombre">Nombre</FieldLabel>
+                    <Input id="input-nombre" name="nombre" defaultValue={data?.nombre ?? ""} placeholder="Ej. Luna" required />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-species">Especie</FieldLabel>
-                    <Input id="input-species" name="species" defaultValue={data?.species ?? ""} placeholder="Ej. Canino" required />
+                    <FieldLabel htmlFor="input-especie">Especie</FieldLabel>
+                    <Input id="input-especie" name="especie" defaultValue={data?.especie ?? ""} placeholder="Ej. Canino" required />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-race">Raza</FieldLabel>
-                    <Input id="input-race" name="race" defaultValue={data?.race ?? ""} placeholder="Ej. Labrador" required />
+                    <FieldLabel htmlFor="input-raza">Raza</FieldLabel>
+                    <Input id="input-raza" name="raza" defaultValue={data?.raza ?? ""} placeholder="Ej. Labrador" required />
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="select-sex">Sexo</FieldLabel>
-                    <Select value={sex} onValueChange={(v) => setSex(v as PetGender)}>
-                      <input type="hidden" name="sex" value={sex} />
+                    <Select value={sex} onValueChange={setSex}>
+                      <input type="hidden" name="sexo" value={sex} />
                       <SelectTrigger id="select-sex">
                         <SelectValue placeholder="Selecciona un sexo" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="MALE">Macho</SelectItem>
-                          <SelectItem value="FEMALE">Hembra</SelectItem>
+                          <SelectItem value="MACHO">Macho</SelectItem>
+                          <SelectItem value="HEMBRA">Hembra</SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-birthdate">Fecha de nacimiento</FieldLabel>
-                    <Input id="input-birthdate" name="birthdate" type="date" defaultValue={toDateInput(data?.birthdate)} required />
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="input-weight">Peso</FieldLabel>
-                    <Input id="input-weight" name="weight" defaultValue={data?.weight ?? ""} placeholder="Ej. 28 kg" required />
+                    <FieldLabel htmlFor="input-fechaNacimiento">Fecha de nacimiento</FieldLabel>
+                    <Input id="input-fechaNacimiento" name="fechaNacimiento" type="date" defaultValue={toDateInput(data?.fechaNacimiento)} required />
                   </Field>
 
                   {error && (
