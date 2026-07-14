@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Trash } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -26,24 +25,22 @@ import { ClienteResponse } from "@/types/cliente";
 type ConfirmAction = {
   id: number;
   nombre: string;
-  action: "activar" | "desactivar" | "eliminar";
+  action: "activar" | "desactivar";
 };
 
 type Props = {
   owners: ClienteResponse[];
-  onDelete: (id: number) => void;
   onActivate: (id: number) => Promise<void>;
   onDeactivate: (id: number) => Promise<void>;
 };
 
-const ClientTable = ({ owners, onDelete, onActivate, onDeactivate }: Props) => {
+const ClientTable = ({ owners, onActivate, onDeactivate }: Props) => {
   const [confirm, setConfirm] = useState<ConfirmAction | null>(null);
 
   const handleConfirm = async () => {
     if (!confirm) return;
     if (confirm.action === "activar") await onActivate(confirm.id);
     else if (confirm.action === "desactivar") await onDeactivate(confirm.id);
-    else if (confirm.action === "eliminar") await onDelete(confirm.id);
     setConfirm(null);
   };
 
@@ -56,10 +53,7 @@ const ClientTable = ({ owners, onDelete, onActivate, onDeactivate }: Props) => {
       title: "Desactivar cliente",
       desc: `¿Estás seguro de desactivar a "${confirm?.nombre}"?`,
     },
-    eliminar: {
-      title: "Eliminar cliente",
-      desc: `¿Estás seguro de eliminar a "${confirm?.nombre}"? Esta acción no se puede deshacer.`,
-    },
+
   };
 
   return (
@@ -108,12 +102,6 @@ const ClientTable = ({ owners, onDelete, onActivate, onDeactivate }: Props) => {
                 )}
                 <Button asChild variant="outline">
                   <Link href={`/dashboard/clientes/${owner.idUsuario}`}>Perfil</Link>
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => setConfirm({ id: owner.idUsuario, nombre: `${owner.nombres} ${owner.apellidos}`, action: "eliminar" })}
-                >
-                  <Trash />
                 </Button>
               </TableCell>
             </TableRow>

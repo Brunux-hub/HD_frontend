@@ -17,9 +17,10 @@ import { Pet, PetRequest } from "@/types/pet";
 import { getOwnerById, updateOwner } from "@/services/owners/owners";
 import {
   createPet,
-  deletePet,
   getPetsByOwner,
   updatePet,
+  activatePet,
+  deactivatePet,
 } from "@/services/pets/pets";
 
 const ClientProfilePage = () => {
@@ -81,8 +82,13 @@ const ClientProfilePage = () => {
     await loadPets();
   };
 
-  const handleDeletePet = async (id: number) => {
-    await deletePet(id);
+  const handleActivatePet = async (id: number) => {
+    await activatePet(id);
+    await loadPets();
+  };
+
+  const handleDeactivatePet = async (id: number) => {
+    await deactivatePet(id);
     await loadPets();
   };
 
@@ -147,7 +153,8 @@ const ClientProfilePage = () => {
       <PetTable
         pets={pets}
         onEdit={handleUpdatePet}
-        onDelete={handleDeletePet}
+        onActivate={handleActivatePet}
+        onDeactivate={handleDeactivatePet}
       />
     </div>
   );

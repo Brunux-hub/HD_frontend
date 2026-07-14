@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SquarePen, Trash } from "lucide-react";
+import { SquarePen } from "lucide-react";
 
 import {
   Table,
@@ -27,25 +27,23 @@ import { Receptionist, ReceptionistRequest } from "@/types/receptionist";
 type ConfirmAction = {
   id: number;
   nombre: string;
-  action: "activar" | "desactivar" | "eliminar";
+  action: "activar" | "desactivar";
 };
 
 type Props = {
   receptionists: Receptionist[];
   onEdit: (id: number, receptionist: ReceptionistRequest) => void;
-  onDelete: (id: number) => void;
   onActivate: (id: number) => Promise<void>;
   onDeactivate: (id: number) => Promise<void>;
 };
 
-const ReceptionistTable = ({ receptionists, onEdit, onDelete, onActivate, onDeactivate }: Props) => {
+const ReceptionistTable = ({ receptionists, onEdit, onActivate, onDeactivate }: Props) => {
   const [confirm, setConfirm] = useState<ConfirmAction | null>(null);
 
   const handleConfirm = async () => {
     if (!confirm) return;
     if (confirm.action === "activar") await onActivate(confirm.id);
     else if (confirm.action === "desactivar") await onDeactivate(confirm.id);
-    else if (confirm.action === "eliminar") await onDelete(confirm.id);
     setConfirm(null);
   };
 
@@ -58,10 +56,7 @@ const ReceptionistTable = ({ receptionists, onEdit, onDelete, onActivate, onDeac
       title: "Desactivar recepcionista",
       desc: `¿Estás seguro de desactivar a "${confirm?.nombre}"?`,
     },
-    eliminar: {
-      title: "Eliminar recepcionista",
-      desc: `¿Estás seguro de eliminar a "${confirm?.nombre}"? Esta acción no se puede deshacer.`,
-    },
+
   };
 
   return (
@@ -109,12 +104,7 @@ const ReceptionistTable = ({ receptionists, onEdit, onDelete, onActivate, onDeac
                   data={receptionist}
                   onSubmit={(payload) => onEdit(receptionist.idUsuario, payload)}
                 />
-                <Button
-                  variant="destructive"
-                  onClick={() => setConfirm({ id: receptionist.idUsuario, nombre: `${receptionist.nombres} ${receptionist.apellidos}`, action: "eliminar" })}
-                >
-                  <Trash />
-                </Button>
+
               </TableCell>
             </TableRow>
           ))}

@@ -1,6 +1,6 @@
 "use client";
 
-import { SquarePen, Trash } from "lucide-react";
+import { SquarePen } from "lucide-react";
 
 import {
   Table,
@@ -11,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 
 import AppointmentFormDialog from "./AppointmentFormDialog";
 
@@ -43,7 +42,6 @@ type Props = {
   veterinarians: Veterinarian[];
   receptionists: Receptionist[];
   onEdit: (id: number, appointment: AppointmentRequest) => void;
-  onDelete: (id: number) => void;
 };
 
 const AppointmentTable = ({
@@ -52,7 +50,6 @@ const AppointmentTable = ({
   veterinarians,
   receptionists,
   onEdit,
-  onDelete,
 }: Props) => {
   return (
     <Table>
@@ -95,18 +92,7 @@ const AppointmentTable = ({
                 receptionists={receptionists}
                 onSubmit={(payload) => onEdit(appointment.id_appointment, payload)}
               />
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  const ok = window.confirm(
-                    `¿Seguro que deseas eliminar la cita de "${appointment.pet.name}"?`,
-                  );
-                  if (!ok) return;
-                  onDelete(appointment.id_appointment);
-                }}
-              >
-                <Trash />
-              </Button>
+
             </TableCell>
           </TableRow>
         ))}

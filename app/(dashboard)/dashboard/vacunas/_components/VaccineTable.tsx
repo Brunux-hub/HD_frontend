@@ -1,6 +1,6 @@
 "use client";
 
-import { SquarePen, Trash } from "lucide-react";
+import { SquarePen } from "lucide-react";
 
 import {
   Table,
@@ -11,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 
 import VaccineFormDialog from "./VaccineFormDialog";
 
@@ -19,11 +18,10 @@ import { Vaccine, VaccineRequest } from "@/types/vaccine";
 
 type Props = {
   vaccines: Vaccine[];
-  onEdit: (id: number, vaccine: VaccineRequest) => void;
-  onDelete: (id: number) => void;
+  onEdit?: (id: number, vaccine: VaccineRequest) => void;
 };
 
-const VaccineTable = ({ vaccines, onEdit, onDelete }: Props) => {
+const VaccineTable = ({ vaccines, onEdit }: Props) => {
   return (
     <Table>
       <TableHeader>
@@ -50,18 +48,7 @@ const VaccineTable = ({ vaccines, onEdit, onDelete }: Props) => {
                 data={vaccine}
                 onSubmit={(payload) => onEdit(vaccine.id_vaccine, payload)}
               />
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  const ok = window.confirm(
-                    `¿Seguro que deseas eliminar la vacuna "${vaccine.name}"?`,
-                  );
-                  if (!ok) return;
-                  onDelete(vaccine.id_vaccine);
-                }}
-              >
-                <Trash />
-              </Button>
+
             </TableCell>
           </TableRow>
         ))}

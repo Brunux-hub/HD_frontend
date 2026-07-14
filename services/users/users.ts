@@ -1,8 +1,8 @@
 import { http } from "@/lib/axios";
 import type { User, UserRequest } from "@/types/user";
 
-// CRUD de usuarios (cuentas de acceso) contra el backend: /user
-const BASE = "/user";
+// CRUD de usuarios (cuentas de acceso) contra el backend: /v1/usuarios
+const BASE = "/v1/usuarios";
 
 export const getUsers = async () => {
   const { data } = await http.get<User[]>(BASE);
@@ -34,4 +34,8 @@ export const activateUser = async (id: number): Promise<void> => {
 
 export const deactivateUser = async (id: number): Promise<void> => {
   await http.patch(`/v1/usuarios/${id}/desactivar`);
+};
+
+export const updatePassword = async (id: number, payload: { contraseniaActual: string; nuevaContrasenia: string }): Promise<void> => {
+  await http.patch(`/v1/usuarios/${id}/contrasenia`, payload);
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SquarePen, Trash } from "lucide-react";
+import { SquarePen } from "lucide-react";
 
 import {
   Table,
@@ -27,25 +27,23 @@ import { Veterinarian, VeterinarianRequest } from "@/types/veterinarian";
 type ConfirmAction = {
   id: number;
   nombre: string;
-  action: "activar" | "desactivar" | "eliminar";
+  action: "activar" | "desactivar";
 };
 
 type Props = {
   veterinarians: Veterinarian[];
   onEdit: (id: number, vet: VeterinarianRequest) => void;
-  onDelete: (id: number) => void;
   onActivate: (id: number) => Promise<void>;
   onDeactivate: (id: number) => Promise<void>;
 };
 
-const VetTable = ({ veterinarians, onEdit, onDelete, onActivate, onDeactivate }: Props) => {
+const VetTable = ({ veterinarians, onEdit, onActivate, onDeactivate }: Props) => {
   const [confirm, setConfirm] = useState<ConfirmAction | null>(null);
 
   const handleConfirm = async () => {
     if (!confirm) return;
     if (confirm.action === "activar") await onActivate(confirm.id);
     else if (confirm.action === "desactivar") await onDeactivate(confirm.id);
-    else if (confirm.action === "eliminar") await onDelete(confirm.id);
     setConfirm(null);
   };
 
@@ -58,10 +56,7 @@ const VetTable = ({ veterinarians, onEdit, onDelete, onActivate, onDeactivate }:
       title: "Desactivar veterinario",
       desc: `¿Estás seguro de desactivar a "${confirm?.nombre}"?`,
     },
-    eliminar: {
-      title: "Eliminar veterinario",
-      desc: `¿Estás seguro de eliminar a "${confirm?.nombre}"? Esta acción no se puede deshacer.`,
-    },
+
   };
 
   return (
@@ -113,12 +108,7 @@ const VetTable = ({ veterinarians, onEdit, onDelete, onActivate, onDeactivate }:
                   data={vet}
                   onSubmit={(payload) => onEdit(vet.idUsuario, payload)}
                 />
-                <Button
-                  variant="destructive"
-                  onClick={() => setConfirm({ id: vet.idUsuario, nombre: `${vet.nombres} ${vet.apellidos}`, action: "eliminar" })}
-                >
-                  <Trash />
-                </Button>
+
               </TableCell>
             </TableRow>
           ))}

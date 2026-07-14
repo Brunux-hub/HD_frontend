@@ -32,3 +32,11 @@ export const updatePet = async (id: number, payload: PetRequest) => {
 export const deletePet = async (id: number): Promise<void> => {
   await http.delete(`${BASE}/${id}`);
 };
+
+export const activatePet = async (id: number): Promise<void> => {
+  await http.patch(`${BASE}/${id}/activar`);
+};
+
+export const deactivatePet = async (id: number): Promise<void> => {
+  await http.patch(`${BASE}/${id}/desactivar`);
+};

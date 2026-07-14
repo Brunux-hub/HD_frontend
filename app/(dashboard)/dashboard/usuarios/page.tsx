@@ -11,8 +11,10 @@ import { User, UserRequest } from "@/types/user";
 import {
   getUsers,
   createUser,
-  updateUser,
   deleteUser,
+  activateUser,
+  deactivateUser,
+  updatePassword,
 } from "@/services/users/users";
 
 const UsersPage = () => {
@@ -41,8 +43,8 @@ const UsersPage = () => {
     await load();
   };
 
-  const handleUpdate = async (id: number, data: UserRequest) => {
-    await updateUser(id, data);
+  const handleUpdatePassword = async (id: number, data: { contraseniaActual: string; nuevaContrasenia: string }) => {
+    await updatePassword(id, data);
     await load();
   };
 
@@ -53,6 +55,16 @@ const UsersPage = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo eliminar el usuario.");
     }
+  };
+
+  const handleActivate = async (id: number) => {
+    await activateUser(id);
+    await load();
+  };
+
+  const handleDeactivate = async (id: number) => {
+    await deactivateUser(id);
+    await load();
   };
 
   return (
@@ -79,7 +91,13 @@ const UsersPage = () => {
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando usuarios...</p>
       ) : (
-        <UserTable users={users} onEdit={handleUpdate} onDelete={handleDelete} />
+        <UserTable
+          users={users}
+          onUpdatePassword={handleUpdatePassword}
+          onDelete={handleDelete}
+          onActivate={handleActivate}
+          onDeactivate={handleDeactivate}
+        />
       )}
     </div>
   );

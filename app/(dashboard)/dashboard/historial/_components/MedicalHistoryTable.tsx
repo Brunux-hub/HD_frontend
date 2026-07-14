@@ -1,6 +1,6 @@
 "use client";
 
-import { SquarePen, Trash } from "lucide-react";
+import { SquarePen } from "lucide-react";
 
 import {
   Table,
@@ -11,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 
 import MedicalHistoryFormDialog from "./MedicalHistoryFormDialog";
 
@@ -24,7 +23,6 @@ type Props = {
   appointments: Appointment[];
   services: Service[];
   onEdit: (id: number, medicalHistory: MedicalHistoryRequest) => void;
-  onDelete: (id: number) => void;
 };
 
 const MedicalHistoryTable = ({
@@ -32,7 +30,6 @@ const MedicalHistoryTable = ({
   appointments,
   services,
   onEdit,
-  onDelete,
 }: Props) => {
   return (
     <Table>
@@ -64,18 +61,7 @@ const MedicalHistoryTable = ({
                 services={services}
                 onSubmit={(payload) => onEdit(mh.id_medical_history, payload)}
               />
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  const ok = window.confirm(
-                    `¿Seguro que deseas eliminar el historial médico #${mh.id_medical_history}?`,
-                  );
-                  if (!ok) return;
-                  onDelete(mh.id_medical_history);
-                }}
-              >
-                <Trash />
-              </Button>
+
             </TableCell>
           </TableRow>
         ))}

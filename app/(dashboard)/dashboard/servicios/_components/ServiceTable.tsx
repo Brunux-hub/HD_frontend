@@ -1,6 +1,6 @@
 "use client";
 
-import { SquarePen, Trash } from "lucide-react";
+import { SquarePen } from "lucide-react";
 
 import {
   Table,
@@ -11,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 
 import ServiceFormDialog from "./ServiceFormDialog";
 
@@ -19,11 +18,10 @@ import { Service, ServiceRequest } from "@/types/service";
 
 type Props = {
   services: Service[];
-  onEdit: (id: number, service: ServiceRequest) => void;
-  onDelete: (id: number) => void;
+  onEdit?: (id: number, service: ServiceRequest) => void;
 };
 
-const ServiceTable = ({ services, onEdit, onDelete }: Props) => {
+const ServiceTable = ({ services, onEdit }: Props) => {
   return (
     <Table>
       <TableHeader>
@@ -48,18 +46,7 @@ const ServiceTable = ({ services, onEdit, onDelete }: Props) => {
                 data={service}
                 onSubmit={(payload) => onEdit(service.id_service, payload)}
               />
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  const ok = window.confirm(
-                    `¿Seguro que deseas eliminar el servicio "${service.name}"?`,
-                  );
-                  if (!ok) return;
-                  onDelete(service.id_service);
-                }}
-              >
-                <Trash />
-              </Button>
+
             </TableCell>
           </TableRow>
         ))}

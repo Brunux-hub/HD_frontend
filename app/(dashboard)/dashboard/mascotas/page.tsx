@@ -9,7 +9,7 @@ import PetFormDialog from "./_components/PetFormDialog";
 
 import { Pet, PetRequest } from "@/types/pet";
 import { ClienteResponse } from "@/types/cliente";
-import { getPets, createPet } from "@/services/pets/pets";
+import { getPets, createPet, updatePet, activatePet, deactivatePet } from "@/services/pets/pets";
 import { getOwners } from "@/services/owners/owners";
 
 const PetsPage = () => {
@@ -41,6 +41,21 @@ const PetsPage = () => {
     await load();
   };
 
+  const handleUpdatePet = async (id: number, data: PetRequest) => {
+    await updatePet(id, data);
+    await load();
+  };
+
+  const handleActivate = async (id: number) => {
+    await activatePet(id);
+    await load();
+  };
+
+  const handleDeactivate = async (id: number) => {
+    await deactivatePet(id);
+    await load();
+  };
+
   return (
     <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
       <SectionHeader
@@ -66,7 +81,7 @@ const PetsPage = () => {
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando mascotas...</p>
       ) : (
-        <PetTable pets={pets} showOwner owners={owners} />
+        <PetTable pets={pets} showOwner owners={owners} onEdit={handleUpdatePet} onActivate={handleActivate} onDeactivate={handleDeactivate} />
       )}
     </div>
   );
