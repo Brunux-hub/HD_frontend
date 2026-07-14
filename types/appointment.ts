@@ -1,29 +1,21 @@
-import type { AppointmentStatus } from "@/types/enums";
-import type { Pet } from "@/types/pet";
-import type { Veterinarian } from "@/types/veterinarian";
-import type { Receptionist } from "@/types/receptionist";
-
-// AppointmentResponse del backend: incluye las entidades completas (receptionist, pet, veterinarian).
 export interface Appointment {
-  id_appointment: number;
-  receptionist: Receptionist;
-  pet: Pet;
-  veterinarian: Veterinarian;
-  date: string; // LocalDateTime ISO ("yyyy-MM-ddTHH:mm...")
-  time_minutes: number;
-  reason: string;
-  notes: string;
-  status: AppointmentStatus;
+  idCita: number;
+  motivo: string;
+  notas: string;
+  estado: string;
+  fechaProgramada: string;
+  idUsuarioRecepcionista: number;
+  idServicio: number;
+  idMascota: number;
+  idUsuarioVeterinario: number;
 }
 
-// AppointmentRequest del backend: referencia a las entidades por id.
 export interface AppointmentRequest {
-  id_receptionist: number;
-  id_pet: number;
-  id_veterinarian: number;
-  date: string; // "yyyy-MM-ddTHH:mm"
-  time_minutes: number;
-  reason: string;
-  notes: string;
-  status: AppointmentStatus;
+  motivo: string;
+  notas: string;
+  fechaProgramada: string;
+  idUsuarioRecepcionista: number;
+  idServicio: number;
+  idMascota: number;
+  idUsuarioVeterinario: number;
 }

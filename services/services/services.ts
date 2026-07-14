@@ -27,3 +27,11 @@ export const updateService = async (id: number, payload: ServiceRequest) => {
 export const deleteService = async (id: number): Promise<void> => {
   await http.delete(`${BASE}/${id}`);
 };
+
+export const activateService = async (id: number): Promise<void> => {
+  await http.patch(`${BASE}/${id}/activar`);
+};
+
+export const deactivateService = async (id: number): Promise<void> => {
+  await http.patch(`${BASE}/${id}/desactivar`);
+};

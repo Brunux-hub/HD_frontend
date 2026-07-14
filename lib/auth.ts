@@ -33,10 +33,9 @@ export function clearToken() {
 export const ROLE_COOKIE = "hd_vet_role";
 export type Role =
   | "admin"
-  | "veterinarian"
-  | "receptionist"
-  | "client"
-  | "worker";
+  | "veterinario"
+  | "recepcionista"
+  | "cliente";
 
 export function setRole(role: Role) {
   if (typeof document === "undefined") return;

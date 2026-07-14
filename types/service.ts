@@ -1,12 +1,14 @@
 export interface Service {
-  id_service: number;
-  name: string;
-  description: string;
-  price: number;
+  idServicio: number;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  activo: boolean;
 }
 
 export interface ServiceRequest {
-  name: string;
-  description: string;
-  price: number;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  activo: boolean;
 }

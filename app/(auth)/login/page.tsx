@@ -12,8 +12,10 @@ export default function LoginPage() {
 
   // Precarga ambos destinos para que la navegación tras el login sea instantánea.
   useEffect(() => {
-    router.prefetch("/dashboard");
+    router.prefetch("/admin");
     router.prefetch("/cliente");
+    router.prefetch("/recepcionista");
+    router.prefetch("/veterinario");
   }, [router]);
   const [correo, setCorreo] = useState("");
   const [contrasenia, setContrasenia] = useState("");
@@ -40,7 +42,10 @@ export default function LoginPage() {
         role = "worker";
       }
       setRole(role);
-      router.push(role === "client" ? "/cliente" : "/dashboard");
+      if (role === "cliente") router.push("/cliente");
+      else if (role === "recepcionista") router.push("/recepcionista");
+      else if (role === "veterinario") router.push("/veterinario");
+      else router.push("/admin");
     } catch (err) {
       const message =
         err instanceof ApiError && err.status === 401
