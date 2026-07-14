@@ -1,20 +1,21 @@
-import type { User } from "@/types/user";
-
-// ReceptionistResponse del backend: { id_receptionist, user, names, last_names, email, phone_number }
 export interface Receptionist {
-  id_receptionist: number;
-  user: User;
-  names: string;
-  last_names: string;
-  email: string;
-  phone_number: string;
+  idUsuario: number;
+  nombres: string;
+  apellidos: string;
+  telefono: string;
+  usuario: {
+    idUsuario: number;
+    correo: string;
+    rol: string;
+    habilitado: boolean;
+  };
 }
 
-// ReceptionistRequest del backend: { id_user, names, last_names, email, phone_number }
 export interface ReceptionistRequest {
-  id_user: number;
-  names: string;
-  last_names: string;
-  email: string;
-  phone_number: string;
+  correo: string;
+  contrasenia: string;
+  nombres: string;
+  apellidos: string;
+  telefono: string;
+  habilitado: boolean;
 }

@@ -8,18 +8,15 @@ import VetTable from "./_components/VetTable";
 import VetFormDialog from "./_components/VetFormDialog";
 
 import { Veterinarian, VeterinarianRequest } from "@/types/veterinarian";
-import { User } from "@/types/user";
 import {
   getVeterinarians,
   createVeterinarian,
   updateVeterinarian,
   deleteVeterinarian,
 } from "@/services/veterinarians/veterinarians";
-import { getUsers } from "@/services/users/users";
 
 const VeterinariansPage = () => {
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,9 +24,8 @@ const VeterinariansPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const [vetsData, usersData] = await Promise.all([getVeterinarians(), getUsers()]);
+      const vetsData = await getVeterinarians();
       setVeterinarians(vetsData);
-      setUsers(usersData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar los veterinarios.");
     } finally {
@@ -75,7 +71,6 @@ const VeterinariansPage = () => {
       <div className="flex">
         <VetFormDialog
           mode="create"
-          users={users}
           icon={CirclePlus}
           buttonColor="success"
           onSubmit={handleCreate}
@@ -87,7 +82,6 @@ const VeterinariansPage = () => {
       ) : (
         <VetTable
           veterinarians={veterinarians}
-          users={users}
           onEdit={handleUpdate}
           onDelete={handleDelete}
         />

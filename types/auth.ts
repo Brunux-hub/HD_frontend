@@ -9,12 +9,13 @@ export interface LoginRequest {
 // Respuesta de /api/v1/auth/login
 export interface AuthResponse {
   token: string;
+}
+
+// Respuesta de GET /api/v1/auth/me
+export interface MeResponse {
   idUsuario: number;
   correo: string;
   rol: StaffRole;
-  habilitado: boolean;
-  nombres: string;
-  apellidos: string;
 }
 
 // Roles del sistema

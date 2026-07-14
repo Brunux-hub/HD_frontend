@@ -4,6 +4,7 @@ import type {
   AuthResponse,
   ClientRegisterRequest,
   LoginRequest,
+  MeResponse,
 } from "@/types/auth";
 import type { Owner } from "@/types/owner";
 
@@ -11,6 +12,12 @@ import type { Owner } from "@/types/owner";
 export async function login(credentials: LoginRequest): Promise<AuthResponse> {
   const { data } = await http.post<AuthResponse>("/v1/auth/login", credentials);
   setToken(data.token);
+  return data;
+}
+
+/** GET /v1/auth/me -> rol del usuario autenticado. */
+export async function getMe(): Promise<MeResponse> {
+  const { data } = await http.get<MeResponse>("/v1/auth/me");
   return data;
 }
 

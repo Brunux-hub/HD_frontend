@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { login } from "@/services/auth/auth";
-import { setRole, setUserData, type Role } from "@/lib/auth";
+import { login, getMe } from "@/services/auth/auth";
+import { setRole, type Role } from "@/lib/auth";
 import { ApiError } from "@/lib/axios";
 
 export default function LoginPage() {
@@ -31,15 +31,15 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await login({ correo, contrasenia });
-      const role = res.rol.toLowerCase() as Role;
+      await login({ correo, contrasenia });
+      let role: Role = "worker";
+      try {
+        const me = await getMe();
+        role = me.rol.toLowerCase() as Role;
+      } catch {
+        role = "worker";
+      }
       setRole(role);
-      setUserData({
-        idUsuario: res.idUsuario,
-        correo: res.correo,
-        nombres: res.nombres,
-        apellidos: res.apellidos,
-      });
       router.push(role === "client" ? "/cliente" : "/dashboard");
     } catch (err) {
       const message =

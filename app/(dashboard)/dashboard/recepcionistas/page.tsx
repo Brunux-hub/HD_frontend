@@ -8,18 +8,15 @@ import ReceptionistTable from "./_components/ReceptionistTable";
 import ReceptionistFormDialog from "./_components/ReceptionistFormDialog";
 
 import { Receptionist, ReceptionistRequest } from "@/types/receptionist";
-import { User } from "@/types/user";
 import {
   getReceptionists,
   createReceptionist,
   updateReceptionist,
   deleteReceptionist,
 } from "@/services/receptionists/receptionists";
-import { getUsers } from "@/services/users/users";
 
 const ReceptionistsPage = () => {
   const [receptionists, setReceptionists] = useState<Receptionist[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,12 +24,8 @@ const ReceptionistsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const [receptionistsData, usersData] = await Promise.all([
-        getReceptionists(),
-        getUsers(),
-      ]);
+      const receptionistsData = await getReceptionists();
       setReceptionists(receptionistsData);
-      setUsers(usersData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar los recepcionistas.");
     } finally {
@@ -78,7 +71,6 @@ const ReceptionistsPage = () => {
       <div className="flex">
         <ReceptionistFormDialog
           mode="create"
-          users={users}
           icon={CirclePlus}
           buttonColor="success"
           onSubmit={handleCreate}
@@ -90,7 +82,6 @@ const ReceptionistsPage = () => {
       ) : (
         <ReceptionistTable
           receptionists={receptionists}
-          users={users}
           onEdit={handleUpdate}
           onDelete={handleDelete}
         />

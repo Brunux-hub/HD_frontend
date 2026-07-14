@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LucideIcon, CheckCircle2, Loader2 } from "lucide-react";
+import { LucideIcon, CheckCircle2, Loader2, ChevronDown } from "lucide-react";
 
 import {
   Dialog,
@@ -20,20 +20,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { Veterinarian, VeterinarianRequest } from "@/types/veterinarian";
-import { User } from "@/types/user";
+
+const SPECIALTIES = [
+  "CIRUGIA",
+  "DERMATOLOGIA",
+  "CARDIOLOGIA",
+  "RADIOLOGIA",
+  "ODONTOLOGIA",
+  "NUTRICION",
+  "GENERAL",
+];
 
 type Props = {
-  /** Lista de usuarios para asociar la cuenta de acceso al veterinario. */
-  users: User[];
   mode?: "create" | "edit";
   data?: Veterinarian;
   icon?: LucideIcon;
@@ -41,42 +46,60 @@ type Props = {
   onSubmit: (data: VeterinarianRequest) => Promise<void> | void;
 };
 
-const VetFormDialog = ({ users, mode, data, icon: Icon, buttonColor, onSubmit }: Props) => {
+const VetFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Props) => {
   const [open, setOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<string>(
-    data?.user_response?.id_user ? String(data.user_response.id_user) : "",
-  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const currentEspecialidades = data?.especialidades ?? [];
+
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>(currentEspecialidades);
+  const [licenseNum, setLicenseNum] = useState(
+    data?.numeroLicencia ? data.numeroLicencia.replace(/\D/g, "") : "",
+  );
 
   const handleOpenChange = (v: boolean) => {
     setOpen(v);
     if (!v) {
       setError(null);
       setSuccess(false);
+      setSelectedSpecialties(currentEspecialidades);
+      setLicenseNum(data?.numeroLicencia ? data.numeroLicencia.replace(/\D/g, "") : "");
     }
+  };
+
+  const toggleSpecialty = (s: string) => {
+    setSelectedSpecialties((prev) =>
+      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s],
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
 
-    const resolvedUser = selectedUser ? Number(selectedUser) : NaN;
-    if (!Number.isFinite(resolvedUser)) {
-      setError("Selecciona un usuario.");
+    const formData = new FormData(e.currentTarget);
+    const telefono = (formData.get("telefono") as string).replace(/\D/g, "");
+    if (telefono.length !== 9) {
+      setError("El teléfono debe tener exactamente 9 dígitos.");
       return;
     }
 
-    const formData = new FormData(e.currentTarget);
+    if (licenseNum.length < 4 || licenseNum.length > 5) {
+      setError("El número de licencia debe tener entre 4 y 5 dígitos.");
+      return;
+    }
+
     const payload: VeterinarianRequest = {
-      id_user: resolvedUser as number,
-      names: formData.get("names") as string,
-      last_names: formData.get("last_names") as string,
-      number_license: formData.get("number_license") as string,
-      specialty: formData.get("specialty") as string,
-      email: formData.get("email") as string,
-      phone_number: formData.get("phone_number") as string,
+      correo: formData.get("correo") as string,
+      contrasenia: formData.get("contrasenia") as string,
+      nombres: formData.get("nombres") as string,
+      apellidos: formData.get("apellidos") as string,
+      telefono,
+      numeroLicencia: `CMVP N° ${licenseNum}`,
+      especialidades: selectedSpecialties,
+      habilitado: true,
     };
 
     setSubmitting(true);
@@ -100,7 +123,6 @@ const VetFormDialog = ({ users, mode, data, icon: Icon, buttonColor, onSubmit }:
         <DialogDescription className="sr-only" />
 
         {success ? (
-          /* Confirmación de éxito */
           <div className="flex flex-col items-center gap-4 py-8 text-center">
             <span className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-green-600 duration-500 animate-in zoom-in-50 dark:bg-green-900/40 dark:text-green-400">
               <CheckCircle2 className="h-11 w-11 duration-700 animate-in fade-in" />
@@ -126,45 +148,106 @@ const VetFormDialog = ({ users, mode, data, icon: Icon, buttonColor, onSubmit }:
                 </FieldLegend>
                 <FieldGroup>
                   <Field>
-                    <FieldLabel htmlFor="select-user">Usuario</FieldLabel>
-                    <Select value={selectedUser} onValueChange={setSelectedUser}>
-                      <SelectTrigger id="select-user">
-                        <SelectValue placeholder="Selecciona un usuario" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {users.map((u) => (
-                            <SelectItem key={u.id_user} value={String(u.id_user)}>
-                              {u.username}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    <FieldLabel htmlFor="input-correo">Correo</FieldLabel>
+                    <Input id="input-correo" name="correo" type="email" defaultValue={data?.usuario?.correo ?? ""} placeholder="Ej. vet@correo.com" required />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-names">Nombres</FieldLabel>
-                    <Input id="input-names" name="names" defaultValue={data?.names ?? ""} placeholder="Ej. Juan Carlos" required />
+                    <FieldLabel htmlFor="input-contrasenia">Contraseña</FieldLabel>
+                    <Input id="input-contrasenia" name="contrasenia" type="password" placeholder="••••••••" required />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-last_names">Apellidos</FieldLabel>
-                    <Input id="input-last_names" name="last_names" defaultValue={data?.last_names ?? ""} placeholder="Ej. Pérez Gómez" required />
+                    <FieldLabel htmlFor="input-nombres">Nombres</FieldLabel>
+                    <Input
+                      id="input-nombres"
+                      name="nombres"
+                      defaultValue={data?.nombres ?? ""}
+                      placeholder="Ej. Juan Carlos"
+                      required
+                      onInput={(e) => {
+                        const input = e.currentTarget;
+                        input.value = input.value.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]/g, "");
+                      }}
+                    />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-number_license">N° Licencia</FieldLabel>
-                    <Input id="input-number_license" name="number_license" defaultValue={data?.number_license ?? ""} placeholder="Ej. CMV-12345" required />
+                    <FieldLabel htmlFor="input-apellidos">Apellidos</FieldLabel>
+                    <Input
+                      id="input-apellidos"
+                      name="apellidos"
+                      defaultValue={data?.apellidos ?? ""}
+                      placeholder="Ej. Pérez Gómez"
+                      required
+                      onInput={(e) => {
+                        const input = e.currentTarget;
+                        input.value = input.value.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]/g, "");
+                      }}
+                    />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-specialty">Especialidad</FieldLabel>
-                    <Input id="input-specialty" name="specialty" defaultValue={data?.specialty ?? ""} placeholder="Ej. Cirugía" required />
+                    <FieldLabel htmlFor="input-telefono">Teléfono</FieldLabel>
+                    <Input
+                      id="input-telefono"
+                      name="telefono"
+                      type="tel"
+                      defaultValue={data?.telefono ?? ""}
+                      placeholder="Ej. 987654321"
+                      required
+                      onInput={(e) => {
+                        const input = e.currentTarget;
+                        input.value = input.value.replace(/\D/g, "").slice(0, 9);
+                      }}
+                    />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-email">Email</FieldLabel>
-                    <Input id="input-email" name="email" type="email" defaultValue={data?.email ?? ""} placeholder="Ej. vet@correo.com" required />
+                    <FieldLabel htmlFor="input-license-num">N° Licencia</FieldLabel>
+                    <div className="flex items-center rounded-lg border border-input bg-background px-3 py-1.5 text-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring">
+                      {licenseNum && (
+                        <span className="shrink-0 text-muted-foreground font-medium mr-1.5">CMVP N°</span>
+                      )}
+                      <input
+                        id="input-license-num"
+                        type="text"
+                        inputMode="numeric"
+                        placeholder={licenseNum ? "" : "CMVP N° 1234"}
+                        value={licenseNum}
+                        onChange={(e) =>
+                          setLicenseNum(e.target.value.replace(/\D/g, "").slice(0, 5))
+                        }
+                        className="min-w-0 flex-1 bg-transparent outline-none"
+                        required
+                      />
+                    </div>
                   </Field>
+
                   <Field>
-                    <FieldLabel htmlFor="input-phone_number">Teléfono</FieldLabel>
-                    <Input id="input-phone_number" name="phone_number" defaultValue={data?.phone_number ?? ""} placeholder="Ej. 987654321" required />
+                    <FieldLabel>Especialidades</FieldLabel>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="flex w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm text-left focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          {selectedSpecialties.length === 0 ? (
+                            <span className="text-muted-foreground">Selecciona especialidades</span>
+                          ) : (
+                            <span>{selectedSpecialties.join(", ")}</span>
+                          )}
+                          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-64">
+                        {SPECIALTIES.map((s) => (
+                          <DropdownMenuCheckboxItem
+                            key={s}
+                            checked={selectedSpecialties.includes(s)}
+                            onCheckedChange={() => toggleSpecialty(s)}
+                            onSelect={(e) => e.preventDefault()}
+                          >
+                            {s}
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </Field>
 
                   {error && (
