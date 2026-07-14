@@ -8,13 +8,13 @@ import PetTable from "./_components/PetTable";
 import PetFormDialog from "./_components/PetFormDialog";
 
 import { Pet, PetRequest } from "@/types/pet";
-import { Owner } from "@/types/owner";
+import { ClienteResponse } from "@/types/cliente";
 import { getPets, createPet } from "@/services/pets/pets";
 import { getOwners } from "@/services/owners/owners";
 
 const PetsPage = () => {
   const [pets, setPets] = useState<Pet[]>([]);
-  const [owners, setOwners] = useState<Owner[]>([]);
+  const [owners, setOwners] = useState<ClienteResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

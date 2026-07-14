@@ -1,15 +1,13 @@
 import type { PetGender } from "@/types/enums";
-import type { Owner } from "@/types/owner";
+import type { ClienteResponse } from "@/types/cliente";
 
-// PetResponse del backend: { id_pet, owner, name, species, race, birthdate, pet_gender, weight }
-// OJO: en la respuesta el sexo viene como "pet_gender" (no "sex").
 export interface Pet {
   id_pet: number;
-  owner: Owner;
+  owner: ClienteResponse;
   name: string;
   species: string;
   race: string;
-  birthdate: string; // ISO-8601 (Spring serializa Date como string)
+  birthdate: string;
   pet_gender: PetGender;
   weight: string;
 }

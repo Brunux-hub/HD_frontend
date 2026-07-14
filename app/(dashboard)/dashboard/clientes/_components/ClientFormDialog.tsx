@@ -21,24 +21,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { Owner, OwnerRequest } from "@/types/owner";
+import { ClienteResponse, ClienteRequest } from "@/types/cliente";
 import { getOwnerByDni } from "@/services/owners/owners";
 
 type Props = {
   mode?: "create" | "edit";
-  data?: Owner;
+  data?: ClienteResponse;
   icon?: LucideIcon;
   buttonColor?: "default" | "success" | "alert";
-  onSubmit: (data: OwnerRequest) => Promise<void> | void;
+  onSubmit: (data: ClienteRequest) => Promise<void> | void;
 };
 
 const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Props) => {
   const isEdit = mode === "edit";
   const [open, setOpen] = useState(false);
-  // En crear se arranca en el paso de búsqueda por DNI; en editar se va directo al formulario.
   const [step, setStep] = useState<"search" | "form">(isEdit ? "form" : "search");
   const [dni, setDni] = useState(data?.dni ?? "");
-  const [existing, setExisting] = useState<Owner | null>(null);
+  const [existing, setExisting] = useState<ClienteResponse | null>(null);
   const [searching, setSearching] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,15 +78,25 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+
     const formData = new FormData(e.currentTarget);
-    const payload: OwnerRequest = {
+    const telefono = (formData.get("telefono") as string).replace(/\D/g, "");
+    if (telefono.length !== 9) {
+      setError("El teléfono debe tener exactamente 9 dígitos.");
+      return;
+    }
+
+    const payload: ClienteRequest = {
+      correo: formData.get("correo") as string,
+      contrasenia: isEdit ? (formData.get("contrasenia") as string) : (formData.get("contrasenia") as string),
+      nombres: formData.get("nombres") as string,
+      apellidos: formData.get("apellidos") as string,
       dni: dni.trim(),
-      names: formData.get("names") as string,
-      last_names: formData.get("last_names") as string,
-      email: formData.get("email") as string,
-      phone_number: formData.get("phone_number") as string,
-      address: formData.get("address") as string,
+      telefono,
+      direccion: formData.get("direccion") as string,
+      habilitado: true,
     };
+
     setSubmitting(true);
     try {
       await onSubmit(payload);
@@ -119,7 +128,6 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
             <Button onClick={() => handleOpenChange(false)}>Listo</Button>
           </div>
         ) : step === "search" ? (
-          /* Paso 1: verificar por DNI */
           <FieldGroup>
             <FieldSet>
               <FieldLegend className="text-center text-xl font-semibold">Registrar Cliente</FieldLegend>
@@ -151,10 +159,10 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
                         Ya existe un cliente con ese DNI:
                       </p>
                       <p className="text-amber-700 dark:text-amber-200">
-                        {existing.names} {existing.last_names}
+                        {existing.nombres} {existing.apellidos}
                       </p>
                       <Button asChild variant="outline" className="mt-2">
-                        <Link href={`/dashboard/clientes/${existing.id_owner}`} onClick={() => handleOpenChange(false)}>
+                        <Link href={`/dashboard/clientes/${existing.idUsuario}`} onClick={() => handleOpenChange(false)}>
                           Ver perfil
                         </Link>
                       </Button>
@@ -167,7 +175,6 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
             </FieldSet>
           </FieldGroup>
         ) : (
-          /* Paso 2: datos del cliente */
           <form onSubmit={handleSubmit}>
             <FieldGroup>
               <FieldSet>
@@ -175,6 +182,44 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
                   {isEdit ? "Modificar Cliente" : "Datos del Cliente"}
                 </FieldLegend>
                 <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="input-correo">Correo</FieldLabel>
+                    <Input id="input-correo" name="correo" type="email" defaultValue={data?.usuario?.correo ?? ""} placeholder="cliente@email.com" required />
+                  </Field>
+                  {!isEdit && (
+                    <Field>
+                      <FieldLabel htmlFor="input-contrasenia">Contraseña</FieldLabel>
+                      <Input id="input-contrasenia" name="contrasenia" type="password" placeholder="••••••••" required />
+                    </Field>
+                  )}
+                  <Field>
+                    <FieldLabel htmlFor="input-nombres">Nombres</FieldLabel>
+                    <Input
+                      id="input-nombres"
+                      name="nombres"
+                      defaultValue={data?.nombres ?? ""}
+                      placeholder="Ej. Juan Carlos"
+                      required
+                      onInput={(e) => {
+                        const input = e.currentTarget;
+                        input.value = input.value.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]/g, "");
+                      }}
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="input-apellidos">Apellidos</FieldLabel>
+                    <Input
+                      id="input-apellidos"
+                      name="apellidos"
+                      defaultValue={data?.apellidos ?? ""}
+                      placeholder="Ej. Pérez García"
+                      required
+                      onInput={(e) => {
+                        const input = e.currentTarget;
+                        input.value = input.value.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]/g, "");
+                      }}
+                    />
+                  </Field>
                   <Field>
                     <FieldLabel htmlFor="input-dni">DNI</FieldLabel>
                     <Input
@@ -187,24 +232,23 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
                     />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-names">Nombres</FieldLabel>
-                    <Input id="input-names" name="names" defaultValue={data?.names ?? ""} placeholder="Ej. Juan Carlos" required />
+                    <FieldLabel htmlFor="input-telefono">Teléfono</FieldLabel>
+                    <Input
+                      id="input-telefono"
+                      name="telefono"
+                      type="tel"
+                      defaultValue={data?.telefono ?? ""}
+                      placeholder="Ej. 987654321"
+                      required
+                      onInput={(e) => {
+                        const input = e.currentTarget;
+                        input.value = input.value.replace(/\D/g, "").slice(0, 9);
+                      }}
+                    />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="input-last-names">Apellidos</FieldLabel>
-                    <Input id="input-last-names" name="last_names" defaultValue={data?.last_names ?? ""} placeholder="Ej. Pérez García" required />
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="input-email">Email</FieldLabel>
-                    <Input id="input-email" name="email" type="email" defaultValue={data?.email ?? ""} placeholder="cliente@email.com" required />
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="input-phone">Teléfono</FieldLabel>
-                    <Input id="input-phone" name="phone_number" defaultValue={data?.phone_number ?? ""} placeholder="Ej. 987654321" required />
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="input-address">Dirección</FieldLabel>
-                    <Input id="input-address" name="address" defaultValue={data?.address ?? ""} placeholder="Av. Principal 123" required />
+                    <FieldLabel htmlFor="input-direccion">Dirección</FieldLabel>
+                    <Input id="input-direccion" name="direccion" defaultValue={data?.direccion ?? ""} placeholder="Av. Principal 123" required />
                   </Field>
 
                   {error && <p className="text-center text-sm font-medium text-destructive">{error}</p>}

@@ -12,7 +12,7 @@ import PetFormDialog from "../../mascotas/_components/PetFormDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { Owner, OwnerRequest } from "@/types/owner";
+import { ClienteResponse, ClienteRequest } from "@/types/cliente";
 import { Pet, PetRequest } from "@/types/pet";
 import { getOwnerById, updateOwner } from "@/services/owners/owners";
 import {
@@ -26,7 +26,7 @@ const ClientProfilePage = () => {
   const params = useParams<{ id: string }>();
   const ownerId = Number(params.id);
 
-  const [owner, setOwner] = useState<Owner | null>(null);
+  const [owner, setOwner] = useState<ClienteResponse | null>(null);
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +66,7 @@ const ClientProfilePage = () => {
     loadPets();
   }, [loadOwner, loadPets]);
 
-  const handleClientUpdate = async (data: OwnerRequest) => {
+  const handleClientUpdate = async (data: ClienteRequest) => {
     await updateOwner(ownerId, data);
     await loadOwner();
   };
@@ -123,7 +123,7 @@ const ClientProfilePage = () => {
       <SectionHeader
         iconName="Icono Clientes"
         iconLabel="Perfil del cliente"
-        title={`${owner.names} ${owner.last_names}`}
+        title={`${owner.nombres} ${owner.apellidos}`}
         description="Gestiona los datos del cliente y el registro de sus mascotas."
         accent="teal"
       />
@@ -136,7 +136,7 @@ const ClientProfilePage = () => {
 
       <div className="flex">
         <PetFormDialog
-          ownerId={owner.id_owner}
+          ownerId={owner.idUsuario}
           mode="create"
           icon={CirclePlus}
           buttonColor="success"

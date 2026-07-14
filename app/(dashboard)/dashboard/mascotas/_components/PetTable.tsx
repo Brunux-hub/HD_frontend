@@ -63,14 +63,14 @@ const PetTable = ({
             <TableCell>{pet.weight}</TableCell>
             {showOwner && (
               <TableCell>
-                {pet.owner ? `${pet.owner.names} ${pet.owner.last_names}` : "Sin asignar"}
+                {pet.owner ? `${pet.owner.nombres} ${pet.owner.apellidos}` : "Sin asignar"}
               </TableCell>
             )}
-            {showOwner && <TableCell>{pet.owner?.phone_number ?? "—"}</TableCell>}
+            {showOwner && <TableCell>{pet.owner?.telefono ?? "—"}</TableCell>}
             {hasActions && onEdit && onDelete && (
               <TableCell className="flex gap-2">
                 <PetFormDialog
-                  ownerId={pet.owner?.id_owner ?? 0}
+                  ownerId={pet.owner?.idUsuario ?? 0}
                   icon={SquarePen}
                   mode="edit"
                   buttonColor="alert"

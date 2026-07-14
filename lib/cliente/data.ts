@@ -1,6 +1,6 @@
 import { getMyOwner } from "@/services/owners/owners";
 import { getPetsByOwner } from "@/services/pets/pets";
-import type { Owner } from "@/types/owner";
+import type { ClienteResponse } from "@/types/cliente";
 
 export type Mascota = {
   id: number;
@@ -23,12 +23,12 @@ export const edadEnAnios = (iso: string): number => {
 };
 
 /** Trae el cliente logueado + sus mascotas. */
-export async function getClientData(): Promise<{ owner: Owner | null; mascotas: Mascota[] }> {
+export async function getClientData(): Promise<{ owner: ClienteResponse | null; mascotas: Mascota[] }> {
   const owner = await getMyOwner();
   if (!owner) return { owner: null, mascotas: [] };
 
   const [pets] = await Promise.all([
-    getPetsByOwner(owner.id_owner),
+    getPetsByOwner(owner.idUsuario),
   ]);
 
   const mascotas: Mascota[] = pets.map((p) => ({

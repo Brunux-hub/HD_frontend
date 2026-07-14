@@ -6,10 +6,10 @@ import { PawPrint, ChevronRight } from "lucide-react";
 
 import { getClientData, edadEnAnios, type Mascota } from "@/lib/cliente/data";
 import PetAvatar from "../_components/PetAvatar";
-import type { Owner } from "@/types/owner";
+import type { ClienteResponse } from "@/types/cliente";
 
 export default function ClienteHome() {
-  const [owner, setOwner] = useState<Owner | null>(null);
+  const [owner, setOwner] = useState<ClienteResponse | null>(null);
   const [mascotas, setMascotas] = useState<Mascota[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,7 +32,7 @@ export default function ClienteHome() {
       {/* Bienvenida */}
       <div className="rounded-3xl bg-gradient-to-br from-teal-600 to-teal-800 p-7 text-white shadow-lg sm:p-9">
         <p className="text-sm text-teal-100">Portal del cliente</p>
-        <h1 className="mt-1 text-3xl font-bold">Hola{owner ? `, ${owner.names}` : ""} 👋</h1>
+        <h1 className="mt-1 text-3xl font-bold">Hola{owner ? `, ${owner.nombres}` : ""} 👋</h1>
         <p className="mt-2 max-w-lg text-teal-50/90">
           Aquí puedes revisar a tus mascotas.
         </p>

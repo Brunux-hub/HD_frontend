@@ -6,7 +6,7 @@ import type {
   LoginRequest,
   MeResponse,
 } from "@/types/auth";
-import type { Owner } from "@/types/owner";
+import type { ClienteResponse } from "@/types/cliente";
 
 /** POST /v1/auth/login -> guarda el token JWT en cookie y lo devuelve. */
 export async function login(credentials: LoginRequest): Promise<AuthResponse> {
@@ -21,9 +21,9 @@ export async function getMe(): Promise<MeResponse> {
   return data;
 }
 
-/** POST /auth/register (público) -> registra un cliente: crea User + Owner. */
-export async function register(payload: ClientRegisterRequest): Promise<Owner> {
-  const { data } = await http.post<Owner>("/auth/register", payload);
+/** POST /auth/register (público) -> registra un cliente. */
+export async function register(payload: ClientRegisterRequest): Promise<ClienteResponse> {
+  const { data } = await http.post<ClienteResponse>("/auth/register", payload);
   return data;
 }
 

@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/select";
 
 import { Pet, PetRequest } from "@/types/pet";
-import { Owner } from "@/types/owner";
+import { ClienteResponse } from "@/types/cliente";
 import type { PetGender } from "@/types/enums";
 
 // La respuesta trae birthdate en ISO ("yyyy-MM-ddT..."); el input date necesita "yyyy-MM-dd".
@@ -39,7 +39,7 @@ type Props = {
   /** Dueño fijo (perfil de cliente). Si no se pasa, se muestra el selector de dueños. */
   ownerId?: number;
   /** Lista de dueños para elegir (listado general). */
-  owners?: Owner[];
+  owners?: ClienteResponse[];
   mode?: "create" | "edit";
   data?: Pet;
   icon?: LucideIcon;
@@ -51,7 +51,7 @@ const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, o
   const [open, setOpen] = useState(false);
   const [sex, setSex] = useState<PetGender>(data?.pet_gender ?? "MALE");
   const [selectedOwner, setSelectedOwner] = useState<string>(
-    ownerId ? String(ownerId) : data?.owner?.id_owner ? String(data.owner.id_owner) : "",
+    ownerId ? String(ownerId) : data?.owner?.idUsuario ? String(data.owner.idUsuario) : "",
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

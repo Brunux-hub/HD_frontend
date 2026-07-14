@@ -12,12 +12,12 @@ import {
 
 import ClientFormDialog from "../../_components/ClientFormDialog";
 
-import { Owner, OwnerRequest } from "@/types/owner";
+import { ClienteResponse, ClienteRequest } from "@/types/cliente";
 
 type Props = {
-  owner: Owner;
+  owner: ClienteResponse;
   petCount: number;
-  onUpdate: (data: OwnerRequest) => Promise<void> | void;
+  onUpdate: (data: ClienteRequest) => Promise<void> | void;
 };
 
 const ClientProfileCard = ({ owner, petCount, onUpdate }: Props) => {
@@ -29,7 +29,7 @@ const ClientProfileCard = ({ owner, petCount, onUpdate }: Props) => {
             Responsable de las mascotas registradas
           </CardDescription>
           <CardTitle className="text-xl">
-            {owner.names} {owner.last_names}
+            {owner.nombres} {owner.apellidos}
           </CardTitle>
         </div>
         <ClientFormDialog
@@ -47,15 +47,15 @@ const ClientProfileCard = ({ owner, petCount, onUpdate }: Props) => {
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Teléfono</p>
-          <p className="font-medium">{owner.phone_number}</p>
+          <p className="font-medium">{owner.telefono}</p>
         </div>
         <div>
-          <p className="text-xs text-muted-foreground">Email</p>
-          <p className="font-medium">{owner.email}</p>
+          <p className="text-xs text-muted-foreground">Correo</p>
+          <p className="font-medium">{owner.usuario.correo}</p>
         </div>
         <div className="md:col-span-2">
           <p className="text-xs text-muted-foreground">Dirección</p>
-          <p className="font-medium">{owner.address}</p>
+          <p className="font-medium">{owner.direccion}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Mascotas registradas</p>

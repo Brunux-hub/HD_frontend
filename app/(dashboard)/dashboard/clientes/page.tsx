@@ -7,7 +7,7 @@ import SectionHeader from "../_components/SectionHeader";
 import ClientFormDialog from "./_components/ClientFormDialog";
 import ClientTable from "./_components/ClientTable";
 
-import { Owner, OwnerRequest } from "@/types/owner";
+import { ClienteResponse, ClienteRequest } from "@/types/cliente";
 import {
   createOwner,
   deleteOwner,
@@ -15,7 +15,7 @@ import {
 } from "@/services/owners/owners";
 
 const ClientsPage = () => {
-  const [owners, setOwners] = useState<Owner[]>([]);
+  const [owners, setOwners] = useState<ClienteResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +35,7 @@ const ClientsPage = () => {
     load();
   }, [load]);
 
-  const handleCreate = async (data: OwnerRequest) => {
+  const handleCreate = async (data: ClienteRequest) => {
     await createOwner(data);
     await load();
   };

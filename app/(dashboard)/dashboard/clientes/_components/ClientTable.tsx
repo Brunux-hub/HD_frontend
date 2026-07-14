@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
-import { Owner } from "@/types/owner";
+import { ClienteResponse } from "@/types/cliente";
 
 type Props = {
-  owners: Owner[];
+  owners: ClienteResponse[];
   onDelete: (id: number) => void;
 };
 
@@ -30,7 +30,7 @@ const ClientTable = ({ owners, onDelete }: Props) => {
           <TableHead>DNI</TableHead>
           <TableHead>Nombres</TableHead>
           <TableHead>Apellidos</TableHead>
-          <TableHead>Email</TableHead>
+          <TableHead>Correo</TableHead>
           <TableHead>Teléfono</TableHead>
           <TableHead>Dirección</TableHead>
           <TableHead className="w-25"></TableHead>
@@ -38,28 +38,26 @@ const ClientTable = ({ owners, onDelete }: Props) => {
       </TableHeader>
       <TableBody>
         {owners.map((owner) => (
-          <TableRow key={owner.id_owner}>
-            <TableCell className="font-medium">{owner.id_owner}</TableCell>
+          <TableRow key={owner.idUsuario}>
+            <TableCell className="font-medium">{owner.idUsuario}</TableCell>
             <TableCell>{owner.dni}</TableCell>
-            <TableCell>{owner.names}</TableCell>
-            <TableCell>{owner.last_names}</TableCell>
-            <TableCell>{owner.email}</TableCell>
-            <TableCell>{owner.phone_number}</TableCell>
-            <TableCell>{owner.address}</TableCell>
+            <TableCell>{owner.nombres}</TableCell>
+            <TableCell>{owner.apellidos}</TableCell>
+            <TableCell>{owner.usuario.correo}</TableCell>
+            <TableCell>{owner.telefono}</TableCell>
+            <TableCell>{owner.direccion}</TableCell>
             <TableCell className="flex gap-2">
               <Button asChild variant="outline">
-                <Link href={`/dashboard/clientes/${owner.id_owner}`}>Perfil</Link>
+                <Link href={`/dashboard/clientes/${owner.idUsuario}`}>Perfil</Link>
               </Button>
               <Button
                 variant="destructive"
                 onClick={() => {
                   const confirmar = window.confirm(
-                    `¿Seguro que deseas eliminar al cliente "${owner.names} ${owner.last_names}"?`,
+                    `¿Seguro que deseas eliminar al cliente "${owner.nombres} ${owner.apellidos}"?`,
                   );
-
                   if (!confirmar) return;
-
-                  onDelete(owner.id_owner);
+                  onDelete(owner.idUsuario);
                 }}
               >
                 <Trash />
