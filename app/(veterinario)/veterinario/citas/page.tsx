@@ -38,6 +38,7 @@ const VeterinarioCitasPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [gestionCitaId, setGestionCitaId] = useState<number | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -70,12 +71,18 @@ const VeterinarioCitasPage = () => {
       await load();
     }
     setGestionCitaId(appointment.idCita);
+    setDialogOpen(true);
+  };
+
+  const handleMinimize = () => {
+    setDialogOpen(false);
   };
 
   const handleFinalizar = async () => {
     if (gestionCitaId) {
       await updateAppointmentStatus(gestionCitaId, "FINALIZADA");
       setGestionCitaId(null);
+      setDialogOpen(false);
       await load();
     }
   };
@@ -142,6 +149,8 @@ const VeterinarioCitasPage = () => {
       {gestionCita && (
         <GestionCitaDialog
           cita={gestionCita}
+          open={dialogOpen}
+          onMinimize={handleMinimize}
           onFinalizar={handleFinalizar}
         />
       )}

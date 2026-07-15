@@ -29,14 +29,14 @@ import { createItemReceta } from "@/services/itemsReceta/itemsReceta";
 
 type Props = {
   cita: Appointment;
+  open: boolean;
+  onMinimize: () => void;
   onFinalizar: () => Promise<void> | void;
 };
 
 type Tab = "registro" | "tratamientos" | "recetas";
 
-const GestionCitaDialog = ({ cita, onFinalizar }: Props) => {
-  const [open, openSet] = useState(true);
-  const [minimized, setMinimized] = useState(false);
+const GestionCitaDialog = ({ cita, open, onMinimize, onFinalizar }: Props) => {
   const [activeTab, setActiveTab] = useState<Tab>("registro");
   const [confirmClose, setConfirmClose] = useState(false);
   const [finalizando, setFinalizando] = useState(false);
@@ -47,25 +47,10 @@ const GestionCitaDialog = ({ cita, onFinalizar }: Props) => {
   const [recetaGuardada, setRecetaGuardada] = useState<Receta | null>(null);
   const [itemsReceta, setItemsReceta] = useState<ItemReceta[]>([]);
 
-  const handleMinimize = () => {
-    setMinimized(true);
-    openSet(false);
-  };
-
-  const handleMaximize = () => {
-    setMinimized(false);
-    openSet(true);
-  };
-
-  const handleClose = () => {
-    setConfirmClose(true);
-  };
-
   const handleConfirmFinalizar = async () => {
     setFinalizando(true);
     try {
       await onFinalizar();
-      openSet(false);
     } finally {
       setFinalizando(false);
       setConfirmClose(false);
@@ -79,132 +64,120 @@ const GestionCitaDialog = ({ cita, onFinalizar }: Props) => {
   ];
 
   return (
-    <>
-      {minimized && (
-        <button
-          onClick={handleMaximize}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-xl bg-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-teal-700"
-        >
-          <ClipboardList className="h-4 w-4" />
-          Reanudar gestión de cita #{cita.idCita}
-        </button>
-      )}
+    <Dialog open={open} onOpenChange={(v) => { if (!v) setConfirmClose(true); }}>
+      <DialogContent className="max-w-2xl" showCloseButton={false} onOpenAutoFocus={(e) => e.preventDefault()}>
+        <DialogTitle className="sr-only" />
+        <DialogDescription className="sr-only" />
 
-      <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
-        <DialogContent className="max-w-2xl" onOpenAutoFocus={(e) => e.preventDefault()}>
-          <DialogTitle className="sr-only" />
-          <DialogDescription className="sr-only" />
-
-          {/* Header con botones - y X */}
-          <div className="flex items-center justify-between border-b border-slate-200 pb-3 dark:border-slate-800">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                Gestión de Cita #{cita.idCita}
-              </h2>
-              <p className="text-xs text-slate-500">{cita.motivo}</p>
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleMinimize}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-                title="Minimizar"
-              >
-                <Minus className="h-4 w-4" />
-              </button>
-              <button
-                onClick={handleClose}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
-                title="Cerrar"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+        {/* Header con botones - y X */}
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3 dark:border-slate-800">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              Gestión de Cita #{cita.idCita}
+            </h2>
+            <p className="text-xs text-slate-500">{cita.motivo}</p>
           </div>
-
-          {/* Tabs */}
-          <div className="flex gap-1 border-b border-slate-200 dark:border-slate-800">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition ${
-                  activeTab === tab.key
-                    ? "border-b-2 border-teal-600 text-teal-600"
-                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                }`}
-              >
-                <tab.icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onMinimize}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+              title="Minimizar"
+            >
+              <Minus className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setConfirmClose(true)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+              title="Cerrar"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
+        </div>
 
-          {/* Tab content */}
-          <div className="max-h-[50vh] overflow-y-auto">
-            {activeTab === "registro" && (
-              <RegistroMedicoTab
-                citaId={cita.idCita}
-                registroGuardado={registroGuardado}
-                onGuardado={(r) => setRegistroGuardado(r)}
-              />
-            )}
-            {activeTab === "tratamientos" && (
-              <TratamientosTab
-                registroMedicoId={registroGuardado?.idRegistroMedico ?? null}
-                tratamientos={tratamientos}
-                onAdd={(t) => setTratamientos((prev) => [...prev, t])}
-              />
-            )}
-            {activeTab === "recetas" && (
-              <RecetasTab
-                registroMedicoId={registroGuardado?.idRegistroMedico ?? null}
-                recetas={recetas}
-                recetaGuardada={recetaGuardada}
-                itemsReceta={itemsReceta}
-                onRecetaGuardada={(r) => setRecetaGuardada(r)}
-                onAddReceta={(r) => setRecetas((prev) => [...prev, r])}
-                onAddItem={(item) => setItemsReceta((prev) => [...prev, item])}
-              />
-            )}
-          </div>
+        {/* Tabs */}
+        <div className="flex gap-1 border-b border-slate-200 dark:border-slate-800">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition ${
+                activeTab === tab.key
+                  ? "border-b-2 border-teal-600 text-teal-600"
+                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-          {/* Confirmación de cierre */}
-          {confirmClose && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-              <div className="max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl dark:bg-slate-900">
-                <p className="text-lg font-semibold text-slate-900 dark:text-white">¿Finalizar la cita?</p>
-                <p className="mt-2 text-sm text-slate-500">
-                  Al finalizar, la cita pasará a estado FINALIZADA y no podrá seguir editándola.
-                </p>
-                <div className="mt-4 flex justify-center gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setConfirmClose(false)}
-                    disabled={finalizando}
-                  >
-                    No, seguir editando
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={handleConfirmFinalizar}
-                    disabled={finalizando}
-                  >
-                    {finalizando ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Finalizando...
-                      </>
-                    ) : (
-                      "Sí, finalizar"
-                    )}
-                  </Button>
-                </div>
+        {/* Tab content */}
+        <div className="max-h-[50vh] overflow-y-auto">
+          {activeTab === "registro" && (
+            <RegistroMedicoTab
+              citaId={cita.idCita}
+              registroGuardado={registroGuardado}
+              onGuardado={(r) => setRegistroGuardado(r)}
+            />
+          )}
+          {activeTab === "tratamientos" && (
+            <TratamientosTab
+              registroMedicoId={registroGuardado?.idRegistroMedico ?? null}
+              tratamientos={tratamientos}
+              onAdd={(t) => setTratamientos((prev) => [...prev, t])}
+            />
+          )}
+          {activeTab === "recetas" && (
+            <RecetasTab
+              registroMedicoId={registroGuardado?.idRegistroMedico ?? null}
+              recetas={recetas}
+              recetaGuardada={recetaGuardada}
+              itemsReceta={itemsReceta}
+              onRecetaGuardada={(r) => setRecetaGuardada(r)}
+              onAddReceta={(r) => setRecetas((prev) => [...prev, r])}
+              onAddItem={(item) => setItemsReceta((prev) => [...prev, item])}
+            />
+          )}
+        </div>
+
+        {/* Confirmación de cierre */}
+        {confirmClose && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl dark:bg-slate-900">
+              <p className="text-lg font-semibold text-slate-900 dark:text-white">¿Finalizar la cita?</p>
+              <p className="mt-2 text-sm text-slate-500">
+                Al finalizar, la cita pasará a estado FINALIZADA y no podrá seguir editándola.
+              </p>
+              <div className="mt-4 flex justify-center gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setConfirmClose(false)}
+                  disabled={finalizando}
+                >
+                  No, seguir editando
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleConfirmFinalizar}
+                  disabled={finalizando}
+                >
+                  {finalizando ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Finalizando...
+                    </>
+                  ) : (
+                    "Sí, finalizar"
+                  )}
+                </Button>
               </div>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
 
