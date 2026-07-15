@@ -39,6 +39,11 @@ const fmtDateTime = (iso: string) => {
   return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 };
 
+const statusClassName = (status: string) =>
+  status === "CANCELADA"
+    ? "rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-300"
+    : "rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-semibold text-teal-700 dark:bg-teal-900/40 dark:text-teal-300";
+
 type Props = {
   appointments: Appointment[];
   pets: Pet[];
@@ -76,11 +81,23 @@ const AppointmentTable = ({ appointments, pets, clients, services, veterinarians
               <TableCell>{fmtDateTime(appointment.fechaProgramada)}</TableCell>
               <TableCell>{appointment.motivo}</TableCell>
               <TableCell>
-                <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-semibold text-teal-700 dark:bg-teal-900/40 dark:text-teal-300">
+                <span className={statusClassName(appointment.estado)}>
                   {appointment.estado}
                 </span>
               </TableCell>
               <TableCell className="flex gap-2">
+                <AppointmentFormDialog
+                  icon={SquarePen}
+                  mode="edit"
+                  buttonColor="alert"
+                  data={appointment}
+                  pets={pets}
+                  clients={clients}
+                  services={services}
+                  veterinarians={veterinarians}
+                  currentUserId={currentUserId}
+                  onSubmit={(payload) => onEdit(appointment.idCita, payload)}
+                />
                 {appointment.estado !== "CANCELADA" && onCancel && (
                   <Button
                     variant="destructive"
@@ -90,18 +107,6 @@ const AppointmentTable = ({ appointments, pets, clients, services, veterinarians
                     Cancelar
                   </Button>
                 )}
-                <AppointmentFormDialog
-                  icon={SquarePen}
-                  mode="edit"
-                  buttonColor="alert"
-                data={appointment}
-                pets={pets}
-                clients={clients}
-                services={services}
-                veterinarians={veterinarians}
-                currentUserId={currentUserId}
-                onSubmit={(payload) => onEdit(appointment.idCita, payload)}
-                />
               </TableCell>
             </TableRow>
           ))}

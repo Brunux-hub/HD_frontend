@@ -6,6 +6,22 @@ import { useRouter } from "next/navigation";
 import { login, getMe } from "@/services/auth/auth";
 import { setRole, type Role } from "@/lib/auth";
 import { ApiError } from "@/lib/axios";
+import type { StaffRole } from "@/types/auth";
+
+function mapBackendRoleToFrontendRole(role: StaffRole): Role {
+  switch (role) {
+    case "ADMIN":
+      return "admin";
+    case "VETERINARIO":
+      return "veterinario";
+    case "RECEPCIONISTA":
+      return "recepcionista";
+    case "CLIENTE":
+      return "cliente";
+    default:
+      return "admin";
+  }
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,12 +50,12 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login({ correo, contrasenia });
-      let role: Role = "worker";
+      let role: Role = "admin";
       try {
         const me = await getMe();
-        role = me.rol.toLowerCase() as Role;
+        role = mapBackendRoleToFrontendRole(me.rol);
       } catch {
-        role = "worker";
+        role = "admin";
       }
       setRole(role);
       if (role === "cliente") router.push("/cliente");

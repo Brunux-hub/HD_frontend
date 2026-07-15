@@ -21,10 +21,9 @@ export interface MeResponse {
 // Roles del sistema
 export type StaffRole =
   | "ADMIN"
-  | "VETERINARIAN"
-  | "RECEPTIONIST"
-  | "CLIENT"
-  | "WORKER";
+  | "VETERINARIO"
+  | "RECEPCIONISTA"
+  | "CLIENTE";
 
 // POST /auth/register (admin, uso interno) — crea un User "pelado"
 export interface RegisterRequest {

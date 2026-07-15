@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { LucideIcon, CheckCircle2, Loader2 } from "lucide-react";
 
 import {
@@ -68,12 +68,38 @@ const AppointmentFormDialog = ({
   );
   const [selectedClient, setSelectedClient] = useState<string>("");
   const [filteredPets, setFilteredPets] = useState<Pet[]>([]);
+  const initialSpecialty =
+    data?.idUsuarioVeterinario
+      ? veterinarians.find((vet) => vet.idUsuario === data.idUsuarioVeterinario)
+          ?.especialidades[0] ?? ""
+      : "";
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>(initialSpecialty);
   const [selectedVet, setSelectedVet] = useState<string>(
     data?.idUsuarioVeterinario ? String(data.idUsuarioVeterinario) : "",
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const availableSpecialties = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          veterinarians.flatMap((vet) =>
+            vet.especialidades.map((specialty) => specialty.trim()).filter(Boolean),
+          ),
+        ),
+      ).sort((a, b) => a.localeCompare(b)),
+    [veterinarians],
+  );
+
+  const filteredVeterinarians = useMemo(
+    () =>
+      selectedSpecialty
+        ? veterinarians.filter((vet) => vet.especialidades.includes(selectedSpecialty))
+        : veterinarians,
+    [selectedSpecialty, veterinarians],
+  );
 
   const handleOpenChange = (v: boolean) => {
     setOpen(v);
@@ -89,6 +115,19 @@ const AppointmentFormDialog = ({
     setSelectedClient(id);
     setSelectedPet("");
     setFilteredPets(id ? pets.filter((p) => p.idUsuarioCliente === Number(id)) : []);
+  };
+
+  const handleSpecialtyChange = (specialty: string) => {
+    setSelectedSpecialty(specialty);
+    const selectedVetStillMatches = veterinarians.some(
+      (vet) =>
+        String(vet.idUsuario) === selectedVet &&
+        vet.especialidades.includes(specialty),
+    );
+
+    if (!selectedVetStillMatches) {
+      setSelectedVet("");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -164,6 +203,23 @@ const AppointmentFormDialog = ({
                 </FieldLegend>
                 <FieldGroup>
                   <Field>
+                    <FieldLabel htmlFor="select-service">Servicio</FieldLabel>
+                    <Select name="idServicio">
+                      <SelectTrigger id="select-service">
+                        <SelectValue placeholder="Selecciona un servicio" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {services.map((s) => (
+                            <SelectItem key={s.idServicio} value={String(s.idServicio)}>
+                              {s.nombre}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
                     <FieldLabel htmlFor="select-client">Cliente</FieldLabel>
                     <Select value={selectedClient} onValueChange={handleClientChange}>
                       <SelectTrigger id="select-client">
@@ -198,16 +254,19 @@ const AppointmentFormDialog = ({
                     </Select>
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="select-vet">Veterinario</FieldLabel>
-                    <Select value={selectedVet} onValueChange={setSelectedVet}>
-                      <SelectTrigger id="select-vet">
-                        <SelectValue placeholder="Selecciona un veterinario" />
+                    <FieldLabel htmlFor="select-specialty">Especialidad</FieldLabel>
+                    <Select
+                      value={selectedSpecialty}
+                      onValueChange={handleSpecialtyChange}
+                    >
+                      <SelectTrigger id="select-specialty">
+                        <SelectValue placeholder="Selecciona una especialidad" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {veterinarians.map((v) => (
-                            <SelectItem key={v.idUsuario} value={String(v.idUsuario)}>
-                              {v.nombres} {v.apellidos} — {v.especialidades.join(", ")}
+                          {availableSpecialties.map((specialty) => (
+                            <SelectItem key={specialty} value={specialty}>
+                              {specialty}
                             </SelectItem>
                           ))}
                         </SelectGroup>
@@ -215,16 +274,26 @@ const AppointmentFormDialog = ({
                     </Select>
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="select-service">Servicio</FieldLabel>
-                    <Select name="idServicio">
-                      <SelectTrigger id="select-service">
-                        <SelectValue placeholder="Selecciona un servicio" />
+                    <FieldLabel htmlFor="select-vet">Veterinario</FieldLabel>
+                    <Select
+                      value={selectedVet}
+                      onValueChange={setSelectedVet}
+                      disabled={!selectedSpecialty}
+                    >
+                      <SelectTrigger id="select-vet">
+                        <SelectValue
+                          placeholder={
+                            selectedSpecialty
+                              ? "Selecciona un veterinario"
+                              : "Primero selecciona una especialidad"
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {services.map((s) => (
-                            <SelectItem key={s.idServicio} value={String(s.idServicio)}>
-                              {s.nombre}
+                          {filteredVeterinarians.map((v) => (
+                            <SelectItem key={v.idUsuario} value={String(v.idUsuario)}>
+                              {v.nombres} {v.apellidos}
                             </SelectItem>
                           ))}
                         </SelectGroup>
@@ -247,7 +316,7 @@ const AppointmentFormDialog = ({
                       id="input-motivo"
                       name="motivo"
                       defaultValue={data?.motivo ?? ""}
-                      placeholder="Ej. Vacunación"
+                      placeholder="Escribir motivo"
                       required
                     />
                   </Field>

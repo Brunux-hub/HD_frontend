@@ -64,8 +64,8 @@ const ServiceTable = ({ services, onEdit, onActivate, onDeactivate }: Props) => 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nombre</TableHead>
-            <TableHead>Descripción</TableHead>
+            <TableHead className="text-left">Nombre</TableHead>
+            <TableHead className="text-left">Descripción</TableHead>
             <TableHead>Precio</TableHead>
             {hasActions && <TableHead className="w-25"></TableHead>}
           </TableRow>
@@ -73,11 +73,11 @@ const ServiceTable = ({ services, onEdit, onActivate, onDeactivate }: Props) => 
         <TableBody>
           {services.map((service) => (
             <TableRow key={service.idServicio}>
-              <TableCell>
+              <TableCell className="text-left">
                 <span className={`inline-block w-2.5 h-2.5 rounded-full mr-2 ${service.activo ? "bg-green-500" : "bg-red-500"}`} />
                 {service.nombre}
               </TableCell>
-              <TableCell>{service.descripcion}</TableCell>
+              <TableCell className="text-left">{service.descripcion}</TableCell>
               <TableCell>{service.precio}</TableCell>
               {hasActions && (
                 <TableCell className="flex justify-between gap-2">
