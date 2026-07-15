@@ -57,6 +57,7 @@ const RecepcionistaClientesPage = () => {
         </div>
         <ClientFormDialog
           mode="create"
+          basePath="/recepcionista/clientes"
           icon={CirclePlus}
           buttonColor="success"
           onSubmit={handleCreate}
@@ -68,7 +69,7 @@ const RecepcionistaClientesPage = () => {
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando clientes...</p>
       ) : (
-        <ClientTable owners={owners} onActivate={handleActivate} onDeactivate={handleDeactivate} />
+        <ClientTable owners={owners} basePath="/recepcionista/clientes" onActivate={handleActivate} onDeactivate={handleDeactivate} />
       )}
     </div>
   );

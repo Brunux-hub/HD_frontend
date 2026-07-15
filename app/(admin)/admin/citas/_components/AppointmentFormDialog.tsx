@@ -42,6 +42,7 @@ type Props = {
   clients: ClienteResponse[];
   services: Service[];
   veterinarians: Veterinarian[];
+  currentUserId: number;
   mode?: "create" | "edit";
   data?: Appointment;
   icon?: LucideIcon;
@@ -54,6 +55,7 @@ const AppointmentFormDialog = ({
   clients,
   services,
   veterinarians,
+  currentUserId,
   mode,
   data,
   icon: Icon,
@@ -110,7 +112,7 @@ const AppointmentFormDialog = ({
       motivo: formData.get("motivo") as string,
       notas: formData.get("notas") as string,
       fechaProgramada: formData.get("fechaProgramada") as string,
-      idUsuarioRecepcionista: Number(formData.get("idUsuarioRecepcionista")),
+      idUsuarioRecepcionista: currentUserId,
       idServicio: Number(formData.get("idServicio")),
       idMascota: idPet,
       idUsuarioVeterinario: idVet,
@@ -211,10 +213,6 @@ const AppointmentFormDialog = ({
                         </SelectGroup>
                       </SelectContent>
                     </Select>
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="input-recep">ID Recepcionista</FieldLabel>
-                    <Input id="input-recep" name="idUsuarioRecepcionista" type="number" placeholder="Ej. 1" required />
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="select-service">Servicio</FieldLabel>

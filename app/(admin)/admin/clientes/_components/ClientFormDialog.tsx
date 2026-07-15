@@ -27,12 +27,13 @@ import { getOwnerByDni } from "@/services/owners/owners";
 type Props = {
   mode?: "create" | "edit";
   data?: ClienteResponse;
+  basePath?: string;
   icon?: LucideIcon;
   buttonColor?: "default" | "success" | "alert";
   onSubmit: (data: ClienteRequest) => Promise<void> | void;
 };
 
-const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Props) => {
+const ClientFormDialog = ({ mode, data, basePath = "/admin/clientes", icon: Icon, buttonColor, onSubmit }: Props) => {
   const isEdit = mode === "edit";
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<"search" | "form">(isEdit ? "form" : "search");
@@ -162,7 +163,7 @@ const ClientFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Pro
                         {existing.nombres} {existing.apellidos}
                       </p>
                       <Button asChild variant="outline" className="mt-2">
-                        <Link href={`/admin/clientes/${existing.idUsuario}`} onClick={() => handleOpenChange(false)}>
+                        <Link href={`${basePath}/${existing.idUsuario}`} onClick={() => handleOpenChange(false)}>
                           Ver perfil
                         </Link>
                       </Button>

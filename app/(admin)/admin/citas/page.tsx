@@ -22,6 +22,7 @@ import { getPets } from "@/services/pets/pets";
 import { getOwners } from "@/services/owners/owners";
 import { getServices } from "@/services/services/services";
 import { getVeterinarians } from "@/services/veterinarians/veterinarians";
+import { getMe } from "@/services/auth/auth";
 
 const AppointmentsPage = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -29,6 +30,7 @@ const AppointmentsPage = () => {
   const [clients, setClients] = useState<ClienteResponse[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,18 +38,20 @@ const AppointmentsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const [appointmentsData, petsData, clientsData, servicesData, vetsData] = await Promise.all([
+      const [appointmentsData, petsData, clientsData, servicesData, vetsData, me] = await Promise.all([
         getAppointments(),
         getPets(),
         getOwners(),
         getServices(),
         getVeterinarians(),
+        getMe(),
       ]);
       setAppointments(appointmentsData);
       setPets(petsData);
       setClients(clientsData);
       setServices(servicesData);
       setVeterinarians(vetsData);
+      setCurrentUserId(me.idUsuario);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar las citas.");
     } finally {
@@ -95,6 +99,7 @@ const AppointmentsPage = () => {
           clients={clients}
           services={services}
           veterinarians={veterinarians}
+          currentUserId={currentUserId}
           onSubmit={handleCreate}
         />
       </div>
@@ -108,6 +113,7 @@ const AppointmentsPage = () => {
           clients={clients}
           services={services}
           veterinarians={veterinarians}
+          currentUserId={currentUserId}
           onEdit={handleUpdate}
           onCancel={handleCancel}
         />

@@ -30,11 +30,12 @@ type ConfirmAction = {
 
 type Props = {
   owners: ClienteResponse[];
+  basePath?: string;
   onActivate: (id: number) => Promise<void>;
   onDeactivate: (id: number) => Promise<void>;
 };
 
-const ClientTable = ({ owners, onActivate, onDeactivate }: Props) => {
+const ClientTable = ({ owners, basePath = "/admin/clientes", onActivate, onDeactivate }: Props) => {
   const [confirm, setConfirm] = useState<ConfirmAction | null>(null);
 
   const handleConfirm = async () => {
@@ -101,7 +102,7 @@ const ClientTable = ({ owners, onActivate, onDeactivate }: Props) => {
                   </Button>
                 )}
                 <Button asChild variant="outline">
-                  <Link href={`/admin/clientes/${owner.idUsuario}`}>Perfil</Link>
+                  <Link href={`${basePath}/${owner.idUsuario}`}>Perfil</Link>
                 </Button>
               </TableCell>
             </TableRow>

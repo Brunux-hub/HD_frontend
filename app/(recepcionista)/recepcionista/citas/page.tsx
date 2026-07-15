@@ -20,6 +20,7 @@ import { getServices } from "@/services/services/services";
 import { getVeterinarians } from "@/services/veterinarians/veterinarians";
 import AppointmentTable from "@/app/(admin)/admin/citas/_components/AppointmentTable";
 import AppointmentFormDialog from "@/app/(admin)/admin/citas/_components/AppointmentFormDialog";
+import { getMe } from "@/services/auth/auth";
 
 const RecepcionistaCitasPage = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -27,6 +28,7 @@ const RecepcionistaCitasPage = () => {
   const [clients, setClients] = useState<ClienteResponse[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,18 +36,20 @@ const RecepcionistaCitasPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const [appointmentsData, petsData, clientsData, servicesData, vetsData] = await Promise.all([
+      const [appointmentsData, petsData, clientsData, servicesData, vetsData, me] = await Promise.all([
         getAppointments(),
         getPets(),
         getOwners(),
         getServices(),
         getVeterinarians(),
+        getMe(),
       ]);
       setAppointments(appointmentsData);
       setPets(petsData);
       setClients(clientsData);
       setServices(servicesData);
       setVeterinarians(vetsData);
+      setCurrentUserId(me.idUsuario);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar las citas.");
     } finally {
@@ -87,6 +91,7 @@ const RecepcionistaCitasPage = () => {
           clients={clients}
           services={services}
           veterinarians={veterinarians}
+          currentUserId={currentUserId}
           onSubmit={handleCreate}
         />
       </div>
@@ -102,6 +107,7 @@ const RecepcionistaCitasPage = () => {
           clients={clients}
           services={services}
           veterinarians={veterinarians}
+          currentUserId={currentUserId}
           onEdit={handleUpdate}
           onCancel={handleCancel}
         />

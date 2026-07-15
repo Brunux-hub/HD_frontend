@@ -45,11 +45,12 @@ type Props = {
   clients: ClienteResponse[];
   services: Service[];
   veterinarians: Veterinarian[];
+  currentUserId: number;
   onEdit: (id: number, appointment: AppointmentRequest) => void;
   onCancel?: (id: number) => Promise<void>;
 };
 
-const AppointmentTable = ({ appointments, pets, clients, services, veterinarians, onEdit, onCancel }: Props) => {
+const AppointmentTable = ({ appointments, pets, clients, services, veterinarians, currentUserId, onEdit, onCancel }: Props) => {
   const [confirmId, setConfirmId] = useState<number | null>(null);
   const petMap = new Map(pets.map((p) => [p.idMascota, p]));
   const serviceMap = new Map(services.map((s) => [s.idServicio, s]));
@@ -93,12 +94,13 @@ const AppointmentTable = ({ appointments, pets, clients, services, veterinarians
                   icon={SquarePen}
                   mode="edit"
                   buttonColor="alert"
-                  data={appointment}
-                  pets={pets}
-                  clients={clients}
-                  services={services}
-                  veterinarians={veterinarians}
-                  onSubmit={(payload) => onEdit(appointment.idCita, payload)}
+                data={appointment}
+                pets={pets}
+                clients={clients}
+                services={services}
+                veterinarians={veterinarians}
+                currentUserId={currentUserId}
+                onSubmit={(payload) => onEdit(appointment.idCita, payload)}
                 />
               </TableCell>
             </TableRow>
