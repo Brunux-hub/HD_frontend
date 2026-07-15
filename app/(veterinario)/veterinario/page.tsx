@@ -1,9 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 export default function VeterinarioHome() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <p className="text-lg text-slate-500">Vista de veterinario — próximamente.</p>
-    </div>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/veterinario/citas");
+  }, [router]);
+
+  return null;
 }
