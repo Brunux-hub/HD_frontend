@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, ClipboardList, Pill, FileText, Loader2 } from "lucide-react";
+import { X, ClipboardList, FileText, Loader2 } from "lucide-react";
 
 import {
   Dialog,
@@ -11,10 +11,9 @@ import {
 } from "@/components/ui/dialog";
 
 import { RegistroMedico } from "@/types/registroMedico";
-import { Tratamiento } from "@/types/tratamiento";
 import { Receta } from "@/types/receta";
 import { ItemReceta } from "@/types/itemReceta";
-import { getTratamientosByRegistro, getRecetasByRegistro } from "@/services/registrosMedicos/registrosMedicos";
+import { getRecetasByRegistro } from "@/services/registrosMedicos/registrosMedicos";
 import { getItemsByReceta } from "@/services/recetas/recetas";
 
 type Props = {
@@ -22,7 +21,7 @@ type Props = {
   onClose: () => void;
 };
 
-type Tab = "registro" | "tratamientos" | "recetas";
+type Tab = "registro" | "recetas";
 
 const fmtDate = (iso: string) => {
   if (!iso) return "—";
@@ -38,23 +37,10 @@ const fmtDate = (iso: string) => {
 const VerMasDialog = ({ registro, onClose }: Props) => {
   const [open, setOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("registro");
-  const [tratamientos, setTratamientos] = useState<Tratamiento[]>([]);
   const [recetas, setRecetas] = useState<Receta[]>([]);
   const [itemsPorReceta, setItemsPorReceta] = useState<Record<number, ItemReceta[]>>({});
   const [recetaSeleccionada, setRecetaSeleccionada] = useState<number | null>(null);
   const [loadingDetalles, setLoadingDetalles] = useState(false);
-
-  const cargarTratamientos = async () => {
-    setLoadingDetalles(true);
-    try {
-      const data = await getTratamientosByRegistro(registro.idRegistroMedico);
-      setTratamientos(data);
-    } catch {
-      setTratamientos([]);
-    } finally {
-      setLoadingDetalles(false);
-    }
-  };
 
   const cargarRecetas = async () => {
     setLoadingDetalles(true);
@@ -77,9 +63,7 @@ const VerMasDialog = ({ registro, onClose }: Props) => {
   };
 
   useEffect(() => {
-    if (activeTab === "tratamientos" && tratamientos.length === 0) {
-      cargarTratamientos();
-    } else if (activeTab === "recetas" && recetas.length === 0) {
+    if (activeTab === "recetas" && recetas.length === 0) {
       cargarRecetas();
     }
   }, [activeTab]);
@@ -91,13 +75,12 @@ const VerMasDialog = ({ registro, onClose }: Props) => {
 
   const tabs: { key: Tab; label: string; icon: typeof ClipboardList }[] = [
     { key: "registro", label: "Registro Médico", icon: ClipboardList },
-    { key: "tratamientos", label: "Tratamientos", icon: Pill },
     { key: "recetas", label: "Recetas", icon: FileText },
   ];
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
-      <DialogContent className="max-w-2xl" onOpenAutoFocus={(e) => e.preventDefault()}>
+      <DialogContent className="max-w-2xl" showCloseButton={false} onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogTitle className="sr-only" />
         <DialogDescription className="sr-only" />
 
@@ -144,35 +127,9 @@ const VerMasDialog = ({ registro, onClose }: Props) => {
                 <p className="font-medium text-slate-700 dark:text-slate-200">{registro.diagnostico}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Medicamentos recetados</p>
-                <p className="font-medium text-slate-700 dark:text-slate-200">{registro.medicamentosRecetados}</p>
-              </div>
-              <div>
                 <p className="text-xs text-slate-400">Observaciones</p>
                 <p className="font-medium text-slate-700 dark:text-slate-200">{registro.observaciones}</p>
               </div>
-            </div>
-          )}
-
-          {activeTab === "tratamientos" && (
-            <div className="p-4">
-              {loadingDetalles ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
-                </div>
-              ) : tratamientos.length === 0 ? (
-                <p className="text-sm text-slate-500">No hay tratamientos registrados.</p>
-              ) : (
-                <div className="space-y-2">
-                  {tratamientos.map((t) => (
-                    <div key={t.idTratamiento} className="rounded-lg border border-teal-100 bg-teal-50 p-3 text-sm dark:border-teal-900/40 dark:bg-teal-950/30">
-                      <p><strong>{t.medicamento}</strong> — {t.dosis}</p>
-                      <p className="text-xs text-slate-500">Frecuencia: {t.frecuencia} · Duración: {t.duracion}</p>
-                      {t.indicaciones && <p className="text-xs text-slate-500">Indicaciones: {t.indicaciones}</p>}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
 

@@ -1,11 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CirclePlus } from "lucide-react";
 
 import SectionHeader from "../_components/SectionHeader";
 import AppointmentTable from "./_components/AppointmentTable";
-import AppointmentFormDialog from "./_components/AppointmentFormDialog";
 
 import { Appointment, AppointmentRequest } from "@/types/appointment";
 import { Pet } from "@/types/pet";
@@ -14,7 +12,6 @@ import { Service } from "@/types/service";
 import { Veterinarian } from "@/types/veterinarian";
 import {
   getAppointments,
-  createAppointment,
   updateAppointment,
   updateAppointmentStatus,
 } from "@/services/appointments/appointments";
@@ -63,11 +60,6 @@ const AppointmentsPage = () => {
     load();
   }, [load]);
 
-  const handleCreate = async (data: AppointmentRequest) => {
-    await createAppointment(data);
-    await load();
-  };
-
   const handleUpdate = async (id: number, data: AppointmentRequest) => {
     await updateAppointment(id, data);
     await load();
@@ -89,20 +81,6 @@ const AppointmentsPage = () => {
       />
 
       {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-
-      <div className="flex">
-        <AppointmentFormDialog
-          mode="create"
-          icon={CirclePlus}
-          buttonColor="success"
-          pets={pets}
-          clients={clients}
-          services={services}
-          veterinarians={veterinarians}
-          currentUserId={currentUserId}
-          onSubmit={handleCreate}
-        />
-      </div>
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando citas...</p>

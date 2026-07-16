@@ -98,7 +98,7 @@ const AppointmentTable = ({ appointments, pets, clients, services, veterinarians
                   currentUserId={currentUserId}
                   onSubmit={(payload) => onEdit(appointment.idCita, payload)}
                 />
-                {appointment.estado !== "CANCELADA" && onCancel && (
+                {appointment.estado === "PROGRAMADA" && onCancel && (
                   <Button
                     variant="destructive"
                     size="sm"

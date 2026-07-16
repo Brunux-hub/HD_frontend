@@ -3,13 +3,13 @@ export interface RegistroMedico {
   idCita: number;
   fecha: string;
   diagnostico: string;
-  medicamentosRecetados: string;
+  peso: number;
   observaciones: string;
 }
 
 export interface RegistroMedicoRequest {
   idCita: number;
   diagnostico: string;
-  medicamentosRecetados: string;
+  peso: number;
   observaciones: string;
 }
