@@ -1,26 +1,25 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CirclePlus } from "lucide-react";
-
-import SectionHeader from "../_components/SectionHeader";
-import UserTable from "./_components/UserTable";
-import UserFormDialog from "./_components/UserFormDialog";
+import { Plus } from "lucide-react";
 
 import { User, UserRequest } from "@/types/user";
 import {
   getUsers,
   createUser,
-  deleteUser,
   activateUser,
   deactivateUser,
   updatePassword,
 } from "@/services/users/users";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import UserTable from "./_components/UserTable";
+import UserFormDialog from "./_components/UserFormDialog";
 
 const UsersPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editUser, setEditUser] = useState<User | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -43,20 +42,6 @@ const UsersPage = () => {
     await load();
   };
 
-  const handleUpdatePassword = async (id: number, data: { contraseniaActual: string; nuevaContrasenia: string }) => {
-    await updatePassword(id, data);
-    await load();
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteUser(id);
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo eliminar el usuario.");
-    }
-  };
-
   const handleActivate = async (id: number) => {
     await activateUser(id);
     await load();
@@ -67,37 +52,44 @@ const UsersPage = () => {
     await load();
   };
 
+  const handleChangePassword = async (payload: { contraseniaActual: string; nuevaContrasenia: string }) => {
+    if (!editUser) return;
+    await updatePassword(editUser.idUsuario, payload);
+    setEditUser(null);
+  };
+
   return (
-    <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
-      <SectionHeader
-        iconName="Icono Usuarios"
-        iconLabel="Usuarios"
-        title="Listado de usuarios"
-        description="Vista donde podrás revisar y gestionar las cuentas de acceso."
-        accent="teal"
-      />
-
-      {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-
-      <div className="flex">
+    <div className="mx-auto flex max-w-295 flex-col gap-6 px-4 py-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">Usuarios</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Gestiona las cuentas de acceso.</p>
+        </div>
         <UserFormDialog
           mode="create"
-          icon={CirclePlus}
+          icon={Plus}
           buttonColor="success"
           onSubmit={handleCreate}
         />
+        <UserFormDialog
+          mode="edit"
+          data={editUser ?? undefined}
+          open={!!editUser}
+          onOpenChange={(v) => { if (!v) setEditUser(null); }}
+          onSubmit={handleChangePassword}
+        />
       </div>
 
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </div>
+      )}
+
       {loading ? (
-        <p className="text-sm text-muted-foreground">Cargando usuarios...</p>
+        <TableSkeleton columns={3} rows={6} />
       ) : (
-        <UserTable
-          users={users}
-          onUpdatePassword={handleUpdatePassword}
-          onDelete={handleDelete}
-          onActivate={handleActivate}
-          onDeactivate={handleDeactivate}
-        />
+        <UserTable users={users} onActivate={handleActivate} onDeactivate={handleDeactivate} onChangePassword={setEditUser} />
       )}
     </div>
   );

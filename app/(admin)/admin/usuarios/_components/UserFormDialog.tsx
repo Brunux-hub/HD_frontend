@@ -35,11 +35,15 @@ type Props = {
   data?: User;
   icon?: LucideIcon;
   buttonColor?: "default" | "success" | "alert";
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onSubmit: (data: UserRequest | { contraseniaActual: string; nuevaContrasenia: string }) => Promise<void> | void;
 };
 
-const UserFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Props) => {
-  const [open, setOpen] = useState(false);
+const UserFormDialog = ({ mode, data, icon: Icon, buttonColor, open: externalOpen, onOpenChange: externalOnOpenChange, onSubmit }: Props) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen ?? internalOpen;
+  const setOpen = externalOnOpenChange ?? setInternalOpen;
   const [rol, setRol] = useState(data?.rol ?? "WORKER");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,9 +88,11 @@ const UserFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Props
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant={mode === "create" ? "teal" : buttonColor}>{Icon && <Icon />}{mode === "create" && "Agregar"}</Button>
-      </DialogTrigger>
+      {externalOpen === undefined && (
+        <DialogTrigger asChild>
+          <Button variant={mode === "create" ? "teal" : buttonColor}>{Icon && <Icon />}{mode === "create" && "Agregar"}</Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogTitle className="sr-only" />
         <DialogDescription className="sr-only" />

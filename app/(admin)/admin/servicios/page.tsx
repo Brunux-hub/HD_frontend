@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CirclePlus } from "lucide-react";
-
-import SectionHeader from "../_components/SectionHeader";
-import ServiceTable from "./_components/ServiceTable";
-import ServiceFormDialog from "./_components/ServiceFormDialog";
+import { Plus } from "lucide-react";
 
 import { Service, ServiceRequest } from "@/types/service";
 import {
@@ -15,6 +11,9 @@ import {
   activateService,
   deactivateService,
 } from "@/services/services/services";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import ServiceTable from "./_components/ServiceTable";
+import ServiceFormDialog from "./_components/ServiceFormDialog";
 
 const ServicesPage = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -58,35 +57,30 @@ const ServicesPage = () => {
   };
 
   return (
-    <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
-      <SectionHeader
-        iconName="Icono Servicios"
-        iconLabel="Servicios"
-        title="Listado de Servicios"
-        description="Vista donde podrás revisar y gestionar los servicios."
-        accent="teal"
-      />
-
-      {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-
-      <div className="flex">
+    <div className="mx-auto flex max-w-295 flex-col gap-6 px-4 py-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">Servicios</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Gestiona los servicios ofrecidos.</p>
+        </div>
         <ServiceFormDialog
           mode="create"
-          icon={CirclePlus}
+          icon={Plus}
           buttonColor="success"
           onSubmit={handleCreate}
         />
       </div>
 
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </div>
+      )}
+
       {loading ? (
-        <p className="text-sm text-muted-foreground">Cargando servicios...</p>
+        <TableSkeleton columns={4} rows={6} />
       ) : (
-        <ServiceTable
-          services={services}
-          onEdit={handleUpdate}
-          onActivate={handleActivate}
-          onDeactivate={handleDeactivate}
-        />
+        <ServiceTable services={services} onEdit={handleUpdate} onActivate={handleActivate} onDeactivate={handleDeactivate} />
       )}
     </div>
   );

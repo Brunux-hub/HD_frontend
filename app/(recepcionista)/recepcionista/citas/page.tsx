@@ -20,7 +20,7 @@ import { getServices } from "@/services/services/services";
 import { getVeterinarians } from "@/services/veterinarians/veterinarians";
 import AppointmentTable from "@/app/(admin)/admin/citas/_components/AppointmentTable";
 import AppointmentFormDialog from "@/app/(admin)/admin/citas/_components/AppointmentFormDialog";
-import { getMe } from "@/services/auth/auth";
+import { decodeToken } from "@/lib/auth";
 
 const RecepcionistaCitasPage = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -36,20 +36,20 @@ const RecepcionistaCitasPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const [appointmentsData, petsData, clientsData, servicesData, vetsData, me] = await Promise.all([
+      const [appointmentsData, petsData, clientsData, servicesData, vetsData] = await Promise.all([
         getAppointments(),
         getPets(),
         getOwners(),
         getServices(),
         getVeterinarians(),
-        getMe(),
       ]);
       setAppointments(appointmentsData);
       setPets(petsData);
       setClients(clientsData);
       setServices(servicesData);
       setVeterinarians(vetsData);
-      setCurrentUserId(me.idUsuario);
+      const token = decodeToken();
+      setCurrentUserId(token?.idUsuario ?? 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar las citas.");
     } finally {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Appointment } from "@/types/appointment";
 import { Pet } from "@/types/pet";
@@ -8,7 +8,7 @@ import { Service } from "@/types/service";
 import { getCitasByVeterinario } from "@/services/veterinario/citas";
 import { getPets } from "@/services/pets/pets";
 import { getServices } from "@/services/services/services";
-import { getMe } from "@/services/auth/auth";
+import { decodeToken } from "@/lib/auth";
 import { updateAppointmentStatus } from "@/services/appointments/appointments";
 import GestionCitaDialog from "./_components/GestionCitaDialog";
 
@@ -44,10 +44,11 @@ const VeterinarioCitasPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const me = await getMe();
-      setVeterinarioId(me.idUsuario);
+      const token = decodeToken();
+      const userId = token?.idUsuario ?? 0;
+      setVeterinarioId(userId);
       const [citasData, petsData, servicesData] = await Promise.all([
-        getCitasByVeterinario(me.idUsuario),
+        getCitasByVeterinario(userId),
         getPets(),
         getServices(),
       ]);
@@ -87,8 +88,8 @@ const VeterinarioCitasPage = () => {
     }
   };
 
-  const petMap = new Map(pets.map((p) => [p.idMascota, p]));
-  const serviceMap = new Map(services.map((s) => [s.idServicio, s]));
+  const petMap = useMemo(() => new Map(pets.map((p) => [p.idMascota, p])), [pets]);
+  const serviceMap = useMemo(() => new Map(services.map((s) => [s.idServicio, s])), [services]);
   const gestionCita = appointments.find((a) => a.idCita === gestionCitaId) ?? null;
 
   return (

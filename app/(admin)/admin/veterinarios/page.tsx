@@ -1,20 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CirclePlus } from "lucide-react";
-
-import SectionHeader from "../_components/SectionHeader";
-import VetTable from "./_components/VetTable";
-import VetFormDialog from "./_components/VetFormDialog";
+import { Plus } from "lucide-react";
 
 import { Veterinarian, VeterinarianRequest } from "@/types/veterinarian";
 import {
   getVeterinarians,
   createVeterinarian,
   updateVeterinarian,
-  deleteVeterinarian,
 } from "@/services/veterinarians/veterinarians";
 import { activateUser, deactivateUser } from "@/services/users/users";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import VetTable from "./_components/VetTable";
+import VetFormDialog from "./_components/VetFormDialog";
 
 const VeterinariansPage = () => {
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
@@ -25,8 +23,7 @@ const VeterinariansPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const vetsData = await getVeterinarians();
-      setVeterinarians(vetsData);
+      setVeterinarians(await getVeterinarians());
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar los veterinarios.");
     } finally {
@@ -48,15 +45,6 @@ const VeterinariansPage = () => {
     await load();
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteVeterinarian(id);
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo eliminar el veterinario.");
-    }
-  };
-
   const handleActivate = async (id: number) => {
     await activateUser(id);
     await load();
@@ -68,36 +56,30 @@ const VeterinariansPage = () => {
   };
 
   return (
-    <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
-      <SectionHeader
-        iconName="Icono Usuarios"
-        iconLabel="Veterinarios"
-        title="Listado de veterinarios"
-        description="Vista donde podrás revisar y gestionar a los veterinarios de la clínica."
-        accent="teal"
-      />
-
-      {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-
-      <div className="flex">
+    <div className="mx-auto flex max-w-295 flex-col gap-6 px-4 py-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">Veterinarios</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Gestiona el personal veterinario.</p>
+        </div>
         <VetFormDialog
           mode="create"
-          icon={CirclePlus}
+          icon={Plus}
           buttonColor="success"
           onSubmit={handleCreate}
         />
       </div>
 
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </div>
+      )}
+
       {loading ? (
-        <p className="text-sm text-muted-foreground">Cargando veterinarios...</p>
+        <TableSkeleton columns={5} rows={6} />
       ) : (
-        <VetTable
-          veterinarians={veterinarians}
-          onEdit={handleUpdate}
-          onDelete={handleDelete}
-          onActivate={handleActivate}
-          onDeactivate={handleDeactivate}
-        />
+        <VetTable veterinarians={veterinarians} onEdit={handleUpdate} onActivate={handleActivate} onDeactivate={handleDeactivate} />
       )}
     </div>
   );

@@ -1,19 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CirclePlus } from "lucide-react";
-
-import SectionHeader from "../_components/SectionHeader";
-import ClientFormDialog from "./_components/ClientFormDialog";
-import ClientTable from "./_components/ClientTable";
+import { Plus } from "lucide-react";
 
 import { ClienteResponse, ClienteRequest } from "@/types/cliente";
-import {
-  createOwner,
-  deleteOwner,
-  getOwners,
-} from "@/services/owners/owners";
+import { getOwners, createOwner } from "@/services/owners/owners";
 import { activateUser, deactivateUser } from "@/services/users/users";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import ClientTable from "./_components/ClientTable";
+import ClientFormDialog from "./_components/ClientFormDialog";
 
 const ClientsPage = () => {
   const [owners, setOwners] = useState<ClienteResponse[]>([]);
@@ -41,15 +36,6 @@ const ClientsPage = () => {
     await load();
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteOwner(id);
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo eliminar el cliente.");
-    }
-  };
-
   const handleActivate = async (id: number) => {
     await activateUser(id);
     await load();
@@ -61,32 +47,30 @@ const ClientsPage = () => {
   };
 
   return (
-    <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
-      <SectionHeader
-        iconName="Icono Clientes"
-        iconLabel="Clientes"
-        title="Listado de clientes"
-        description="Vista donde podrás revisar y gestionar los clientes"
-        accent="teal"
-      />
-
-      {error && (
-        <p className="text-sm font-medium text-destructive">{error}</p>
-      )}
-
-      <div className="flex">
+    <div className="mx-auto flex max-w-295 flex-col gap-6 px-4 py-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">Clientes</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Gestiona los clientes registrados.</p>
+        </div>
         <ClientFormDialog
           mode="create"
-          icon={CirclePlus}
+          icon={Plus}
           buttonColor="success"
           onSubmit={handleCreate}
         />
       </div>
 
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </div>
+      )}
+
       {loading ? (
-        <p className="text-sm text-muted-foreground">Cargando clientes...</p>
+        <TableSkeleton columns={6} rows={6} />
       ) : (
-        <ClientTable owners={owners} onDelete={handleDelete} onActivate={handleActivate} onDeactivate={handleDeactivate} />
+        <ClientTable owners={owners} onActivate={handleActivate} onDeactivate={handleDeactivate} />
       )}
     </div>
   );

@@ -1,16 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CirclePlus } from "lucide-react";
-
-import SectionHeader from "../_components/SectionHeader";
-import PetTable from "./_components/PetTable";
-import PetFormDialog from "./_components/PetFormDialog";
+import { Plus } from "lucide-react";
 
 import { Pet, PetRequest } from "@/types/pet";
 import { ClienteResponse } from "@/types/cliente";
 import { getPets, createPet, updatePet, activatePet, deactivatePet } from "@/services/pets/pets";
 import { getOwners } from "@/services/owners/owners";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import PetTable from "./_components/PetTable";
+import PetFormDialog from "./_components/PetFormDialog";
 
 const PetsPage = () => {
   const [pets, setPets] = useState<Pet[]>([]);
@@ -57,29 +56,29 @@ const PetsPage = () => {
   };
 
   return (
-    <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
-      <SectionHeader
-        iconName="Icono Mascotas"
-        iconLabel="Mascotas"
-        title="Listado general de mascotas"
-        description="Vista general de pacientes con su dueño y teléfono de contacto."
-        accent="teal"
-      />
-
-      {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-
-      <div className="flex">
+    <div className="mx-auto flex max-w-295 flex-col gap-6 px-4 py-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">Mascotas</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Gestiona las mascotas registradas.</p>
+        </div>
         <PetFormDialog
           mode="create"
           owners={owners}
-          icon={CirclePlus}
+          icon={Plus}
           buttonColor="success"
           onSubmit={handleCreate}
         />
       </div>
 
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </div>
+      )}
+
       {loading ? (
-        <p className="text-sm text-muted-foreground">Cargando mascotas...</p>
+        <TableSkeleton columns={5} rows={6} />
       ) : (
         <PetTable pets={pets} showOwner owners={owners} onEdit={handleUpdatePet} onActivate={handleActivate} onDeactivate={handleDeactivate} />
       )}

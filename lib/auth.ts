@@ -4,8 +4,6 @@
  *  - el middleware (server) pueda proteger las rutas del dashboard, y
  *  - el cliente HTTP (lib/api.ts) lo lea y lo mande en cada request.
  */
-import type { UserType } from "@/types/enums";
-
 export const TOKEN_COOKIE = "hd_vet_token";
 
 /** Guarda el token en una cookie de sesión (se borra al cerrar el navegador). */
@@ -61,9 +59,9 @@ export function isAuthenticated(): boolean {
 }
 
 export type JwtPayload = {
-  sub?: string; // username
-  role?: string;
-  type?: UserType;
+  sub?: string; // correo
+  idUsuario?: number;
+  rol?: string;
   exp?: number;
 };
 

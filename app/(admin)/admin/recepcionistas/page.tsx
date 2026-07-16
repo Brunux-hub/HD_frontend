@@ -1,20 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CirclePlus } from "lucide-react";
-
-import SectionHeader from "../_components/SectionHeader";
-import ReceptionistTable from "./_components/ReceptionistTable";
-import ReceptionistFormDialog from "./_components/ReceptionistFormDialog";
+import { Plus } from "lucide-react";
 
 import { Receptionist, ReceptionistRequest } from "@/types/receptionist";
 import {
   getReceptionists,
   createReceptionist,
   updateReceptionist,
-  deleteReceptionist,
 } from "@/services/receptionists/receptionists";
 import { activateUser, deactivateUser } from "@/services/users/users";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import ReceptionistTable from "./_components/ReceptionistTable";
+import ReceptionistFormDialog from "./_components/ReceptionistFormDialog";
 
 const ReceptionistsPage = () => {
   const [receptionists, setReceptionists] = useState<Receptionist[]>([]);
@@ -25,8 +23,7 @@ const ReceptionistsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const receptionistsData = await getReceptionists();
-      setReceptionists(receptionistsData);
+      setReceptionists(await getReceptionists());
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar los recepcionistas.");
     } finally {
@@ -48,15 +45,6 @@ const ReceptionistsPage = () => {
     await load();
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteReceptionist(id);
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo eliminar el recepcionista.");
-    }
-  };
-
   const handleActivate = async (id: number) => {
     await activateUser(id);
     await load();
@@ -68,36 +56,30 @@ const ReceptionistsPage = () => {
   };
 
   return (
-    <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
-      <SectionHeader
-        iconName="Icono Usuarios"
-        iconLabel="Recepcionistas"
-        title="Listado de recepcionistas"
-        description="Vista donde podrás revisar y gestionar al personal de recepción."
-        accent="teal"
-      />
-
-      {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-
-      <div className="flex">
+    <div className="mx-auto flex max-w-295 flex-col gap-6 px-4 py-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">Recepcionistas</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Gestiona el personal de recepción.</p>
+        </div>
         <ReceptionistFormDialog
           mode="create"
-          icon={CirclePlus}
+          icon={Plus}
           buttonColor="success"
           onSubmit={handleCreate}
         />
       </div>
 
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </div>
+      )}
+
       {loading ? (
-        <p className="text-sm text-muted-foreground">Cargando recepcionistas...</p>
+        <TableSkeleton columns={4} rows={6} />
       ) : (
-        <ReceptionistTable
-          receptionists={receptionists}
-          onEdit={handleUpdate}
-          onDelete={handleDelete}
-          onActivate={handleActivate}
-          onDeactivate={handleDeactivate}
-        />
+        <ReceptionistTable receptionists={receptionists} onEdit={handleUpdate} onActivate={handleActivate} onDeactivate={handleDeactivate} />
       )}
     </div>
   );

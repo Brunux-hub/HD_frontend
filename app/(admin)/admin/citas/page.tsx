@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import SectionHeader from "../_components/SectionHeader";
 import AppointmentTable from "./_components/AppointmentTable";
 
 import { Appointment, AppointmentRequest } from "@/types/appointment";
@@ -19,7 +18,8 @@ import { getPets } from "@/services/pets/pets";
 import { getOwners } from "@/services/owners/owners";
 import { getServices } from "@/services/services/services";
 import { getVeterinarians } from "@/services/veterinarians/veterinarians";
-import { getMe } from "@/services/auth/auth";
+import { decodeToken } from "@/lib/auth";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
 
 const AppointmentsPage = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -35,20 +35,20 @@ const AppointmentsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const [appointmentsData, petsData, clientsData, servicesData, vetsData, me] = await Promise.all([
+      const [appointmentsData, petsData, clientsData, servicesData, vetsData] = await Promise.all([
         getAppointments(),
         getPets(),
         getOwners(),
         getServices(),
         getVeterinarians(),
-        getMe(),
       ]);
       setAppointments(appointmentsData);
       setPets(petsData);
       setClients(clientsData);
       setServices(servicesData);
       setVeterinarians(vetsData);
-      setCurrentUserId(me.idUsuario);
+      const token = decodeToken();
+      setCurrentUserId(token?.idUsuario ?? 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar las citas.");
     } finally {
@@ -71,19 +71,20 @@ const AppointmentsPage = () => {
   };
 
   return (
-    <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
-      <SectionHeader
-        iconName="Icono Citas"
-        iconLabel="Citas"
-        title="Listado de citas"
-        description="Vista donde podrás revisar y gestionar las citas de la veterinaria."
-        accent="teal"
-      />
+    <div className="mx-auto flex max-w-295 flex-col gap-6 px-4 py-6">
+      <div>
+        <h1 className="text-xl font-bold text-foreground tracking-tight">Citas</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Gestiona las citas de la veterinaria.</p>
+      </div>
 
-      {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+          {error}
+        </div>
+      )}
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Cargando citas...</p>
+        <TableSkeleton columns={6} rows={6} />
       ) : (
         <AppointmentTable
           appointments={appointments}

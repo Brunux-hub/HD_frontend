@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import SectionHeader from "../_components/SectionHeader";
 import { RegistroMedico } from "@/types/registroMedico";
 import { getRegistrosMedicos } from "@/services/registrosMedicos/registrosMedicos";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
 import VerMasDialog from "@/app/(veterinario)/veterinario/historial-medico/_components/VerMasDialog";
 
 const fmtDate = (iso: string) => {
@@ -51,7 +52,7 @@ const MedicalHistoriesPage = () => {
       {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Cargando registros...</p>
+        <TableSkeleton columns={3} rows={6} />
       ) : registros.length === 0 ? (
         <p className="text-sm text-muted-foreground">No hay registros médicos.</p>
       ) : (
@@ -59,7 +60,6 @@ const MedicalHistoriesPage = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-teal-100">
-                <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Cita</th>
                 <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Fecha</th>
                 <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Diagnóstico</th>
                 <th className="px-4 py-3"></th>
@@ -68,7 +68,6 @@ const MedicalHistoriesPage = () => {
             <tbody>
               {registros.map((r) => (
                 <tr key={r.idRegistroMedico} className="border-b border-slate-100 dark:border-slate-800">
-                  <td className="px-4 py-3">#{r.idCita}</td>
                   <td className="px-4 py-3">{fmtDate(r.fecha)}</td>
                   <td className="px-4 py-3">{r.diagnostico}</td>
                   <td className="px-4 py-3 text-right">

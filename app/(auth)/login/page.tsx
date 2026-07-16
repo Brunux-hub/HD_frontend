@@ -3,25 +3,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { login, getMe } from "@/services/auth/auth";
-import { setRole, type Role } from "@/lib/auth";
+import { login } from "@/services/auth/auth";
+import { setRole, decodeToken, type Role } from "@/lib/auth";
 import { ApiError } from "@/lib/axios";
-import type { StaffRole } from "@/types/auth";
-
-function mapBackendRoleToFrontendRole(role: StaffRole): Role {
-  switch (role) {
-    case "ADMIN":
-      return "admin";
-    case "VETERINARIO":
-      return "veterinario";
-    case "RECEPCIONISTA":
-      return "recepcionista";
-    case "CLIENTE":
-      return "cliente";
-    default:
-      return "admin";
-  }
-}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -49,14 +33,11 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      await login({ correo, contrasenia });
-      let role: Role = "admin";
-      try {
-        const me = await getMe();
-        role = mapBackendRoleToFrontendRole(me.rol);
-      } catch {
-        role = "admin";
-      }
+      const res = await login({ correo, contrasenia });
+      const payload = decodeToken(res.token);
+      const rawRol = payload?.rol ?? "ADMIN";
+      const roleMap: Record<string, Role> = { ADMIN: "admin", VETERINARIO: "veterinario", RECEPCIONISTA: "recepcionista", CLIENTE: "cliente" };
+      const role = roleMap[rawRol] ?? "admin";
       setRole(role);
       if (role === "cliente") router.push("/cliente");
       else if (role === "recepcionista") router.push("/recepcionista");
@@ -87,7 +68,6 @@ export default function LoginPage() {
     }}>
       
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
         * {
           margin: 0;
           padding: 0;
@@ -114,7 +94,6 @@ export default function LoginPage() {
           transition: all 0.3s ease;
           box-shadow: 0 4px 20px rgba(109,212,215,0.35);
           letter-spacing: 0.5px;
-          font-family: 'Nunito', sans-serif;
         }
         .btn-pink:hover {
           transform: translateY(-2px);
@@ -126,7 +105,6 @@ export default function LoginPage() {
           border: 2px solid #e5e7eb;
           border-radius: 12px;
           font-size: 15px;
-          font-family: 'Nunito', sans-serif;
           outline: none;
           transition: all 0.2s;
           background: #fafafa;

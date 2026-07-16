@@ -1,24 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { SquarePen } from "lucide-react";
+import React, { useMemo, useState } from "react";
 
 import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 import AppointmentFormDialog from "./AppointmentFormDialog";
 
@@ -27,6 +25,11 @@ import { Pet } from "@/types/pet";
 import { ClienteResponse } from "@/types/cliente";
 import { Service } from "@/types/service";
 import { Veterinarian } from "@/types/veterinarian";
+import { AnimatedFrame } from "@/components/ui/animated-frame";
+import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
+import { Badge } from "@/components/ui/badge";
+import { ContextMenu } from "@/components/ui/context-menu";
 
 const fmtDateTime = (iso: string) => {
   if (!iso) return "—";
@@ -39,11 +42,6 @@ const fmtDateTime = (iso: string) => {
   return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 };
 
-const statusClassName = (status: string) =>
-  status === "CANCELADA"
-    ? "rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-300"
-    : "rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-semibold text-teal-700 dark:bg-teal-900/40 dark:text-teal-300";
-
 type Props = {
   appointments: Appointment[];
   pets: Pet[];
@@ -55,95 +53,118 @@ type Props = {
   onCancel?: (id: number) => Promise<void>;
 };
 
+const PAGE_SIZE = 10;
+
 const AppointmentTable = ({ appointments, pets, clients, services, veterinarians, currentUserId, onEdit, onCancel }: Props) => {
   const [confirmId, setConfirmId] = useState<number | null>(null);
-  const petMap = new Map(pets.map((p) => [p.idMascota, p]));
-  const serviceMap = new Map(services.map((s) => [s.idServicio, s]));
+  const [editAppointment, setEditAppointment] = useState<Appointment | null>(null);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const petMap = useMemo(() => new Map(pets.map((p) => [p.idMascota, p])), [pets]);
+  const serviceMap = useMemo(() => new Map(services.map((s) => [s.idServicio, s])), [services]);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return appointments;
+    const q = search.toLowerCase();
+    return appointments.filter((a) => {
+      const petName = petMap.get(a.idMascota)?.nombre ?? "";
+      const serviceName = serviceMap.get(a.idServicio)?.nombre ?? "";
+      return petName.toLowerCase().includes(q) || serviceName.toLowerCase().includes(q) || a.motivo.toLowerCase().includes(q);
+    });
+  }, [appointments, search, petMap, serviceMap]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = useMemo(() => filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE), [filtered, safePage]);
 
   return (
-    <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Mascota</TableHead>
-            <TableHead>Servicio</TableHead>
-            <TableHead>Fecha</TableHead>
-            <TableHead>Motivo</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead className="w-40"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {appointments.map((appointment) => (
-            <TableRow key={appointment.idCita}>
-              <TableCell>{petMap.get(appointment.idMascota)?.nombre ?? "—"}</TableCell>
-              <TableCell>{serviceMap.get(appointment.idServicio)?.nombre ?? "—"}</TableCell>
-              <TableCell>{fmtDateTime(appointment.fechaProgramada)}</TableCell>
-              <TableCell>{appointment.motivo}</TableCell>
-              <TableCell>
-                <span className={statusClassName(appointment.estado)}>
-                  {appointment.estado}
-                </span>
-              </TableCell>
-              <TableCell className="flex gap-2">
-                <AppointmentFormDialog
-                  icon={SquarePen}
-                  mode="edit"
-                  buttonColor="alert"
-                  data={appointment}
-                  pets={pets}
-                  clients={clients}
-                  services={services}
-                  veterinarians={veterinarians}
-                  currentUserId={currentUserId}
-                  onSubmit={(payload) => onEdit(appointment.idCita, payload)}
-                />
-                {appointment.estado === "PROGRAMADA" && onCancel && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setConfirmId(appointment.idCita)}
-                  >
-                    Cancelar
-                  </Button>
-                )}
-              </TableCell>
+    <div className="space-y-4">
+      <DataTableToolbar searchValue={search} onSearchChange={(v) => { setSearch(v); setPage(1); }} placeholder="Buscar por mascota, servicio o motivo..." />
+
+      <AnimatedFrame radius={16}>
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Mascota</TableHead>
+              <TableHead>Servicio</TableHead>
+              <TableHead>Fecha</TableHead>
+              <TableHead>Motivo</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead className="w-12"></TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={7} className="h-5 text-center"></TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {paginated.map((a) => (
+              <TableRow key={a.idCita} className="group">
+                <TableCell className="font-medium">{petMap.get(a.idMascota)?.nombre ?? "—"}</TableCell>
+                <TableCell>{serviceMap.get(a.idServicio)?.nombre ?? "—"}</TableCell>
+                <TableCell className="text-muted-foreground">{fmtDateTime(a.fechaProgramada)}</TableCell>
+                <TableCell className="text-muted-foreground max-w-40 truncate">{a.motivo}</TableCell>
+                <TableCell>
+                  <Badge variant={a.estado}>{a.estado}</Badge>
+                </TableCell>
+                <TableCell>
+                  <ContextMenu
+                    actions={[
+                      { label: "Editar", onClick: () => setEditAppointment(a) },
+                      ...(a.estado === "PROGRAMADA" && onCancel
+                        ? [{ label: "Cancelar cita", variant: "destructive" as const, onClick: () => setConfirmId(a.idCita) }]
+                        : []),
+                    ]}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+            {paginated.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="h-32 text-center text-sm text-muted-foreground">
+                  {search ? "No se encontraron resultados." : "No hay citas registradas."}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      </AnimatedFrame>
+
+      {editAppointment && (
+        <AppointmentFormDialog
+          mode="edit"
+          buttonColor="alert"
+          data={editAppointment}
+          pets={pets}
+          clients={clients}
+          services={services}
+          veterinarians={veterinarians}
+          currentUserId={currentUserId}
+          open={true}
+          onOpenChange={(v) => { if (!v) setEditAppointment(null); }}
+          onSubmit={(payload) => { onEdit(editAppointment.idCita, payload); setEditAppointment(null); }}
+        />
+      )}
+
+      <DataTablePagination currentPage={safePage} totalPages={totalPages} totalItems={filtered.length} pageSize={PAGE_SIZE} onPageChange={setPage} />
 
       <Dialog open={!!confirmId} onOpenChange={(v) => { if (!v) setConfirmId(null); }}>
         <DialogContent className="max-w-sm">
           <DialogTitle className="sr-only" />
           <DialogDescription className="sr-only" />
           <div className="py-4 text-center">
-            <p className="text-lg font-semibold text-slate-900 dark:text-white">Cancelar cita</p>
-            <p className="mt-2 text-sm text-slate-500">¿Estás seguro de cancelar esta cita?</p>
+            <p className="text-base font-semibold">Cancelar cita</p>
+            <p className="mt-1 text-sm text-muted-foreground">¿Estás seguro de cancelar esta cita?</p>
           </div>
-          <div className="flex justify-center gap-4">
-            <Button variant="outline" onClick={() => setConfirmId(null)}>
-              No, volver
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={async () => {
-                if (confirmId && onCancel) await onCancel(confirmId);
-                setConfirmId(null);
-              }}
-            >
+          <div className="flex justify-center gap-3">
+            <Button variant="outline" onClick={() => setConfirmId(null)}>No, volver</Button>
+            <Button variant="destructive" onClick={async () => { if (confirmId && onCancel) await onCancel(confirmId); setConfirmId(null); }}>
               Sí, cancelar
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
 
-export default AppointmentTable;
+export default React.memo(AppointmentTable);

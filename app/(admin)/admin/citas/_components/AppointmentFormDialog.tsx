@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { LucideIcon, CheckCircle2, Loader2 } from "lucide-react";
 
 import {
@@ -47,6 +47,8 @@ type Props = {
   data?: Appointment;
   icon?: LucideIcon;
   buttonColor?: "default" | "success" | "alert";
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onSubmit: (data: AppointmentRequest) => Promise<void> | void;
 };
 
@@ -60,46 +62,24 @@ const AppointmentFormDialog = ({
   data,
   icon: Icon,
   buttonColor,
+  open: externalOpen,
+  onOpenChange,
   onSubmit,
 }: Props) => {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [selectedPet, setSelectedPet] = useState<string>(
     data?.idMascota ? String(data.idMascota) : "",
   );
   const [selectedClient, setSelectedClient] = useState<string>("");
   const [filteredPets, setFilteredPets] = useState<Pet[]>([]);
-  const initialSpecialty =
-    data?.idUsuarioVeterinario
-      ? veterinarians.find((vet) => vet.idUsuario === data.idUsuarioVeterinario)
-          ?.especialidades[0] ?? ""
-      : "";
-  const [selectedSpecialty, setSelectedSpecialty] = useState<string>(initialSpecialty);
   const [selectedVet, setSelectedVet] = useState<string>(
     data?.idUsuarioVeterinario ? String(data.idUsuarioVeterinario) : "",
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-
-  const availableSpecialties = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          veterinarians.flatMap((vet) =>
-            vet.especialidades.map((specialty) => specialty.trim()).filter(Boolean),
-          ),
-        ),
-      ).sort((a, b) => a.localeCompare(b)),
-    [veterinarians],
-  );
-
-  const filteredVeterinarians = useMemo(
-    () =>
-      selectedSpecialty
-        ? veterinarians.filter((vet) => vet.especialidades.includes(selectedSpecialty))
-        : veterinarians,
-    [selectedSpecialty, veterinarians],
-  );
 
   const handleOpenChange = (v: boolean) => {
     setOpen(v);
@@ -115,19 +95,6 @@ const AppointmentFormDialog = ({
     setSelectedClient(id);
     setSelectedPet("");
     setFilteredPets(id ? pets.filter((p) => p.idUsuarioCliente === Number(id)) : []);
-  };
-
-  const handleSpecialtyChange = (specialty: string) => {
-    setSelectedSpecialty(specialty);
-    const selectedVetStillMatches = veterinarians.some(
-      (vet) =>
-        String(vet.idUsuario) === selectedVet &&
-        vet.especialidades.includes(specialty),
-    );
-
-    if (!selectedVetStillMatches) {
-      setSelectedVet("");
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -254,46 +221,16 @@ const AppointmentFormDialog = ({
                     </Select>
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="select-specialty">Especialidad</FieldLabel>
-                    <Select
-                      value={selectedSpecialty}
-                      onValueChange={handleSpecialtyChange}
-                    >
-                      <SelectTrigger id="select-specialty">
-                        <SelectValue placeholder="Selecciona una especialidad" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {availableSpecialties.map((specialty) => (
-                            <SelectItem key={specialty} value={specialty}>
-                              {specialty}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                  <Field>
                     <FieldLabel htmlFor="select-vet">Veterinario</FieldLabel>
-                    <Select
-                      value={selectedVet}
-                      onValueChange={setSelectedVet}
-                      disabled={!selectedSpecialty}
-                    >
+                    <Select value={selectedVet} onValueChange={setSelectedVet}>
                       <SelectTrigger id="select-vet">
-                        <SelectValue
-                          placeholder={
-                            selectedSpecialty
-                              ? "Selecciona un veterinario"
-                              : "Primero selecciona una especialidad"
-                          }
-                        />
+                        <SelectValue placeholder="Selecciona un veterinario" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {filteredVeterinarians.map((v) => (
+                          {veterinarians.map((v) => (
                             <SelectItem key={v.idUsuario} value={String(v.idUsuario)}>
-                              {v.nombres} {v.apellidos}
+                              {v.nombres} {v.apellidos} — {v.especialidades.join(", ")}
                             </SelectItem>
                           ))}
                         </SelectGroup>

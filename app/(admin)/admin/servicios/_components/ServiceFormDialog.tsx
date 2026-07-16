@@ -28,11 +28,15 @@ type Props = {
   data?: Service;
   icon?: LucideIcon;
   buttonColor?: "default" | "success" | "alert";
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onSubmit: (data: ServiceRequest) => Promise<void> | void;
 };
 
-const ServiceFormDialog = ({ mode, data, icon: Icon, buttonColor, onSubmit }: Props) => {
-  const [open, setOpen] = useState(false);
+const ServiceFormDialog = ({ mode, data, icon: Icon, buttonColor, open: externalOpen, onOpenChange, onSubmit }: Props) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);

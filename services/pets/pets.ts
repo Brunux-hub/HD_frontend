@@ -15,8 +15,8 @@ export const getPetById = async (id: number) => {
 };
 
 export const getPetsByOwner = async (idOwner: number) => {
-  const pets = await getPets();
-  return pets.filter((p) => p.idUsuarioCliente === idOwner);
+  const { data } = await http.get<Pet[]>(`/v1/clientes/${idOwner}/mascotas`);
+  return data;
 };
 
 export const createPet = async (payload: PetRequest) => {

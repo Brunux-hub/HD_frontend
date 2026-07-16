@@ -1,30 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import { SquarePen } from "lucide-react";
+import React, { useMemo, useState } from "react";
 
 import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-import UserFormDialog from "./UserFormDialog";
+import { Button } from "@/components/ui/button";
 
 import { User } from "@/types/user";
-
-const tipoLabel = (t: string) => (t === "ADMIN" ? "Administrador" : t);
+import { AnimatedFrame } from "@/components/ui/animated-frame";
+import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
+import { Badge } from "@/components/ui/badge";
+import { ContextMenu } from "@/components/ui/context-menu";
 
 type ConfirmAction = {
   id: number;
@@ -34,13 +33,27 @@ type ConfirmAction = {
 
 type Props = {
   users: User[];
-  onUpdatePassword: (id: number, data: { contraseniaActual: string; nuevaContrasenia: string }) => Promise<void>;
   onActivate: (id: number) => Promise<void>;
   onDeactivate: (id: number) => Promise<void>;
+  onChangePassword: (user: User) => void;
 };
 
-const UserTable = ({ users, onUpdatePassword, onActivate, onDeactivate }: Props) => {
+const PAGE_SIZE = 10;
+
+const UserTable = ({ users, onActivate, onDeactivate, onChangePassword }: Props) => {
   const [confirm, setConfirm] = useState<ConfirmAction | null>(null);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return users;
+    const q = search.toLowerCase();
+    return users.filter((u) => u.correo.toLowerCase().includes(q) || u.rol.toLowerCase().includes(q));
+  }, [users, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = useMemo(() => filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE), [filtered, safePage]);
 
   const handleConfirm = async () => {
     if (!confirm) return;
@@ -49,114 +62,81 @@ const UserTable = ({ users, onUpdatePassword, onActivate, onDeactivate }: Props)
     setConfirm(null);
   };
 
-  const msgs: Record<ConfirmAction["action"], { title: string; desc: string }> = {
-    activar: {
-      title: "Reactivar usuario",
-      desc: `¿Estás seguro de reactivar a "${confirm?.correo}"?`,
-    },
-    desactivar: {
-      title: "Desactivar usuario",
-      desc: `¿Estás seguro de desactivar a "${confirm?.correo}"?`,
-    },
-
+  const roleBadge = (rol: string) => {
+    const variant = rol === "ADMIN" ? "PROGRAMADA" : "default";
+    return <Badge variant={variant}>{rol}</Badge>;
   };
 
   return (
-    <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Correo</TableHead>
-            <TableHead>Rol</TableHead>
-            <TableHead className="w-25"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.idUsuario}>
-              <TableCell>
-                <span className={`inline-block w-2.5 h-2.5 rounded-full mr-2 ${user.habilitado ? "bg-green-500" : "bg-red-500"}`} />
-                {user.correo}
-              </TableCell>
-              <TableCell>
-                <span
-                  className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                    user.rol === "ADMIN"
-                      ? "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300"
-                      : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                  }`}
-                >
-                  {tipoLabel(user.rol)}
-                </span>
-              </TableCell>
-              <TableCell className="flex justify-between gap-2">
-                {user.habilitado ? (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setConfirm({ id: user.idUsuario, correo: user.correo, action: "desactivar" })}
-                  >
-                    Desactivar
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setConfirm({ id: user.idUsuario, correo: user.correo, action: "activar" })}
-                  >
-                    Reactivar
-                  </Button>
-                )}
-                <UserFormDialog
-                  icon={SquarePen}
-                  mode="edit"
-                  buttonColor="alert"
-                  data={user}
-                  onSubmit={(payload) => onUpdatePassword(user.idUsuario, payload as { contraseniaActual: string; nuevaContrasenia: string })}
-                />
+    <div className="space-y-4">
+      <DataTableToolbar searchValue={search} onSearchChange={(v) => { setSearch(v); setPage(1); }} placeholder="Buscar por correo o rol..." />
 
-              </TableCell>
+      <AnimatedFrame radius={16}>
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Correo</TableHead>
+              <TableHead>Rol</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead className="w-12"></TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={4} className="h-5 text-center"></TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {paginated.map((user) => (
+              <TableRow key={user.idUsuario} className="group">
+                <TableCell className="font-medium">{user.correo}</TableCell>
+                <TableCell>{roleBadge(user.rol)}</TableCell>
+                <TableCell>
+                  <Badge variant={user.habilitado ? "activo" : "inactivo"}>
+                    {user.habilitado ? "Activo" : "Inactivo"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <ContextMenu
+                    actions={[
+                      { label: "Cambiar Contraseña", onClick: () => onChangePassword(user) },
+                      ...(user.habilitado
+                        ? [{ label: "Desactivar", variant: "destructive" as const, onClick: () => setConfirm({ id: user.idUsuario, correo: user.correo, action: "desactivar" }) }]
+                        : [{ label: "Reactivar", onClick: () => setConfirm({ id: user.idUsuario, correo: user.correo, action: "activar" }) }]
+                      ),
+                    ]}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+            {paginated.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="h-32 text-center text-sm text-muted-foreground">
+                  {search ? "No se encontraron resultados." : "No hay usuarios registrados."}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      </AnimatedFrame>
+
+      <DataTablePagination currentPage={safePage} totalPages={totalPages} totalItems={filtered.length} pageSize={PAGE_SIZE} onPageChange={setPage} />
 
       <Dialog open={!!confirm} onOpenChange={(v) => { if (!v) setConfirm(null); }}>
         <DialogContent className="max-w-sm">
           <DialogTitle className="sr-only" />
           <DialogDescription className="sr-only" />
           <div className="py-4 text-center">
-            <p className="text-lg font-semibold text-slate-900 dark:text-white">
-              {confirm && msgs[confirm.action]?.title}
-            </p>
-            <p className="mt-2 text-sm text-slate-500">
-              {confirm && msgs[confirm.action]?.desc}
-            </p>
+            <p className="text-base font-semibold">{confirm?.action === "activar" ? "Reactivar usuario" : "Desactivar usuario"}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{confirm?.action === "activar" ? `¿Reactivar a "${confirm?.correo}"?` : `¿Desactivar a "${confirm?.correo}"?`}</p>
           </div>
-          <div className="flex justify-center gap-4">
-            <Button variant="outline" onClick={() => setConfirm(null)}>
-              Cancelar
-            </Button>
-            <Button
-              variant={confirm?.action === "activar" ? "default" : "destructive"}
-              onClick={handleConfirm}
-            >
-              {confirm?.action === "activar"
-                ? "Sí, reactivar"
-                : confirm?.action === "desactivar"
-                  ? "Sí, desactivar"
-                  : "Sí, eliminar"}
+          <div className="flex justify-center gap-3">
+            <Button variant="outline" onClick={() => setConfirm(null)}>Cancelar</Button>
+            <Button variant={confirm?.action === "activar" ? "default" : "destructive"} onClick={handleConfirm}>
+              {confirm?.action === "activar" ? "Sí, reactivar" : "Sí, desactivar"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
 
-export default UserTable;
+export default React.memo(UserTable);
