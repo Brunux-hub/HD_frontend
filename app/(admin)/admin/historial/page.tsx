@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import SectionHeader from "../_components/SectionHeader";
 import { RegistroMedico } from "@/types/registroMedico";
 import { getRegistrosMedicos } from "@/services/registrosMedicos/registrosMedicos";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import VerMasDialog from "@/app/(veterinario)/veterinario/historial-medico/_components/VerMasDialog";
+import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
 
 const fmtDate = (iso: string) => {
   if (!iso) return "—";
@@ -22,6 +23,7 @@ const MedicalHistoriesPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [verMasRegistro, setVerMasRegistro] = useState<RegistroMedico | null>(null);
+  const [search, setSearch] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -38,6 +40,16 @@ const MedicalHistoriesPage = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  const filteredRegistros = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    if (!query) return registros;
+
+    return registros.filter((registro) =>
+      (registro.mascota?.nombre ?? "").toLowerCase().includes(query),
+    );
+  }, [registros, search]);
 
   return (
     <div className="mx-auto flex max-w-295 flex-col gap-8 px-4">
@@ -56,19 +68,28 @@ const MedicalHistoriesPage = () => {
       ) : registros.length === 0 ? (
         <p className="text-sm text-muted-foreground">No hay registros médicos.</p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-teal-100 bg-card shadow-md">
+        <div className="space-y-4">
+          <DataTableToolbar
+            searchValue={search}
+            onSearchChange={setSearch}
+            placeholder="Buscar por mascota..."
+          />
+
+          <div className="overflow-x-auto rounded-2xl border border-teal-100 bg-card shadow-md">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-teal-100">
                 <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Fecha</th>
+                <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Mascota</th>
                 <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Diagnóstico</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
-              {registros.map((r) => (
+              {filteredRegistros.map((r) => (
                 <tr key={r.idRegistroMedico} className="border-b border-slate-100 dark:border-slate-800">
                   <td className="px-4 py-3">{fmtDate(r.fecha)}</td>
+                  <td className="px-4 py-3">{r.mascota?.nombre ?? "—"}</td>
                   <td className="px-4 py-3">{r.diagnostico}</td>
                   <td className="px-4 py-3 text-right">
                     <button
@@ -80,8 +101,16 @@ const MedicalHistoriesPage = () => {
                   </td>
                 </tr>
               ))}
+              {filteredRegistros.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                    No se encontraron registros para esa mascota.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
+        </div>
         </div>
       )}
 

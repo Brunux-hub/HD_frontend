@@ -141,7 +141,10 @@ const AppointmentTable = ({ appointments, pets, clients, services, veterinarians
           currentUserId={currentUserId}
           open={true}
           onOpenChange={(v) => { if (!v) setEditAppointment(null); }}
-          onSubmit={(payload) => { onEdit(editAppointment.idCita, payload); setEditAppointment(null); }}
+          onSubmit={async (payload) => {
+            await onEdit(editAppointment.idCita, payload);
+            setEditAppointment(null);
+          }}
         />
       )}
 

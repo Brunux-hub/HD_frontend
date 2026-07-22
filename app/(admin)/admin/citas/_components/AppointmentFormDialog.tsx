@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { LucideIcon, CheckCircle2, Loader2 } from "lucide-react";
 
 import {
@@ -69,32 +69,47 @@ const AppointmentFormDialog = ({
   const [internalOpen, setInternalOpen] = useState(false);
   const open = externalOpen ?? internalOpen;
   const setOpen = onOpenChange ?? setInternalOpen;
+  const initialPet = data?.idMascota
+    ? pets.find((pet) => pet.idMascota === data.idMascota)
+    : undefined;
   const [selectedPet, setSelectedPet] = useState<string>(
     data?.idMascota ? String(data.idMascota) : "",
   );
-  const [selectedClient, setSelectedClient] = useState<string>("");
-  const [filteredPets, setFilteredPets] = useState<Pet[]>([]);
+  const [selectedClient, setSelectedClient] = useState<string>(
+    initialPet?.idUsuarioCliente ? String(initialPet.idUsuarioCliente) : "",
+  );
+  const [selectedService, setSelectedService] = useState<string>(
+    data?.idServicio ? String(data.idServicio) : "",
+  );
   const [selectedVet, setSelectedVet] = useState<string>(
     data?.idUsuarioVeterinario ? String(data.idUsuarioVeterinario) : "",
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const filteredPets = useMemo(
+    () =>
+      selectedClient
+        ? pets.filter((pet) => pet.idUsuarioCliente === Number(selectedClient))
+        : [],
+    [pets, selectedClient],
+  );
 
   const handleOpenChange = (v: boolean) => {
     setOpen(v);
     if (!v) {
       setError(null);
       setSuccess(false);
-      setSelectedClient("");
-      setFilteredPets([]);
+      setSelectedClient(initialPet?.idUsuarioCliente ? String(initialPet.idUsuarioCliente) : "");
+      setSelectedPet(data?.idMascota ? String(data.idMascota) : "");
+      setSelectedService(data?.idServicio ? String(data.idServicio) : "");
+      setSelectedVet(data?.idUsuarioVeterinario ? String(data.idUsuarioVeterinario) : "");
     }
   };
 
   const handleClientChange = (id: string) => {
     setSelectedClient(id);
     setSelectedPet("");
-    setFilteredPets(id ? pets.filter((p) => p.idUsuarioCliente === Number(id)) : []);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -113,15 +128,24 @@ const AppointmentFormDialog = ({
       return;
     }
 
+    if (!selectedService) {
+      setError("Selecciona un servicio.");
+      return;
+    }
+
     const formData = new FormData(e.currentTarget);
     const payload: AppointmentRequest = {
       motivo: formData.get("motivo") as string,
       notas: formData.get("notas") as string,
       fechaProgramada: formData.get("fechaProgramada") as string,
-      idUsuarioRecepcionista: currentUserId,
-      idServicio: Number(formData.get("idServicio")),
+      idUsuarioRecepcionista:
+        mode === "edit" && data
+          ? data.idUsuarioRecepcionista
+          : currentUserId,
+      idServicio: Number(selectedService),
       idMascota: idPet,
       idUsuarioVeterinario: idVet,
+      estado: data?.estado ?? "PROGRAMADA",
     };
 
     setSubmitting(true);
@@ -137,9 +161,11 @@ const AppointmentFormDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant={mode === "create" ? "teal" : buttonColor}>{Icon && <Icon />}{mode === "create" && "Agregar"}</Button>
-      </DialogTrigger>
+      {externalOpen === undefined && (
+        <DialogTrigger asChild>
+          <Button variant={mode === "create" ? "teal" : buttonColor}>{Icon && <Icon />}{mode === "create" && "Agregar"}</Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogTitle className="sr-only" />
         <DialogDescription className="sr-only" />
@@ -171,7 +197,7 @@ const AppointmentFormDialog = ({
                 <FieldGroup>
                   <Field>
                     <FieldLabel htmlFor="select-service">Servicio</FieldLabel>
-                    <Select name="idServicio">
+                    <Select value={selectedService} onValueChange={setSelectedService}>
                       <SelectTrigger id="select-service">
                         <SelectValue placeholder="Selecciona un servicio" />
                       </SelectTrigger>
@@ -211,7 +237,7 @@ const AppointmentFormDialog = ({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {(data ? pets : filteredPets).map((p) => (
+                          {(selectedClient ? filteredPets : data ? pets : []).map((p) => (
                             <SelectItem key={p.idMascota} value={String(p.idMascota)}>
                               {p.nombre}
                             </SelectItem>

@@ -3,15 +3,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, ClipboardList, Stethoscope, Calendar, Weight, FileText } from "lucide-react";
+import { ArrowLeft, ClipboardList, Stethoscope, Calendar, Weight, FileText, Loader2, Printer } from "lucide-react";
 
 import { getClientData, edadEnAnios, type Mascota } from "@/lib/cliente/data";
-import { getRegistrosMedicos } from "@/services/registrosMedicos/registrosMedicos";
+import { getRecetasByRegistro, getRegistrosMedicos } from "@/services/registrosMedicos/registrosMedicos";
 import { getAppointmentById } from "@/services/appointments/appointments";
 import { getServices } from "@/services/services/services";
+import { getItemsByReceta } from "@/services/recetas/recetas";
+import { printPrescription } from "@/lib/prescription-print";
 import type { RegistroMedico } from "@/types/registroMedico";
 import type { Appointment } from "@/types/appointment";
 import type { Service } from "@/types/service";
+import { Button } from "@/components/ui/button";
 import PetAvatar from "../../../_components/PetAvatar";
 
 const fmt = (iso: string | null) =>
@@ -35,6 +38,8 @@ export default function MascotaDetalle() {
   const [loading, setLoading] = useState(true);
   const [historial, setHistorial] = useState<RegistroConDetalle[]>([]);
   const [loadingHistorial, setLoadingHistorial] = useState(true);
+  const [printingRegistroId, setPrintingRegistroId] = useState<number | null>(null);
+  const [printError, setPrintError] = useState<string | null>(null);
 
   useEffect(() => {
     getClientData()
@@ -84,6 +89,37 @@ export default function MascotaDetalle() {
   useEffect(() => {
     loadHistorial();
   }, [loadHistorial]);
+
+  const handlePrintPrescription = useCallback(async (registro: RegistroMedico) => {
+    try {
+      setPrintError(null);
+      setPrintingRegistroId(registro.idRegistroMedico);
+
+      const recetas = await getRecetasByRegistro(registro.idRegistroMedico);
+      const receta = recetas[0];
+
+      if (!receta) {
+        setPrintError("Este control no tiene recetas registradas.");
+        return;
+      }
+
+      const items = await getItemsByReceta(receta.idReceta);
+
+      printPrescription({
+        receta,
+        items,
+        registro,
+      });
+    } catch (err) {
+      setPrintError(
+        err instanceof Error
+          ? err.message
+          : "No se pudo abrir la impresión de la receta.",
+      );
+    } finally {
+      setPrintingRegistroId(null);
+    }
+  }, []);
 
   if (loading) {
     return <p className="text-sm text-muted-foreground">Cargando...</p>;
@@ -136,6 +172,12 @@ export default function MascotaDetalle() {
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Historial Médico</h2>
         </div>
 
+        {printError && (
+          <div className="px-6 pt-4">
+            <p className="text-sm font-medium text-destructive">{printError}</p>
+          </div>
+        )}
+
         {loadingHistorial ? (
           <div className="flex items-center justify-center py-12">
             <div className="h-6 w-6 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
@@ -148,9 +190,24 @@ export default function MascotaDetalle() {
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {historial.map((r) => (
               <div key={r.idRegistroMedico} className="px-6 py-4 space-y-2">
-                <div className="flex items-center gap-2 text-sm text-teal-600">
-                  <Calendar className="h-3.5 w-3.5" />
-                  <span className="font-medium">{fmt(r.fecha)}</span>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 text-sm text-teal-600">
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span className="font-medium">{fmt(r.fecha)}</span>
+                  </div>
+                  <Button
+                    type="button"
+                    className="gap-2 bg-sky-100 text-sky-800 hover:bg-sky-200"
+                    onClick={() => void handlePrintPrescription(r)}
+                    disabled={printingRegistroId === r.idRegistroMedico}
+                  >
+                    {printingRegistroId === r.idRegistroMedico ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Printer className="h-4 w-4" />
+                    )}
+                    Imprimir receta
+                  </Button>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">

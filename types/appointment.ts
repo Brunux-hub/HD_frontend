@@ -18,4 +18,5 @@ export interface AppointmentRequest {
   idServicio: number;
   idMascota: number;
   idUsuarioVeterinario: number;
+  estado?: string;
 }

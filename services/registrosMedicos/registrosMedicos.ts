@@ -10,6 +10,14 @@ export const createRegistroMedico = async (payload: RegistroMedicoRequest): Prom
   return data;
 };
 
+export const updateRegistroMedico = async (
+  id: number,
+  payload: RegistroMedicoRequest,
+): Promise<RegistroMedico> => {
+  const { data } = await http.put<RegistroMedico>(`${BASE}/${id}`, payload);
+  return data;
+};
+
 export const getRegistrosMedicos = async (): Promise<RegistroMedico[]> => {
   const { data } = await http.get<RegistroMedico[]>(BASE);
   return data;

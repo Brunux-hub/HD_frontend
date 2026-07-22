@@ -2,6 +2,11 @@ import { http } from "@/lib/axios";
 import type { Receta, RecetaRequest } from "@/types/receta";
 import type { ItemReceta } from "@/types/itemReceta";
 
+export const getRecetas = async (): Promise<Receta[]> => {
+  const { data } = await http.get<Receta[]>("/v1/recetas");
+  return data;
+};
+
 export const createReceta = async (payload: RecetaRequest): Promise<Receta> => {
   const { data } = await http.post<Receta>("/v1/recetas", payload);
   return data;

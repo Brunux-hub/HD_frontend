@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { X, ClipboardList, FileText, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { X, ClipboardList, FileText, Loader2, Printer } from "lucide-react";
 
 import {
   Dialog,
@@ -15,6 +15,10 @@ import { Receta } from "@/types/receta";
 import { ItemReceta } from "@/types/itemReceta";
 import { getRecetasByRegistro } from "@/services/registrosMedicos/registrosMedicos";
 import { getItemsByReceta } from "@/services/recetas/recetas";
+import { getAppointmentById } from "@/services/appointments/appointments";
+import { getVeterinarianById } from "@/services/veterinarians/veterinarians";
+import { Button } from "@/components/ui/button";
+import { printPrescription } from "@/lib/prescription-print";
 
 type Props = {
   registro: RegistroMedico;
@@ -41,8 +45,11 @@ const VerMasDialog = ({ registro, onClose }: Props) => {
   const [itemsPorReceta, setItemsPorReceta] = useState<Record<number, ItemReceta[]>>({});
   const [recetaSeleccionada, setRecetaSeleccionada] = useState<number | null>(null);
   const [loadingDetalles, setLoadingDetalles] = useState(false);
+  const [printing, setPrinting] = useState(false);
+  const [printError, setPrintError] = useState<string | null>(null);
+  const [veterinarianName, setVeterinarianName] = useState<string | null>(null);
 
-  const cargarRecetas = async () => {
+  const cargarRecetas = useCallback(async () => {
     setLoadingDetalles(true);
     try {
       const recs = await getRecetasByRegistro(registro.idRegistroMedico);
@@ -60,17 +67,73 @@ const VerMasDialog = ({ registro, onClose }: Props) => {
     } finally {
       setLoadingDetalles(false);
     }
-  };
+  }, [registro.idRegistroMedico]);
+
+  const cargarVeterinario = useCallback(async () => {
+    try {
+      const appointment = await getAppointmentById(registro.idCita);
+      if (!appointment?.idUsuarioVeterinario) {
+        setVeterinarianName(null);
+        return null;
+      }
+
+      const veterinarian = await getVeterinarianById(appointment.idUsuarioVeterinario);
+      const fullName = `${veterinarian.nombres ?? ""} ${veterinarian.apellidos ?? ""}`.trim();
+      const normalizedName = fullName || null;
+      setVeterinarianName(normalizedName);
+      return normalizedName;
+    } catch {
+      setVeterinarianName(null);
+      return null;
+    }
+  }, [registro.idCita]);
 
   useEffect(() => {
     if (activeTab === "recetas" && recetas.length === 0) {
-      cargarRecetas();
+      void cargarRecetas();
     }
-  }, [activeTab]);
+  }, [activeTab, cargarRecetas, recetas.length]);
+
+  useEffect(() => {
+    if (activeTab === "recetas" && veterinarianName === null) {
+      void cargarVeterinario();
+    }
+  }, [activeTab, cargarVeterinario, veterinarianName]);
 
   const handleClose = () => {
     setOpen(false);
     onClose();
+  };
+
+  const selectedReceta =
+    recetaSeleccionada != null
+      ? recetas.find((receta) => receta.idReceta === recetaSeleccionada) ?? null
+      : null;
+
+  const handlePrintPrescription = async () => {
+    if (!selectedReceta) return;
+
+    try {
+      setPrinting(true);
+      setPrintError(null);
+      const resolvedVeterinarianName =
+        veterinarianName !== null ? veterinarianName : await cargarVeterinario();
+
+      printPrescription({
+        receta: selectedReceta,
+        items: itemsPorReceta[selectedReceta.idReceta] ?? [],
+        registro,
+        veterinarianName: resolvedVeterinarianName ?? undefined,
+      });
+    } catch (err) {
+      setPrintError(
+        err instanceof Error
+          ? err.message
+          : "No se pudo abrir la vista de impresión de la receta.",
+      );
+    } finally {
+      setPrinting(false);
+    }
   };
 
   const tabs: { key: Tab; label: string; icon: typeof ClipboardList }[] = [
@@ -144,20 +207,35 @@ const VerMasDialog = ({ registro, onClose }: Props) => {
               ) : (
                 <div className="space-y-4">
                   {/* Selector de receta */}
-                  <div className="flex flex-wrap gap-2">
-                    {recetas.map((r) => (
-                      <button
-                        key={r.idReceta}
-                        onClick={() => setRecetaSeleccionada(r.idReceta)}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                          recetaSeleccionada === r.idReceta
-                            ? "bg-teal-600 text-white"
-                            : "bg-teal-50 text-teal-700 hover:bg-teal-100 dark:bg-teal-950/30 dark:text-teal-300"
-                        }`}
-                      >
-                        Receta #{r.numeroReceta}
-                      </button>
-                    ))}
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-wrap gap-2">
+                      {recetas.map((r) => (
+                        <button
+                          key={r.idReceta}
+                          onClick={() => setRecetaSeleccionada(r.idReceta)}
+                          className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                            recetaSeleccionada === r.idReceta
+                              ? "bg-teal-600 text-white"
+                              : "bg-teal-50 text-teal-700 hover:bg-teal-100 dark:bg-teal-950/30 dark:text-teal-300"
+                          }`}
+                        >
+                          Receta #{r.numeroReceta}
+                        </button>
+                      ))}
+                    </div>
+                    <Button
+                      type="button"
+                      className="gap-2 bg-sky-100 text-sky-800 hover:bg-sky-200"
+                      onClick={handlePrintPrescription}
+                      disabled={!selectedReceta || printing}
+                    >
+                      {printing ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Printer className="h-4 w-4" />
+                      )}
+                      Imprimir
+                    </Button>
                   </div>
 
                   {/* Ítems de la receta seleccionada */}
@@ -166,6 +244,9 @@ const VerMasDialog = ({ registro, onClose }: Props) => {
                       <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                         Ítems de la receta #{recetas.find((r) => r.idReceta === recetaSeleccionada)?.numeroReceta}
                       </p>
+                      {printError && (
+                        <p className="text-sm font-medium text-destructive">{printError}</p>
+                      )}
                       {(itemsPorReceta[recetaSeleccionada] ?? []).length === 0 ? (
                         <p className="text-sm text-slate-500">Sin ítems.</p>
                       ) : (

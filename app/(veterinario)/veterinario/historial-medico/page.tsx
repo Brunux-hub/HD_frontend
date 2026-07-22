@@ -57,6 +57,7 @@ const VeterinarioHistorialPage = () => {
               <tr className="border-b border-teal-100">
                 <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Cita</th>
                 <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Fecha</th>
+                <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Mascota</th>
                 <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Diagnóstico</th>
                 <th className="px-4 py-3"></th>
               </tr>
@@ -66,6 +67,7 @@ const VeterinarioHistorialPage = () => {
                 <tr key={r.idRegistroMedico} className="border-b border-slate-100 dark:border-slate-800">
                   <td className="px-4 py-3">#{r.idCita}</td>
                   <td className="px-4 py-3">{fmtDate(r.fecha)}</td>
+                  <td className="px-4 py-3">{r.mascota?.nombre ?? "—"}</td>
                   <td className="px-4 py-3">{r.diagnostico}</td>
                   <td className="px-4 py-3 text-right">
                     <button

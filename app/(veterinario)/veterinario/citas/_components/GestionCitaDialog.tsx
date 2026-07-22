@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Minus, X, CheckCircle2, Loader2, ClipboardList, FileText } from "lucide-react";
 
 import {
@@ -21,7 +21,7 @@ import { Appointment } from "@/types/appointment";
 import { RegistroMedico, RegistroMedicoRequest } from "@/types/registroMedico";
 import { Receta, RecetaRequest } from "@/types/receta";
 import { ItemReceta, ItemRecetaRequest } from "@/types/itemReceta";
-import { createRegistroMedico } from "@/services/registrosMedicos/registrosMedicos";
+import { createRegistroMedico, getRecetasByRegistro, getRegistrosMedicos, updateRegistroMedico } from "@/services/registrosMedicos/registrosMedicos";
 import { createReceta } from "@/services/recetas/recetas";
 import { createItemReceta } from "@/services/itemsReceta/itemsReceta";
 
@@ -38,10 +38,46 @@ const GestionCitaDialog = ({ cita, open, onMinimize, onFinalizar }: Props) => {
   const [activeTab, setActiveTab] = useState<Tab>("registro");
   const [confirmClose, setConfirmClose] = useState(false);
   const [finalizando, setFinalizando] = useState(false);
+  const [loadingRegistro, setLoadingRegistro] = useState(false);
 
   const [registroGuardado, setRegistroGuardado] = useState<RegistroMedico | null>(null);
   const [recetas, setRecetas] = useState<Receta[]>([]);
   const [itemsPorReceta, setItemsPorReceta] = useState<Record<number, ItemReceta[]>>({});
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    let ignore = false;
+
+    const loadRegistro = async () => {
+      setLoadingRegistro(true);
+      try {
+        const registros = await getRegistrosMedicos();
+        if (ignore) {
+          return;
+        }
+
+        const registro = registros.find((item) => item.idCita === cita.idCita) ?? null;
+        setRegistroGuardado(registro);
+      } catch {
+        if (!ignore) {
+          setRegistroGuardado(null);
+        }
+      } finally {
+        if (!ignore) {
+          setLoadingRegistro(false);
+        }
+      }
+    };
+
+    void loadRegistro();
+
+    return () => {
+      ignore = true;
+    };
+  }, [cita.idCita, open]);
 
   const handleConfirmFinalizar = async () => {
     setFinalizando(true);
@@ -69,7 +105,6 @@ const GestionCitaDialog = ({ cita, open, onMinimize, onFinalizar }: Props) => {
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
               Gestión de Cita #{cita.idCita}
             </h2>
-            <p className="text-xs text-slate-500">{cita.motivo}</p>
           </div>
           <div className="flex items-center gap-1">
             <button
@@ -110,6 +145,7 @@ const GestionCitaDialog = ({ cita, open, onMinimize, onFinalizar }: Props) => {
           {activeTab === "registro" && (
             <RegistroMedicoTab
               citaId={cita.idCita}
+              loading={loadingRegistro}
               registroGuardado={registroGuardado}
               onGuardado={(r) => setRegistroGuardado(r)}
             />
@@ -119,6 +155,7 @@ const GestionCitaDialog = ({ cita, open, onMinimize, onFinalizar }: Props) => {
               registroMedicoId={registroGuardado?.idRegistroMedico ?? null}
               recetas={recetas}
               itemsPorReceta={itemsPorReceta}
+              onSetRecetas={setRecetas}
               onAddReceta={(r) => setRecetas((prev) => [...prev, r])}
               onAddItem={(recetaId, item) =>
                 setItemsPorReceta((prev) => ({
@@ -158,15 +195,27 @@ const GestionCitaDialog = ({ cita, open, onMinimize, onFinalizar }: Props) => {
 // --- Tab: Registro Médico ---
 const RegistroMedicoTab = ({
   citaId,
+  loading,
   registroGuardado,
   onGuardado,
 }: {
   citaId: number;
+  loading: boolean;
   registroGuardado: RegistroMedico | null;
   onGuardado: (r: RegistroMedico) => void;
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!registroGuardado) {
+      setEditing(true);
+      return;
+    }
+
+    setEditing(false);
+  }, [registroGuardado]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -180,8 +229,12 @@ const RegistroMedicoTab = ({
     };
     setSubmitting(true);
     try {
-      const reg = await createRegistroMedico(payload);
+      const reg = registroGuardado
+        ? await updateRegistroMedico(registroGuardado.idRegistroMedico, payload)
+        : await createRegistroMedico(payload);
+
       onGuardado({ ...reg, peso: payload.peso });
+      setEditing(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo guardar el registro.");
     } finally {
@@ -189,7 +242,68 @@ const RegistroMedicoTab = ({
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 p-4 text-sm text-slate-500">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Cargando registro médico...
+      </div>
+    );
+  }
+
   if (registroGuardado) {
+    if (editing) {
+      return (
+        <form onSubmit={handleSubmit} className="space-y-4 p-4">
+          <Field>
+            <FieldLabel htmlFor="peso">Peso (kg)</FieldLabel>
+            <Input
+              id="peso"
+              name="peso"
+              type="number"
+              step="0.1"
+              min="0"
+              placeholder="Ej. 28.5"
+              defaultValue={registroGuardado.peso}
+              required
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="diagnostico">Diagnóstico</FieldLabel>
+            <Textarea
+              id="diagnostico"
+              name="diagnostico"
+              required
+              className="resize-none"
+              placeholder="Describe el diagnóstico"
+              defaultValue={registroGuardado.diagnostico}
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="observaciones">Observaciones</FieldLabel>
+            <Textarea
+              id="observaciones"
+              name="observaciones"
+              className="resize-none"
+              placeholder="Observaciones adicionales"
+              defaultValue={registroGuardado.observaciones}
+            />
+          </Field>
+          {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+          <div className="flex justify-center gap-3">
+            <Button type="submit" disabled={submitting}>
+              {submitting ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Guardando...</>
+              ) : "Guardar cambios"}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => setEditing(false)} disabled={submitting}>
+              Cancelar
+            </Button>
+          </div>
+        </form>
+      );
+    }
+
     return (
       <div className="space-y-4 p-4">
         <div className="flex items-center gap-2 text-green-600">
@@ -200,6 +314,11 @@ const RegistroMedicoTab = ({
           <p><strong>Diagnóstico:</strong> {registroGuardado.diagnostico}</p>
           <p><strong>Peso:</strong> {registroGuardado.peso ?? "—"}</p>
           <p><strong>Observaciones:</strong> {registroGuardado.observaciones}</p>
+        </div>
+        <div className="flex justify-center">
+          <Button type="button" onClick={() => setEditing(true)}>
+            Editar registro médico
+          </Button>
         </div>
       </div>
     );
@@ -220,11 +339,13 @@ const RegistroMedicoTab = ({
         <Textarea id="observaciones" name="observaciones" className="resize-none" placeholder="Observaciones adicionales" />
       </Field>
       {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-      <Button type="submit" disabled={submitting}>
-        {submitting ? (
-          <><Loader2 className="h-4 w-4 animate-spin" /> Guardando...</>
-        ) : "Guardar registro médico"}
-      </Button>
+      <div className="flex justify-center">
+        <Button type="submit" disabled={submitting}>
+          {submitting ? (
+            <><Loader2 className="h-4 w-4 animate-spin" /> Guardando...</>
+          ) : "Guardar registro médico"}
+        </Button>
+      </div>
     </form>
   );
 };
@@ -234,12 +355,14 @@ const RecetasTab = ({
   registroMedicoId,
   recetas,
   itemsPorReceta,
+  onSetRecetas,
   onAddReceta,
   onAddItem,
 }: {
   registroMedicoId: number | null;
   recetas: Receta[];
   itemsPorReceta: Record<number, ItemReceta[]>;
+  onSetRecetas: (recetas: Receta[]) => void;
   onAddReceta: (r: Receta) => void;
   onAddItem: (recetaId: number, item: ItemReceta) => void;
 }) => {
@@ -247,25 +370,54 @@ const RecetasTab = ({
   const [submittingItem, setSubmittingItem] = useState(false);
   const [selectedRecetaId, setSelectedRecetaId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadingRecetas, setLoadingRecetas] = useState(false);
 
-  const handleCrearReceta = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (registroMedicoId == null) {
+      return;
+    }
+
+    let ignore = false;
+    const hydrateRecetas = async () => {
+      setLoadingRecetas(true);
+      try {
+        const data = await getRecetasByRegistro(registroMedicoId);
+        if (ignore) {
+          return;
+        }
+
+        onSetRecetas(data);
+        setSelectedRecetaId((current) => current ?? data[0]?.idReceta ?? null);
+      } catch (err) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : "No se pudieron cargar las recetas.");
+        }
+      } finally {
+        if (!ignore) {
+          setLoadingRecetas(false);
+        }
+      }
+    };
+
+    void hydrateRecetas();
+
+    return () => {
+      ignore = true;
+    };
+  }, [onSetRecetas, registroMedicoId]);
+
+  const handleCrearReceta = async () => {
     setError(null);
     if (registroMedicoId == null) {
       setError("Primero guarda un registro médico.");
       return;
     }
-    const formData = new FormData(e.currentTarget);
-    const payload: RecetaRequest = {
-      idRegistroMedico: registroMedicoId,
-      numeroReceta: formData.get("numeroReceta") as string,
-    };
     setSubmittingReceta(true);
     try {
+      const payload: RecetaRequest = { idRegistroMedico: registroMedicoId };
       const r = await createReceta(payload);
       onAddReceta(r);
       setSelectedRecetaId(r.idReceta);
-      (e.target as HTMLFormElement).reset();
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo crear la receta.");
     } finally {
@@ -306,18 +458,25 @@ const RecetasTab = ({
       )}
 
       {/* Crear nueva receta */}
-      <form onSubmit={handleCrearReceta} className="space-y-3">
-        <Field>
-          <FieldLabel htmlFor="numeroReceta">Número de receta</FieldLabel>
-          <Input id="numeroReceta" name="numeroReceta" required placeholder="Ej. REC-001" disabled={registroMedicoId == null} />
-        </Field>
+      <div className="space-y-3 rounded-lg border border-teal-100 bg-teal-50/50 p-4 dark:border-teal-900/40 dark:bg-teal-950/20">
+        <div>
+          <p className="text-center text-xs font-semibold uppercase tracking-[0.12em] text-teal-700 dark:text-teal-300">
+            Generación de Receta
+          </p>
+        </div>
         {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-        <Button type="submit" disabled={submittingReceta || registroMedicoId == null}>
-          {submittingReceta ? (
-            <><Loader2 className="h-4 w-4 animate-spin" /> Creando...</>
-          ) : "Crear receta"}
-        </Button>
-      </form>
+        <div className="flex justify-center">
+          <Button
+            type="button"
+            onClick={handleCrearReceta}
+            disabled={submittingReceta || loadingRecetas || registroMedicoId == null}
+          >
+            {submittingReceta ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Creando...</>
+            ) : "Crear receta"}
+          </Button>
+        </div>
+      </div>
 
       {/* Lista de recetas */}
       {recetas.length > 0 && (

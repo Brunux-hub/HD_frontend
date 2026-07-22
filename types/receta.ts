@@ -7,5 +7,4 @@ export interface Receta {
 
 export interface RecetaRequest {
   idRegistroMedico: number;
-  numeroReceta: string;
 }

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BookUser, PawPrint, Calendar, LogOut } from "lucide-react";
+import { BookUser, PawPrint, Calendar, ReceiptText, LogOut } from "lucide-react";
 
 import {
   Sidebar,
@@ -25,6 +25,7 @@ const items = [
   { title: "Clientes", url: "/recepcionista/clientes", icon: BookUser },
   { title: "Mascotas", url: "/recepcionista/mascotas", icon: PawPrint },
   { title: "Citas", url: "/recepcionista/citas", icon: Calendar },
+  { title: "Recibo", url: "/recepcionista/recibo", icon: ReceiptText },
 ];
 
 const ReceptionistSidebar = () => {

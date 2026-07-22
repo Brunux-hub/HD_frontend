@@ -5,6 +5,10 @@ export interface RegistroMedico {
   diagnostico: string;
   peso: number;
   observaciones: string;
+  mascota?: {
+    idMascota: number;
+    nombre: string;
+  };
 }
 
 export interface RegistroMedicoRequest {
