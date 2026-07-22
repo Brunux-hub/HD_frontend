@@ -74,8 +74,8 @@ const ServiceTable = ({ services, onEdit, onActivate, onDeactivate }: Props) => 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Descripción</TableHead>
+              <TableHead className="text-left">Nombre</TableHead>
+              <TableHead className="text-left">Descripción</TableHead>
               <TableHead>Precio</TableHead>
               <TableHead>Estado</TableHead>
               {onEdit && <TableHead className="w-12"></TableHead>}
@@ -84,8 +84,8 @@ const ServiceTable = ({ services, onEdit, onActivate, onDeactivate }: Props) => 
           <TableBody>
             {paginated.map((s) => (
               <TableRow key={s.idServicio} className="group">
-                <TableCell className="font-medium">{s.nombre}</TableCell>
-                <TableCell className="text-muted-foreground max-w-60 truncate">{s.descripcion}</TableCell>
+                <TableCell className="text-left font-medium">{s.nombre}</TableCell>
+                <TableCell className="text-left text-muted-foreground max-w-60 truncate">{s.descripcion}</TableCell>
                 <TableCell className="font-mono text-xs">S/ {s.precio.toFixed(2)}</TableCell>
                 <TableCell>
                   <Badge variant={s.activo ? "activo" : "inactivo"}>

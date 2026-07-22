@@ -1,7 +1,6 @@
 "use client";
 
 import { SquarePen } from "lucide-react";
-import { AnimatedFrame } from "@/components/ui/animated-frame";
 
 import {
   Card,
@@ -23,8 +22,7 @@ type Props = {
 
 const ClientProfileCard = ({ owner, petCount, onUpdate }: Props) => {
   return (
-    <Card className="gap-4 relative">
-      <AnimatedFrame radius={16}>
+    <Card className="relative gap-4 ring-teal-500">
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div>
           <CardDescription>
@@ -64,7 +62,6 @@ const ClientProfileCard = ({ owner, petCount, onUpdate }: Props) => {
           <p className="font-medium">{petCount}</p>
         </div>
       </CardContent>
-      </AnimatedFrame>
     </Card>
   );
 };

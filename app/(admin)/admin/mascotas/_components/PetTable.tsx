@@ -62,6 +62,7 @@ const PetTable = ({
   onDeactivate,
 }: Props) => {
   const [confirm, setConfirm] = useState<ConfirmAction | null>(null);
+  const [editingPet, setEditingPet] = useState<Pet | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
@@ -134,18 +135,19 @@ const PetTable = ({
                   <TableCell>
                     <ContextMenu
                       actions={[
-                        ...(onEdit ? [{ label: "Editar", icon: <SquarePen className="h-3.5 w-3.5" />, onClick: () => { /* dialog managed by PetFormDialog */ } }] : []),
+                        ...(onEdit
+                          ? [{
+                              label: "Editar",
+                              icon: <SquarePen className="h-3.5 w-3.5" />,
+                              onClick: () => setEditingPet(pet),
+                            }]
+                          : []),
                         ...(pet.activo
                           ? [{ label: "Desactivar", variant: "destructive" as const, onClick: () => setConfirm({ id: pet.idMascota, nombre: pet.nombre, action: "desactivar" }) }]
                           : [{ label: "Reactivar", onClick: () => setConfirm({ id: pet.idMascota, nombre: pet.nombre, action: "activar" }) }]
                         ),
                       ]}
                     />
-                    {onEdit && (
-                      <div className="hidden">
-                        <PetFormDialog ownerId={pet.idUsuarioCliente} icon={SquarePen} mode="edit" buttonColor="alert" data={pet} onSubmit={(payload) => onEdit(pet.idMascota, payload)} />
-                      </div>
-                    )}
                   </TableCell>
                 )}
               </TableRow>
@@ -163,6 +165,21 @@ const PetTable = ({
       </AnimatedFrame>
 
       <DataTablePagination currentPage={safePage} totalPages={totalPages} totalItems={filtered.length} pageSize={PAGE_SIZE} onPageChange={setPage} />
+
+      {onEdit && editingPet && (
+        <PetFormDialog
+          open={!!editingPet}
+          onOpenChange={(open) => {
+            if (!open) setEditingPet(null);
+          }}
+          ownerId={editingPet.idUsuarioCliente}
+          icon={SquarePen}
+          mode="edit"
+          buttonColor="alert"
+          data={editingPet}
+          onSubmit={(payload) => onEdit(editingPet.idMascota, payload)}
+        />
+      )}
 
       <Dialog open={!!confirm} onOpenChange={(v) => { if (!v) setConfirm(null); }}>
         <DialogContent className="max-w-sm">

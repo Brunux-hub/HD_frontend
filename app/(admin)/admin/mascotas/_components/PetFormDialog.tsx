@@ -38,13 +38,25 @@ type Props = {
   owners?: ClienteResponse[];
   mode?: "create" | "edit";
   data?: Pet;
+  open?: boolean;
   icon?: LucideIcon;
   buttonColor?: "default" | "success" | "alert";
+  onOpenChange?: (open: boolean) => void;
   onSubmit: (data: PetRequest) => Promise<void> | void;
 };
 
-const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, onSubmit }: Props) => {
-  const [open, setOpen] = useState(false);
+const PetFormDialog = ({
+  ownerId,
+  owners,
+  mode,
+  data,
+  open: openProp,
+  icon: Icon,
+  buttonColor,
+  onOpenChange,
+  onSubmit,
+}: Props) => {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [sex, setSex] = useState(data?.sexo ?? "MACHO");
   const [selectedOwner, setSelectedOwner] = useState<string>(
     ownerId ? String(ownerId) : data?.idUsuarioCliente ? String(data.idUsuarioCliente) : "",
@@ -52,11 +64,15 @@ const PetFormDialog = ({ ownerId, owners, mode, data, icon: Icon, buttonColor, o
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const open = openProp ?? internalOpen;
 
   const showOwnerPicker = !ownerId && Boolean(owners);
 
   const handleOpenChange = (v: boolean) => {
-    setOpen(v);
+    if (openProp === undefined) {
+      setInternalOpen(v);
+    }
+    onOpenChange?.(v);
     if (!v) {
       setError(null);
       setSuccess(false);

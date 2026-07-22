@@ -129,7 +129,7 @@ const ClientProfilePage = () => {
       <SectionHeader
         iconName="Icono Clientes"
         iconLabel="Perfil del cliente"
-        title={`${owner.nombres} ${owner.apellidos}`}
+        title="Perfil del cliente"
         description="Gestiona los datos del cliente y el registro de sus mascotas."
         accent="teal"
       />
