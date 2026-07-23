@@ -63,7 +63,7 @@ const MedicalHistoryFormDialog = ({
   );
   const petMap = new Map(pets.map((p) => [p.idMascota, p]));
   const [selectedService, setSelectedService] = useState<string>(
-    data?.services?.id_service ? String(data.services.id_service) : "",
+    data?.services?.idServicio ? String(data.services.idServicio) : "",
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

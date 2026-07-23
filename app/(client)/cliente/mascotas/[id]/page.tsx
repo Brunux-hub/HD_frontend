@@ -33,7 +33,7 @@ type RegistroConDetalle = RegistroMedico & {
 
 export default function MascotaDetalle() {
   const params = useParams<{ id: string }>();
-  const id = Number(params.id);
+  const id = Number(params?.id);
   const [mascota, setMascota] = useState<Mascota | null>(null);
   const [loading, setLoading] = useState(true);
   const [historial, setHistorial] = useState<RegistroConDetalle[]>([]);

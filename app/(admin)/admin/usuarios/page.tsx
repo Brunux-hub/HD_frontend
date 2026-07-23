@@ -37,8 +37,8 @@ const UsersPage = () => {
     load();
   }, [load]);
 
-  const handleCreate = async (data: UserRequest) => {
-    await createUser(data);
+  const handleCreate = async (data: UserRequest | { contraseniaActual: string; nuevaContrasenia: string }) => {
+    await createUser(data as UserRequest);
     await load();
   };
 
@@ -52,8 +52,9 @@ const UsersPage = () => {
     await load();
   };
 
-  const handleChangePassword = async (payload: { contraseniaActual: string; nuevaContrasenia: string }) => {
+  const handleChangePassword = async (data: UserRequest | { contraseniaActual: string; nuevaContrasenia: string }) => {
     if (!editUser) return;
+    const payload = data as { contraseniaActual: string; nuevaContrasenia: string };
     await updatePassword(editUser.idUsuario, payload);
     setEditUser(null);
   };

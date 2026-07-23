@@ -23,7 +23,7 @@ import {
 
 const RecepcionistaClientProfilePage = () => {
   const params = useParams<{ id: string }>();
-  const ownerId = Number(params.id);
+  const ownerId = Number(params?.id);
 
   const [owner, setOwner] = useState<ClienteResponse | null>(null);
   const [pets, setPets] = useState<Pet[]>([]);

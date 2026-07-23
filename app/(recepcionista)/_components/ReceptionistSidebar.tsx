@@ -29,7 +29,7 @@ const items = [
 ];
 
 const ReceptionistSidebar = () => {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const router = useRouter();
   const { setOpen, isMobile } = useSidebar();
 

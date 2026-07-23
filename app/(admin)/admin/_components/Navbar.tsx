@@ -30,7 +30,7 @@ const LABEL_MAP: Record<string, string> = {
 };
 
 const Navbar = () => {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const { setTheme } = useTheme();
   const router = useRouter();
 

@@ -27,7 +27,7 @@ const items = [
 ];
 
 const VeterinarioSidebar = () => {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const router = useRouter();
   const { setOpen, isMobile } = useSidebar();
 

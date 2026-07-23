@@ -58,7 +58,7 @@ const HIDDEN_BY_ROLE: Record<string, string[]> = {
 };
 
 const AppSidebar = ({ role = "admin" }: { role?: Role }) => {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const router = useRouter();
   const { setOpen, isMobile } = useSidebar();
 
