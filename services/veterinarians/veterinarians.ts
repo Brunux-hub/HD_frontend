@@ -2,7 +2,7 @@ import { http } from "@/lib/axios";
 import type { Veterinarian, VeterinarianRequest } from "@/types/veterinarian";
 
 // CRUD de veterinarios contra el backend: /veterinarian
-const BASE = "/veterinarian";
+const BASE = "/v1/veterinarios";
 
 export const getVeterinarians = async () => {
   const { data } = await http.get<Veterinarian[]>(BASE);

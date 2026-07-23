@@ -1,15 +1,12 @@
-import type { UserType } from "@/types/enums";
-
-// UserResponse del backend: { id_user, username, type }
 export interface User {
-  id_user: number;
-  username: string;
-  type: UserType;
+  idUsuario: number;
+  correo: string;
+  rol: string;
+  habilitado: boolean;
 }
 
-// UserRequest del backend: { username, password, type }
 export interface UserRequest {
-  username: string;
-  password: string;
-  type: UserType;
+  correo: string;
+  contrasenia: string;
+  rol: string;
 }

@@ -2,7 +2,7 @@ import { http } from "@/lib/axios";
 import type { Receptionist, ReceptionistRequest } from "@/types/receptionist";
 
 // CRUD de recepcionistas contra el backend: /receptionist
-const BASE = "/receptionist";
+const BASE = "/v1/recepcionistas";
 
 export const getReceptionists = async () => {
   const { data } = await http.get<Receptionist[]>(BASE);

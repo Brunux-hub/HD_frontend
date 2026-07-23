@@ -2,7 +2,7 @@ import { http } from "@/lib/axios";
 import type { Appointment, AppointmentRequest } from "@/types/appointment";
 
 // CRUD de citas contra el backend: /appointment
-const BASE = "/appointment";
+const BASE = "/v1/citas";
 
 export const getAppointments = async () => {
   const { data } = await http.get<Appointment[]>(BASE);
@@ -26,4 +26,9 @@ export const updateAppointment = async (id: number, payload: AppointmentRequest)
 
 export const deleteAppointment = async (id: number): Promise<void> => {
   await http.delete(`${BASE}/${id}`);
+};
+
+export const updateAppointmentStatus = async (id: number, estado: string): Promise<Appointment> => {
+  const { data } = await http.patch<Appointment>(`/v1/citas/${id}/estado`, { estado });
+  return data;
 };

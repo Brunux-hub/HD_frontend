@@ -4,8 +4,6 @@
  *  - el middleware (server) pueda proteger las rutas del dashboard, y
  *  - el cliente HTTP (lib/api.ts) lo lea y lo mande en cada request.
  */
-import type { UserType } from "@/types/enums";
-
 export const TOKEN_COOKIE = "hd_vet_token";
 
 /** Guarda el token en una cookie de sesión (se borra al cerrar el navegador). */
@@ -33,10 +31,9 @@ export function clearToken() {
 export const ROLE_COOKIE = "hd_vet_role";
 export type Role =
   | "admin"
-  | "veterinarian"
-  | "receptionist"
-  | "client"
-  | "worker";
+  | "veterinario"
+  | "recepcionista"
+  | "cliente";
 
 export function setRole(role: Role) {
   if (typeof document === "undefined") return;
@@ -62,11 +59,36 @@ export function isAuthenticated(): boolean {
 }
 
 export type JwtPayload = {
-  sub?: string; // username
-  role?: string;
-  type?: UserType;
+  sub?: string; // correo
+  idUsuario?: number;
+  rol?: string;
   exp?: number;
 };
+
+// --- Datos del usuario (para mostrar en UI) ---
+
+export interface UserData {
+  idUsuario: number;
+  correo: string;
+  nombres: string;
+  apellidos: string;
+}
+
+export function setUserData(data: UserData) {
+  if (typeof document === "undefined") return;
+  document.cookie = `hd_vet_id_usuario=${data.idUsuario}; path=/; SameSite=Lax`;
+  document.cookie = `hd_vet_correo=${encodeURIComponent(data.correo)}; path=/; SameSite=Lax`;
+  document.cookie = `hd_vet_nombres=${encodeURIComponent(data.nombres)}; path=/; SameSite=Lax`;
+  document.cookie = `hd_vet_apellidos=${encodeURIComponent(data.apellidos)}; path=/; SameSite=Lax`;
+}
+
+export function clearUserData() {
+  if (typeof document === "undefined") return;
+  document.cookie = `hd_vet_id_usuario=; path=/; max-age=0; SameSite=Lax`;
+  document.cookie = `hd_vet_correo=; path=/; max-age=0; SameSite=Lax`;
+  document.cookie = `hd_vet_nombres=; path=/; max-age=0; SameSite=Lax`;
+  document.cookie = `hd_vet_apellidos=; path=/; max-age=0; SameSite=Lax`;
+}
 
 /** Decodifica el payload del JWT (sin verificar la firma) para mostrar datos en UI. */
 export function decodeToken(token: string | null = getToken()): JwtPayload | null {

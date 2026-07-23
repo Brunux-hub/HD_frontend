@@ -1,26 +1,25 @@
-import { http } from "@/lib/axios";
-import type { Owner, OwnerRequest } from "@/types/owner";
+import { http, ApiError } from "@/lib/axios";
+import type { ClienteResponse, ClienteRequest } from "@/types/cliente";
 
-// CRUD de clientes (Owner) contra el backend: /owner  (usando Axios)
-const BASE = "/owner";
+const BASE = "/v1/clientes";
 
 export const getOwners = async () => {
-  const { data } = await http.get<Owner[]>(BASE);
+  const { data } = await http.get<ClienteResponse[]>(BASE);
   return data;
 };
 
 export const getOwnerById = async (id: number) => {
-  const { data } = await http.get<Owner>(`${BASE}/${id}`);
+  const { data } = await http.get<ClienteResponse>(`${BASE}/${id}`);
   return data;
 };
 
-export const createOwner = async (payload: OwnerRequest) => {
-  const { data } = await http.post<Owner>(BASE, payload);
+export const createOwner = async (payload: ClienteRequest) => {
+  const { data } = await http.post<ClienteResponse>(BASE, payload);
   return data;
 };
 
-export const updateOwner = async (id: number, payload: OwnerRequest) => {
-  const { data } = await http.put<Owner>(`${BASE}/${id}`, payload);
+export const updateOwner = async (id: number, payload: ClienteRequest) => {
+  const { data } = await http.put<ClienteResponse>(`${BASE}/${id}`, payload);
   return data;
 };
 
@@ -28,14 +27,17 @@ export const deleteOwner = async (id: number): Promise<void> => {
   await http.delete(`${BASE}/${id}`);
 };
 
-// GET /owner/me -> Owner del usuario logueado, o null si no es cliente (204 = staff).
-export const getMyOwner = async (): Promise<Owner | null> => {
-  const { data } = await http.get<Owner>(`${BASE}/me`);
+export const getMyOwner = async (): Promise<ClienteResponse | null> => {
+  const { data } = await http.get<ClienteResponse>(`${BASE}/me`);
   return data || null;
 };
 
-// GET /owner/dni/{dni} -> Owner con ese DNI, o null si no existe (204).
-export const getOwnerByDni = async (dni: string): Promise<Owner | null> => {
-  const { data } = await http.get<Owner>(`${BASE}/dni/${encodeURIComponent(dni)}`);
-  return data || null;
+export const getOwnerByDni = async (dni: string): Promise<ClienteResponse | null> => {
+  try {
+    const { data } = await http.get<ClienteResponse>(`${BASE}/dni/${encodeURIComponent(dni)}`);
+    return data;
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) return null;
+    throw err;
+  }
 };

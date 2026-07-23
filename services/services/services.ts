@@ -2,7 +2,7 @@ import { http } from "@/lib/axios";
 import type { Service, ServiceRequest } from "@/types/service";
 
 // CRUD de servicios contra el backend: /services
-const BASE = "/services";
+const BASE = "/v1/servicios";
 
 export const getServices = async () => {
   const { data } = await http.get<Service[]>(BASE);
@@ -26,4 +26,12 @@ export const updateService = async (id: number, payload: ServiceRequest) => {
 
 export const deleteService = async (id: number): Promise<void> => {
   await http.delete(`${BASE}/${id}`);
+};
+
+export const activateService = async (id: number): Promise<void> => {
+  await http.patch(`${BASE}/${id}/activar`);
+};
+
+export const deactivateService = async (id: number): Promise<void> => {
+  await http.patch(`${BASE}/${id}/desactivar`);
 };

@@ -1,24 +1,25 @@
-import type { User } from "@/types/user";
-
-// VeterinarianResponse del backend: incluye la cuenta de usuario asociada (user_response).
 export interface Veterinarian {
-  id_veterinarian: number;
-  user_response: User;
-  names: string;
-  last_names: string;
-  number_license: string;
-  specialty: string;
-  email: string;
-  phone_number: string;
+  idUsuario: number;
+  nombres: string;
+  apellidos: string;
+  telefono: string;
+  numeroLicencia: string;
+  especialidades: string[];
+  usuario: {
+    idUsuario: number;
+    correo: string;
+    rol: string;
+    habilitado: boolean;
+  };
 }
 
-// VeterinarianRequest del backend: referencia al usuario por id_user.
 export interface VeterinarianRequest {
-  id_user: number;
-  names: string;
-  last_names: string;
-  number_license: string;
-  specialty: string;
-  email: string;
-  phone_number: string;
+  correo: string;
+  contrasenia: string;
+  nombres: string;
+  apellidos: string;
+  telefono: string;
+  numeroLicencia: string;
+  especialidades: string[];
+  habilitado: boolean;
 }

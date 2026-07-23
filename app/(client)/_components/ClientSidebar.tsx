@@ -27,7 +27,7 @@ const items = [
 ];
 
 const ClientSidebar = () => {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const router = useRouter();
   const { setOpen, isMobile } = useSidebar();
 

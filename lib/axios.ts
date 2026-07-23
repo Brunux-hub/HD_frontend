@@ -34,7 +34,9 @@ export const http = axios.create({
 http.interceptors.request.use((config) => {
   const url = config.url ?? "";
   const isPublicAuth =
-    url.startsWith("/auth/login") || url.startsWith("/auth/register");
+    url.startsWith("/auth/login") ||
+    url.startsWith("/auth/register") ||
+    url.startsWith("/v1/auth/login");
 
   if (!isPublicAuth) {
     const token = getToken();

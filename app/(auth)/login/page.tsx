@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { login, getMe } from "@/services/auth/auth";
-import { setRole, type Role } from "@/lib/auth";
+import { login } from "@/services/auth/auth";
+import { setRole, decodeToken, type Role } from "@/lib/auth";
 import { ApiError } from "@/lib/axios";
 
 export default function LoginPage() {
@@ -12,11 +12,13 @@ export default function LoginPage() {
 
   // Precarga ambos destinos para que la navegación tras el login sea instantánea.
   useEffect(() => {
-    router.prefetch("/dashboard");
+    router.prefetch("/admin");
     router.prefetch("/cliente");
+    router.prefetch("/recepcionista");
+    router.prefetch("/veterinario");
   }, [router]);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [contrasenia, setContrasenia] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,24 +26,23 @@ export default function LoginPage() {
   const handleSubmit = async () => {
     setError(null);
 
-    if (!username || !password) {
-      setError("Ingresa tu usuario y contraseña.");
+    if (!correo || !contrasenia) {
+      setError("Ingresa tu correo y contraseña.");
       return;
     }
 
     setLoading(true);
     try {
-      await login({ username, password });
-      // Rol fino (admin/veterinario/recepcionista/cliente) para enrutar y filtrar secciones.
-      let role: Role = "worker";
-      try {
-        const me = await getMe();
-        role = me.role.toLowerCase() as Role;
-      } catch {
-        role = "worker";
-      }
+      const res = await login({ correo, contrasenia });
+      const payload = decodeToken(res.token);
+      const rawRol = payload?.rol ?? "ADMIN";
+      const roleMap: Record<string, Role> = { ADMIN: "admin", VETERINARIO: "veterinario", RECEPCIONISTA: "recepcionista", CLIENTE: "cliente" };
+      const role = roleMap[rawRol] ?? "admin";
       setRole(role);
-      router.push(role === "client" ? "/cliente" : "/dashboard");
+      if (role === "cliente") router.push("/cliente");
+      else if (role === "recepcionista") router.push("/recepcionista");
+      else if (role === "veterinario") router.push("/veterinario");
+      else router.push("/admin");
     } catch (err) {
       const message =
         err instanceof ApiError && err.status === 401
@@ -67,7 +68,6 @@ export default function LoginPage() {
     }}>
       
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
         * {
           margin: 0;
           padding: 0;
@@ -94,7 +94,6 @@ export default function LoginPage() {
           transition: all 0.3s ease;
           box-shadow: 0 4px 20px rgba(109,212,215,0.35);
           letter-spacing: 0.5px;
-          font-family: 'Nunito', sans-serif;
         }
         .btn-pink:hover {
           transform: translateY(-2px);
@@ -106,7 +105,6 @@ export default function LoginPage() {
           border: 2px solid #e5e7eb;
           border-radius: 12px;
           font-size: 15px;
-          font-family: 'Nunito', sans-serif;
           outline: none;
           transition: all 0.2s;
           background: #fafafa;
@@ -328,14 +326,14 @@ export default function LoginPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div>
               <label style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-dark)", display: "block", marginBottom: "6px" }}>
-                Usuario
+                Correo electrónico
               </label>
               <input
                 className="input-field"
                 type="text"
-                placeholder="tu usuario"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
+                placeholder="tu correo"
+                value={correo}
+                onChange={e => setCorreo(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") handleSubmit(); }}
               />
             </div>
@@ -354,8 +352,8 @@ export default function LoginPage() {
                   className="input-field"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  value={contrasenia}
+                  onChange={e => setContrasenia(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter") handleSubmit(); }}
                   style={{ paddingRight: "44px" }}
                 />
