@@ -53,3 +53,4 @@ file_copy.js
 ia/.venv/
 __pycache__/
 *.pyc
+ia/.env
