@@ -54,3 +54,5 @@ ia/.venv/
 __pycache__/
 *.pyc
 ia/.env
+# Archivos temporales de transcripción
+ia/audio_temp

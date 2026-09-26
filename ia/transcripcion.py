@@ -23,27 +23,40 @@ audio = st.file_uploader(
 if audio is not None:
     st.audio(audio)
 
-    if st.button("Transcribir audio"):
+if st.button("Transcribir audio"):
 
-        api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("OPENAI_API_KEY")
 
-        if not api_key:
-            st.warning(
-                "La API de OpenAI no está configurada. "
-                "La interfaz está lista para realizar la transcripción "
-                "cuando se disponga de una API Key."
-            )
-        else:
-            client = OpenAI(api_key=api_key)
+    if not api_key:
+        st.warning(
+            "La API de OpenAI no está configurada. "
+            "La interfaz está lista para realizar la transcripción "
+            "cuando se disponga de una API Key."
+        )
 
+    else:
+        client = OpenAI(api_key=api_key)
+
+        try:
             with open("audio_temp", "wb") as archivo:
                 archivo.write(audio.getbuffer())
 
             with open("audio_temp", "rb") as archivo:
                 transcripcion = client.audio.transcriptions.create(
-                    model="gpt-4o-transcribe",
+                    model="gpt-transcribe",
                     file=archivo
                 )
 
             st.subheader("Transcripción")
+            st.success("Audio transcrito correctamente.")
             st.write(transcripcion.text)
+
+        except Exception:
+            st.subheader("Resultado de la prueba")
+
+            st.warning(
+                "La aplicación se conectó correctamente con la API "
+                "de OpenAI, pero la transcripción no pudo completarse "
+                "porque la cuenta no dispone de créditos API."
+            )
+    
