@@ -1,9 +1,9 @@
 import streamlit as st
-from openai import OpenAI
+from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
-client = OpenAI()
+client = Groq()
 
 st.set_page_config(
     page_title="Healthy Pets - Chatbot",
@@ -23,19 +23,36 @@ pregunta = st.text_input(
 if st.button("Enviar consulta"):
     if pregunta:
         try:
-            respuesta = client.responses.create(
-                model="gpt-5-mini",
-                input=(
-                    "Eres el asistente virtual de Healthy Pets, "
-                    "una clínica veterinaria. Responde de forma clara, "
-                    "amable y breve. Ayuda con consultas sobre citas, "
-                    "servicios veterinarios y atención para mascotas.\n\n"
-                    f"Consulta del cliente: {pregunta}"
-                )
+            respuesta = client.chat.completions.create(
+                model="openai/gpt-oss-20b",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "Eres el asistente virtual de Healthy Pets, "
+                            "una clínica veterinaria. Responde de forma clara, "
+                            "amable y breve. Ayuda con consultas sobre citas, "
+                            "servicios veterinarios y atención para mascotas.\n\n"
+                            "Datos de la clínica:\n"
+                            "- Teléfono: 963400566\n"
+                            "- Dirección: Av. Huaylas, Los Olivos 15306\n"
+                            "- Horarios: Lunes a Sábado de 10 am a 7 pm\n"
+                            "- Servicios: Traumatología, Cirugía abdominal, "
+                            "Ecografías, Exodoncias, Baños\n\n"
+                            "Usa estos datos para responder consultas. "
+                            "Si te preguntan algo que no está en esta "
+                            "información, indícalo amablemente."
+                        )
+                    },
+                    {
+                        "role": "user",
+                        "content": pregunta
+                    }
+                ]
             )
 
             st.subheader("Respuesta del asistente")
-            st.write(respuesta.output_text)
+            st.write(respuesta.choices[0].message.content)
 
         except Exception:
             st.subheader("Respuesta del asistente")
