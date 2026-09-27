@@ -1,9 +1,9 @@
 import streamlit as st
-from openai import OpenAI
+from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
-client = OpenAI()
+client = Groq()
 
 st.set_page_config(
     page_title="Healthy Pets - Chatbot",
@@ -23,19 +23,27 @@ pregunta = st.text_input(
 if st.button("Enviar consulta"):
     if pregunta:
         try:
-            respuesta = client.responses.create(
-                model="gpt-5-mini",
-                input=(
-                    "Eres el asistente virtual de Healthy Pets, "
-                    "una clínica veterinaria. Responde de forma clara, "
-                    "amable y breve. Ayuda con consultas sobre citas, "
-                    "servicios veterinarios y atención para mascotas.\n\n"
-                    f"Consulta del cliente: {pregunta}"
-                )
+            respuesta = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "Eres el asistente virtual de Healthy Pets, "
+                            "una clínica veterinaria. Responde de forma clara, "
+                            "amable y breve. Ayuda con consultas sobre citas, "
+                            "servicios veterinarios y atención para mascotas."
+                        )
+                    },
+                    {
+                        "role": "user",
+                        "content": pregunta
+                    }
+                ]
             )
 
             st.subheader("Respuesta del asistente")
-            st.write(respuesta.output_text)
+            st.write(respuesta.choices[0].message.content)
 
         except Exception:
             st.subheader("Respuesta del asistente")

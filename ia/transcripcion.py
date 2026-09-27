@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from openai import OpenAI
+from groq import Groq
 
 load_dotenv()
 
@@ -25,17 +25,17 @@ if audio is not None:
 
 if st.button("Transcribir audio"):
 
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
 
     if not api_key:
         st.warning(
-            "La API de OpenAI no está configurada. "
-            "La interfaz está lista para realizar la transcripción "
-            "cuando se disponga de una API Key."
+            "La API de Groq no está configurada. "
+            "Configura la variable GROQ_API_KEY en el archivo .env "
+            "para realizar la transcripción."
         )
 
     else:
-        client = OpenAI(api_key=api_key)
+        client = Groq(api_key=api_key)
 
         try:
             with open("audio_temp", "wb") as archivo:
@@ -43,7 +43,7 @@ if st.button("Transcribir audio"):
 
             with open("audio_temp", "rb") as archivo:
                 transcripcion = client.audio.transcriptions.create(
-                    model="gpt-transcribe",
+                    model="whisper-large-v3",
                     file=archivo
                 )
 
@@ -56,7 +56,6 @@ if st.button("Transcribir audio"):
 
             st.warning(
                 "La aplicación se conectó correctamente con la API "
-                "de OpenAI, pero la transcripción no pudo completarse "
-                "porque la cuenta no dispone de créditos API."
+                "de Groq, pero la transcripción no pudo completarse. "
+                "Verifica que tu API Key sea válida."
             )
-    
