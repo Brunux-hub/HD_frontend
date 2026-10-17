@@ -40,28 +40,31 @@ La aplicación busca ofrecer una solución centralizada que permita:
 🔗 **Tablero Jira:**  
 [TABLERO JIRA](https://utp-team-herramientas-desarrollo.atlassian.net/jira/software/projects/SCRUM/boards/1?jql=assignee+%3D+empty&atlOrigin=eyJpIjoiNDE0MjA2YjY1NTg0NGNkZDk5YjY5MjYyNTM1MWM2YTciLCJwIjoiaiJ9)
 
-## Clonar Repositorio
+## Inicio Rápido (Fullstack) 🚀
 
-```git
-git clone https://github.com/Brunux-hub/HD_frontend.git
+### 1. Levantar la Base de Datos PostgreSQL
+Se proporciona un archivo `docker-compose.yml` para levantar PostgreSQL 16 localmente:
+```bash
+docker compose up -d
 ```
 
-## Instalar Dependencias NPM
+### 2. Levantar el Backend (NestJS + Prisma)
+En una nueva terminal:
+```bash
+cd backend
+npm install
+npm run prisma:seed    # Puebla la BD con usuarios, citas, mascotas y vacunas
+npm run start:dev      # Inicia el backend en http://localhost:8080
+```
+* Documentación Swagger interactiva: [http://localhost:8080/api/docs](http://localhost:8080/api/docs)
+* Esquema SQL y Diagrama ER: [`/schema`](./schema/ER_DIAGRAM.md)
 
+### 3. Levantar el Frontend (Next.js)
+En la raíz del proyecto:
 ```bash
 npm install
+npm run dev            # Inicia el frontend en http://localhost:3000
 ```
-## Ejecutar
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 <p align="right"><a href="#tabla-de-contenido">Indice</a></p>
